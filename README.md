@@ -77,6 +77,41 @@ The [`ai-agent-project-strategist`](skills/ai-agent-project-strategist/) Codex S
 
 The included report validates pipeline mechanics with deterministic offline fixtures. It does not establish real-world savings or task-quality equivalence for PariTok. Live paired runs are the next release gate.
 
+## Phase 2 product loop
+
+Phase 2 turns experiment events into governed product decisions:
+
+```text
+Event quality checks
+        ↓
+Workload segmentation + confidence bounds
+        ↓
+Failure root-cause analysis
+        ↓
+Evidence-gated rollout policy
+        ↓
+off / conservative / balanced runtime strategy
+        ↓
+doctor preflight + analytics dashboard
+```
+
+Generate all Phase 2 artifacts and run diagnostics:
+
+```bash
+contextops-lab phase-2
+contextops-lab doctor
+```
+
+Outputs include a self-contained dashboard, versioned rollout policy, Markdown decision report, and SHA-256 lineage manifest. Non-production evidence always keeps operational rollout locked even when offline metrics look favorable.
+
+Phase 2 deliverables:
+
+- [`artifacts/phase-2-dashboard.html`](artifacts/phase-2-dashboard.html): interactive analytics dashboard;
+- [`policies/rollout-policy.json`](policies/rollout-policy.json): versioned decision rules and thresholds;
+- [`docs/phase-2-report.md`](docs/phase-2-report.md): workload and failure analysis;
+- [`artifacts/phase-2-lineage.json`](artifacts/phase-2-lineage.json): input/output hashes and evidence provenance;
+- [`docs/phase-2-acceptance.md`](docs/phase-2-acceptance.md): product-loop acceptance contract.
+
 ## Success criteria
 
 A workload segment is eligible for rollout only when:

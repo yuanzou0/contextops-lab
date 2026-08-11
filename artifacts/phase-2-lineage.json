@@ -1,0 +1,24 @@
+{
+  "evidence_label": "offline_deterministic",
+  "generated": "2026-08-11",
+  "input": {
+    "events": 72,
+    "path": "artifacts/phase-1-events.jsonl",
+    "sha256": "dc98476762a523dd36eaad70953d5312bb701eabcb24c45addf1b8a75fede0ef"
+  },
+  "outputs": {
+    "dashboard": {
+      "path": "artifacts/phase-2-dashboard.html",
+      "sha256": "842b326fa9e7c69ffa1994648928707712d38888308e74266562535635a75e97"
+    },
+    "policy": {
+      "path": "policies/rollout-policy.json",
+      "sha256": "b71a19565c8d42cf2b20332126d22b4df1f01ba57ca9f8c04eccc932e7a9e3a1"
+    },
+    "report": {
+      "path": "docs/phase-2-report.md",
+      "sha256": "ad8229bef019bdec2efe89490dd74206cceb13d43c595148a939c5a6fe37fe05"
+    }
+  },
+  "schema_version": 1
+}

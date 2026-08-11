@@ -7,13 +7,15 @@ import subprocess
 import time
 import urllib.request
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Protocol, Sequence
 
 from .benchmark import BenchmarkCase
 from .experiments import RunOutcome
 from .fallback import validate_or_fallback
 from .models import ExperimentArm, RequestEvent
-from .validator import CompressionValidator, FallbackReason
+from .strategy import CompressionMode, settings_for
+from .validator import CompressionValidator, FallbackReason, ValidationConfig
 
 
 def estimate_tokens(text: str) -> int:
@@ -131,11 +133,19 @@ class DualArmExecutor:
         *,
         experiment_id: str = "phase-1",
         validator: CompressionValidator | None = None,
+        mode: CompressionMode = CompressionMode.BALANCED,
+        recorded_at: str | None = None,
+        experiment_config_version: str = "v1",
+        pricing_version: str = "unspecified",
     ):
         self.agent = agent
         self.compressor = compressor
         self.experiment_id = experiment_id
         self.validator = validator or CompressionValidator()
+        self.mode = mode
+        self.recorded_at = recorded_at
+        self.experiment_config_version = experiment_config_version
+        self.pricing_version = pricing_version
 
     def __call__(self, case: BenchmarkCase, arm: ExperimentArm) -> RunOutcome:
         original_tokens = estimate_tokens(case.original_context)
@@ -146,14 +156,22 @@ class DualArmExecutor:
         fallback_reason: str | None = None
         validator_result = "not_applied"
 
-        if arm is ExperimentArm.COMPRESSED:
+        strategy = settings_for(self.mode, case.task.task_type)
+        if arm is ExperimentArm.COMPRESSED and not strategy.enabled:
+            validator_result = f"policy_{self.mode.value}"
+        elif arm is ExperimentArm.COMPRESSED:
             try:
                 compressed = self.compressor.compress(case.original_context, case)
                 compressed_tokens = compressed.tokens
                 compression_latency_ms = compressed.latency_ms
                 compressor_cost = compressed.estimated_cost
+                active_validator = self.validator
+                if self.mode is CompressionMode.CONSERVATIVE:
+                    active_validator = CompressionValidator(
+                        ValidationConfig(maximum_token_ratio=strategy.maximum_token_ratio)
+                    )
                 decision = validate_or_fallback(
-                    self.validator,
+                    active_validator,
                     original=case.original_context,
                     compressed=compressed.content,
                     original_tokens=original_tokens,
@@ -177,7 +195,7 @@ class DualArmExecutor:
             session_id=f"{self.experiment_id}:{case.task.task_id}:{arm.value}",
             turn_id=1,
             arm=arm,
-            treatment_name=self.compressor.name,
+            treatment_name=f"{self.compressor.name}:{self.mode.value}",
             model=self.agent.model,
             task_type=case.task.task_type,
             language=case.task.language,
@@ -195,5 +213,8 @@ class DualArmExecutor:
             tests_passed=success,
             manual_intervention=False,
             estimated_total_cost=compressor_cost + completion.estimated_cost,
+            recorded_at=self.recorded_at or datetime.now(timezone.utc).isoformat(),
+            experiment_config_version=self.experiment_config_version,
+            pricing_version=self.pricing_version,
         )
         return RunOutcome(event)

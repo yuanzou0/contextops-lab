@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .models import RequestEvent
+from .models import ExperimentArm, RequestEvent
 
 
 class JsonlEventStore:
@@ -22,3 +22,13 @@ class JsonlEventStore:
             return []
         with self.path.open(encoding="utf-8") as handle:
             return [json.loads(line) for line in handle if line.strip()]
+
+
+def event_from_dict(row: dict) -> RequestEvent:
+    payload = dict(row)
+    payload["arm"] = ExperimentArm(payload["arm"])
+    return RequestEvent(**payload)
+
+
+def load_events(path: str | Path) -> list[RequestEvent]:
+    return [event_from_dict(row) for row in JsonlEventStore(path).read_all()]

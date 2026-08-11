@@ -82,3 +82,67 @@ def build_markdown_report(events: Iterable[RequestEvent], *, evidence_label: str
         ]
     )
     return "\n".join(lines)
+
+
+def build_phase2_report(events: Iterable[RequestEvent], policy: dict, *, evidence_label: str) -> str:
+    from .analytics import segment_events
+    from .failures import analyze_failures
+
+    rows = list(events)
+    segments = segment_events(rows, ("task_type",))
+    failures = analyze_failures(rows)
+    lines = [
+        "# ContextOps Lab — Phase 2 Product-Loop Report",
+        "",
+        f"**Generated:** {date.today().isoformat()}",
+        f"**Evidence level:** {evidence_label}",
+        "",
+        "## Decision",
+        "",
+        "Production rollout remains **locked** unless the policy evidence label is `production`. "
+        "Offline recommendations validate segmentation and decision logic only.",
+        "",
+        "## Workload policy recommendations",
+        "",
+        "| Workload | Paired tasks | Success Δ (95% CI) | Cost improvement | Fallback | Mode | Reasons |",
+        "|---|---:|---:|---:|---:|---|---|",
+    ]
+    rules = {rule["value"]: rule for rule in policy.get("rules", [])}
+    for segment in segments:
+        rule = rules[segment.value]
+        lines.append(
+            f"| {segment.value} | {segment.paired_tasks} | {_pct(segment.success_rate_delta)} "
+            f"[{_pct(segment.success_delta_ci_low)}, {_pct(segment.success_delta_ci_high)}] | "
+            f"{_pct(segment.cost_improvement_rate)} | {_pct(segment.fallback_rate)} | "
+            f"{rule['mode']} | {', '.join(rule['reasons'])} |"
+        )
+    lines.extend(["", "## Failure analysis", ""])
+    if failures:
+        lines.extend(["| Category | Reason | Count | Event rate |", "|---|---|---:|---:|"])
+        for failure in failures:
+            lines.append(
+                f"| {failure.category} | {failure.reason} | {failure.count} | {_pct(failure.rate)} |"
+            )
+    else:
+        lines.append("No failure or fallback events were recorded.")
+    lines.extend(
+        [
+            "",
+            "## Product controls delivered",
+            "",
+            "- self-contained analytics dashboard with workload filtering;",
+            "- versioned evidence-gated rollout policy;",
+            "- runtime `off`, `conservative`, and `balanced` strategies;",
+            "- failure taxonomy with structured reason aggregation;",
+            "- `doctor` checks for task pairing, privacy schema, policy integrity, and live adapters;",
+            "- reproducible data lineage manifest for generated artifacts.",
+            "- timestamped, versioned experiment and pricing metadata with duplicate-event checks.",
+            "",
+            "## Next evidence gate",
+            "",
+            "Run representative live tasks through the configured compressor and agent endpoint. "
+            "Do not change `production_ready` manually; regenerate policy from production-labeled evidence.",
+            "",
+        ]
+    )
+    return "\n".join(lines)

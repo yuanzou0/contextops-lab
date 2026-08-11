@@ -17,6 +17,11 @@ def _percentile(values: list[float], percentile: float) -> float:
     return float(ordered[index])
 
 
+def percentile(values: list[float], percentile_value: float) -> float:
+    """Public percentile helper used by segmentation and policy modules."""
+    return _percentile(values, percentile_value)
+
+
 def summarize(events: Iterable[RequestEvent]) -> dict[str, dict[str, float]]:
     groups: dict[str, list[RequestEvent]] = defaultdict(list)
     for event in events:

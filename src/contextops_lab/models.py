@@ -37,6 +37,13 @@ class RequestEvent:
     tests_passed: bool | None
     manual_intervention: bool
     estimated_total_cost: float
+    schema_version: int = 2
+    failure_reason: str | None = None
+    upstream_error: str | None = None
+    silent_failure: bool = False
+    recorded_at: str | None = None
+    experiment_config_version: str = "v1"
+    pricing_version: str = "unspecified"
 
     def __post_init__(self) -> None:
         non_negative = {
@@ -50,10 +57,13 @@ class RequestEvent:
             "compression_latency_ms": self.compression_latency_ms,
             "total_latency_ms": self.total_latency_ms,
             "estimated_total_cost": self.estimated_total_cost,
+            "schema_version": self.schema_version,
         }
         invalid = [name for name, value in non_negative.items() if value < 0]
         if invalid:
             raise ValueError(f"Negative event values are not allowed: {', '.join(invalid)}")
+        if self.schema_version < 1:
+            raise ValueError("schema_version must be positive")
 
     def to_dict(self) -> dict[str, Any]:
         payload = asdict(self)

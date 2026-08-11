@@ -8,6 +8,7 @@ from contextops_lab.benchmark import load_benchmark_cases
 from contextops_lab.execution import DualArmExecutor, OpenAICompatibleAgent, SubprocessCompressor
 from contextops_lab.fixtures import FixtureAgent, FixtureCompressor
 from contextops_lab.models import ExperimentArm
+from contextops_lab.strategy import CompressionMode
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -61,6 +62,22 @@ class BenchmarkExecutionTests(unittest.TestCase):
             result = agent.complete(case.instruction, case.original_context, case)
         self.assertEqual(result.content, "answer")
         self.assertEqual(result.input_tokens, 10)
+
+    def test_off_mode_does_not_invoke_compression(self):
+        case = load_benchmark_cases(ROOT / "evals/tasks/mvp_tasks.jsonl")[0]
+
+        class ExplodingCompressor:
+            name = "must-not-run"
+
+            def compress(self, context, current_case):
+                raise AssertionError("compressor was invoked in off mode")
+
+        executor = DualArmExecutor(
+            FixtureAgent(), ExplodingCompressor(), mode=CompressionMode.OFF
+        )
+        outcome = executor(case, ExperimentArm.COMPRESSED)
+        self.assertEqual(outcome.event.validator_result, "policy_off")
+        self.assertTrue(outcome.event.task_success)
 
 
 if __name__ == "__main__":
