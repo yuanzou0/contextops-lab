@@ -9,7 +9,7 @@ from typing import Any
 
 class ExperimentArm(str, Enum):
     BASELINE = "baseline"
-    PARITOK = "paritok"
+    COMPRESSED = "compressed"
 
 
 @dataclass(frozen=True, slots=True)
@@ -19,6 +19,7 @@ class RequestEvent:
     session_id: str
     turn_id: int
     arm: ExperimentArm
+    treatment_name: str
     model: str
     task_type: str
     language: str

@@ -3,9 +3,9 @@ requires = ["hatchling>=1.25"]
 build-backend = "hatchling.build"
 
 [project]
-name = "paritok-eval-lab"
+name = "contextops-lab"
 version = "0.1.0"
-description = "Reliability and cost evaluation framework for AI-agent context compression"
+description = "AI-agent context reliability, experimentation, and cost evaluation lab"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 dependencies = []
@@ -13,8 +13,11 @@ dependencies = []
 [project.optional-dependencies]
 dev = ["pytest>=8.0", "ruff>=0.6"]
 
+[project.scripts]
+contextops-lab = "contextops_lab.cli:main"
+
 [tool.hatch.build.targets.wheel]
-packages = ["src/paritok_lab"]
+packages = ["src/contextops_lab"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

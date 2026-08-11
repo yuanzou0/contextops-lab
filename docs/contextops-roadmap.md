@@ -1,8 +1,8 @@
-# PariTok Second-Development Roadmap
+# ContextOps Lab Roadmap
 
 ## Product judgment
 
-PariTok's architecture is promising, but the best second-development opportunity is not “compress harder.” It is to make every saving observable, quality-aware, and safely reversible. For a portfolio targeting data analysis, AI product management, and AI product operations, the strongest project is an evaluation and control layer around the gateway.
+PariTok is the first planned treatment evaluated by ContextOps Lab. The product opportunity is not “compress harder”; it is to make every saving observable, quality-aware, and safely reversible. For a portfolio targeting data analysis, AI product management, and Applied AI, the strongest project is an independent evaluation and control layer that can compare multiple compressors.
 
 ## P0 — Make failure safe
 

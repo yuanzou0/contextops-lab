@@ -1,12 +1,14 @@
-# PariTok Agent Reliability & Cost Evaluation Lab
+# ContextOps Lab
 
-A paired experimentation and reliability framework for deciding when context compression should be enabled in AI-agent workloads.
+**AI Agent Reliability & Cost Evaluation**
+
+An independent paired-experiment and safety framework for deciding when context compression should be enabled in AI-agent workloads.
 
 ## Core question
 
 > When does context compression reduce the cost of AI agents without degrading task success, reliability, or latency?
 
-This independent project evaluates [PariTok-4B-v1](https://github.com/Paritok-official/paritok-4b-v1). It does **not** claim authorship of the upstream gateway, model, benchmarks, or reported savings.
+PariTok-4B-v1 is the first planned compression treatment, not the name of this project. ContextOps Lab does **not** claim authorship of the upstream gateway, model, benchmarks, or reported savings.
 
 ## Decision pipeline
 
@@ -33,9 +35,10 @@ The first implementation provides:
 - a typed request-event schema with privacy-safe analytics fields;
 - layered validation for empty output, malformed references, output expansion, and loss of task-critical signals;
 - automatic fallback to exact original context with structured reason codes;
-- a paired baseline/treatment experiment runner;
+- concrete baseline/compressed execution arms with external compressor and OpenAI-compatible agent adapters;
 - JSONL event storage and aggregate quality/cost/latency metrics;
-- a 36-task workload manifest spanning read-heavy, debugging, edit-critical, log, MCP-heavy, short, and intent-pivot cases;
+- a 36-case executable workload benchmark spanning read-heavy, debugging, edit-critical, log, MCP-heavy, short, and intent-pivot cases;
+- a reproducible offline pipeline-validation report that is explicitly separated from production evidence;
 - unit tests for validator, fallback, events, and paired experiments.
 
 ## Quick start
@@ -43,21 +46,36 @@ The first implementation provides:
 ```bash
 python -m pip install -e '.[dev]'
 pytest
+
+# Reproduce the Phase 1 offline validation evidence
+contextops-lab offline-benchmark
 ```
 
-The framework is provider-neutral. Supply baseline and compressed executors through the `PairedExperimentRunner`; the lab records comparable outcomes without storing raw prompts or source code.
+The zero-install verification path uses only the Python standard library:
+
+```bash
+PYTHONPATH=src python -m unittest discover -s tests -v
+PYTHONPATH=src python -m contextops_lab.cli offline-benchmark
+```
+
+The framework is provider-neutral. Use `SubprocessCompressor` for a local or hosted compressor command and `OpenAICompatibleAgent` for a live agent endpoint. Both arms share the same agent and benchmark case; only the supplied context changes.
 
 ## Repository map
 
 ```text
-src/paritok_lab/       evaluation and reliability package
+src/contextops_lab/    evaluation and reliability package
 evals/tasks/           workload manifests
 tests/                 deterministic unit tests
+artifacts/             privacy-safe Phase 1 events
 docs/                  experiment and rollout design
 skills/                reusable supporting methodology
 ```
 
 The [`ai-agent-project-strategist`](skills/ai-agent-project-strategist/) Codex Skill is a supporting methodology asset, not the product headline.
+
+## Phase 1 evidence boundary
+
+The included report validates pipeline mechanics with deterministic offline fixtures. It does not establish real-world savings or task-quality equivalence for PariTok. Live paired runs are the next release gate.
 
 ## Success criteria
 
@@ -71,4 +89,4 @@ A workload segment is eligible for rollout only when:
 
 ## Attribution
 
-PariTok and its upstream code, weights, benchmarks, and trademarks belong to their respective authors. Review the upstream Apache-2.0 license and the Qwen base-model license before redistributing derived code or weights.
+ContextOps Lab is an independent evaluation project. PariTok and its upstream code, weights, benchmarks, and trademarks belong to their respective authors. Review the upstream Apache-2.0 license and the Qwen base-model license before redistributing derived code or weights.

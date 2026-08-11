@@ -2,7 +2,7 @@
 
 ## Decision question
 
-For which AI-agent workloads does PariTok reduce cost per successful task without unacceptable quality or latency degradation?
+For which AI-agent workloads does a configured compression treatment reduce cost per successful task without unacceptable quality or latency degradation?
 
 ## Experimental design
 

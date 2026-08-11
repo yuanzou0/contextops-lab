@@ -37,7 +37,7 @@ class PairedExperimentRunner:
     def run(self, tasks: Iterable[ExperimentTask]) -> list[RunOutcome]:
         outcomes: list[RunOutcome] = []
         for task in tasks:
-            arms = [ExperimentArm.BASELINE, ExperimentArm.PARITOK]
+            arms = [ExperimentArm.BASELINE, ExperimentArm.COMPRESSED]
             self.random.shuffle(arms)
             for arm in arms:
                 outcome = self.executor(task, arm)
