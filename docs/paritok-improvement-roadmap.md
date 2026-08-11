@@ -1,0 +1,77 @@
+# PariTok Second-Development Roadmap
+
+## Product judgment
+
+PariTok's architecture is promising, but the best second-development opportunity is not “compress harder.” It is to make every saving observable, quality-aware, and safely reversible. For a portfolio targeting data analysis, AI product management, and AI product operations, the strongest project is an evaluation and control layer around the gateway.
+
+## P0 — Make failure safe
+
+### 1. Compression validation and automatic fallback
+
+- **Problem:** Empty, malformed, or identifier-damaging summaries can silently corrupt an agent task.
+- **Build:** Validate non-empty output, reference integrity, required identifiers, file paths, error strings, and size bounds. On failure, forward the original and emit a structured fallback event.
+- **Acceptance:** Zero silent empty outputs; 100% of rejected compressions use original content; every fallback has a reason code.
+- **Portfolio value:** Demonstrates product guardrails, Python validation, observability, and reliability ownership.
+
+### 2. Adaptive tool discovery
+
+- **Problem:** Freezing tool selection helps prompt caching but can fail when the user changes goals mid-session.
+- **Build:** Keep a permanent core-tool allowlist, detect intent drift, refresh only the optional tool segment, and provide deterministic full-schema recovery.
+- **Acceptance:** Core tools are never dropped; tool false-negative rate is measured; task pivots recover without restarting the session.
+
+### 3. Durable, versioned original-context storage
+
+- **Problem:** In-memory references disappear on restart or expiration.
+- **Build:** Make Redis the production default, namespace references by tenant/session, store content version and expiry metadata, encrypt sensitive originals, and expose retrieval health.
+- **Acceptance:** Restart recovery tests pass; expired references return an explicit status; tenant isolation tests pass.
+
+### 4. Protocol compatibility regression suite
+
+- **Problem:** Anthropic, OpenAI Chat Completions, Responses, Gemini-compatible tools, and streaming have different edge cases.
+- **Build:** Golden request/response fixtures covering tool calls, streaming, errors, images, custom tools, and recovery loops.
+- **Acceptance:** Every supported provider has conformance tests; releases are blocked on regression.
+
+## P1 — Prove product value
+
+### 5. Evaluation lab and analytics dashboard
+
+- **Build:** Run paired compressed/uncompressed tasks and display cost per successful task, quality-adjusted savings, P50/P95 latency, recall rate, tool false negatives, and fallback rate.
+- **Segment:** Session length, tool count, task type, repository size, language, upstream model, and deployment mode.
+- **Decision:** Enable compression only for cohorts where the confidence interval supports positive net value.
+
+### 6. Risk-aware compression policy
+
+- **Build:** Select compression level using content type, age, task intent, edit risk, identifier density, and available context budget.
+- **Policy examples:** Preserve exact current-file edit context; compress stale logs aggressively; summarize old reasoning only near the context threshold.
+- **Acceptance:** Lower quality-adjusted cost than a single fixed policy without violating success-rate guardrails.
+
+### 7. Preflight and explainability
+
+- **Build:** Add a `doctor` command and per-request explanation: backend health, selected tools, compressed blocks, fallback reason, privacy mode, and expected/realized savings.
+- **Acceptance:** Setup failures are actionable; silent no-op compression is distinguishable from “nothing eligible to compress.”
+
+## P2 — Productize and differentiate
+
+### 8. Workload recommender
+
+Use historical session features to recommend `off`, `balanced`, or `aggressive` mode and estimate break-even volume. Keep the first version rule-based and auditable before adding ML.
+
+### 9. Privacy and governance controls
+
+Add local-only enforcement, redaction rules, data-retention policy, audit logs, tenant quotas, and hosted-mode consent. Never include raw code or secrets in analytics.
+
+### 10. Multi-language evaluation and training data
+
+Expand verified coverage to TypeScript, Go, Rust, and Java. Use language-specific identifier and AST-aware preservation tests before claiming general support.
+
+## Recommended portfolio scope
+
+Build items 1, 5, and 7 first. Together they form a coherent product:
+
+1. a safe compression gateway wrapper;
+2. a paired evaluation harness;
+3. an analytics dashboard;
+4. a preflight and diagnostics experience;
+5. an evidence-backed rollout recommendation.
+
+This scope is more relevant to the target roles than retraining a 4B model and is feasible to explain end to end in interviews.
