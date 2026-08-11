@@ -1,0 +1,4 @@
+interface:
+  display_name: "AI Agent Project Strategist"
+  short_description: "Evaluate and position AI agent projects"
+  default_prompt: "Use $ai-agent-project-strategist to evaluate this AI agent project, propose improvements, and create evidence-based resume positioning."
