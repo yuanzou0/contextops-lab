@@ -112,6 +112,24 @@ Phase 2 deliverables:
 - [`artifacts/phase-2-lineage.json`](artifacts/phase-2-lineage.json): input/output hashes and evidence provenance;
 - [`docs/phase-2-acceptance.md`](docs/phase-2-acceptance.md): product-loop acceptance contract.
 
+## Phase 3 real-integration gate
+
+Phase 3 adds a production-shaped A/B path: the baseline calls a provider endpoint directly, while
+the treatment calls the identical model through a PariTok proxy. The runner snapshots proxy stats
+around each treatment request and fails closed if concurrent traffic makes attribution ambiguous.
+
+```bash
+# Validate configuration and probe only health/telemetry (no completion cost)
+contextops-lab doctor --live-config configs/phase-3.local.json --probe-live
+
+# Explicit confirmation is mandatory for paid model calls
+contextops-lab live-run --config configs/phase-3.local.json --limit 2 --confirm-live-costs
+```
+
+See [`docs/phase-3-runbook.md`](docs/phase-3-runbook.md) and
+[`docs/phase-3-acceptance.md`](docs/phase-3-acceptance.md). The repository contains the tested
+integration and evidence contract, but it intentionally contains no fabricated live results.
+
 ## Success criteria
 
 A workload segment is eligible for rollout only when:

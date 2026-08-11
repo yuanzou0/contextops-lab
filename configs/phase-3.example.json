@@ -1,0 +1,18 @@
+{
+  "experiment_id": "contextops-live-001",
+  "config_version": "phase-3-v1",
+  "model": "replace-with-identical-model-on-both-arms",
+  "baseline_endpoint": "https://api.openai.com/v1/chat/completions",
+  "paritok_endpoint": "http://127.0.0.1:8080/v1/chat/completions",
+  "paritok_health_url": "http://127.0.0.1:8080/health",
+  "paritok_stats_url": "http://127.0.0.1:8080/stats",
+  "api_key_environment": "CONTEXTOPS_PROVIDER_API_KEY",
+  "pricing_version": "replace-with-provider-price-date",
+  "input_cost_per_million": 0.0,
+  "output_cost_per_million": 0.0,
+  "temperature": 0.0,
+  "timeout_seconds": 120.0,
+  "max_retries": 2,
+  "require_proxy_telemetry": true,
+  "evidence_label": "live_unreviewed"
+}

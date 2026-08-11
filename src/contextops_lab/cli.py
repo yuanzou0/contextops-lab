@@ -5,6 +5,8 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import platform
+import sys
 from datetime import date
 from pathlib import Path
 
@@ -13,8 +15,12 @@ from .dashboard import build_dashboard, write_dashboard
 from .doctor import CheckStatus, run_doctor
 from .events import JsonlEventStore, load_events
 from .execution import DualArmExecutor
+from .execution import OpenAICompatibleAgent
 from .experiments import PairedExperimentRunner
 from .fixtures import FixtureAgent, FixtureCompressor
+from .live import ProxyPairedExecutor
+from .live_config import load_live_config
+from .paritok import PariTokGateway
 from .policy import generate_rollout_policy, write_policy
 from .reporting import build_markdown_report, build_phase2_report
 
@@ -115,10 +121,99 @@ def run_doctor_command(args: argparse.Namespace) -> int:
         compressor_command=args.compressor_command,
         agent_endpoint=args.agent_endpoint,
         api_key_environment=args.api_key_environment,
+        live_config=args.live_config,
+        probe_live=args.probe_live,
     )
     for check in checks:
         print(f"[{check.status.value.upper():4}] {check.name}: {check.message}")
     return int(any(check.status is CheckStatus.FAIL for check in checks))
+
+
+def run_live(args: argparse.Namespace) -> int:
+    if not args.confirm_live_costs:
+        print("Refusing live model calls without --confirm-live-costs", file=sys.stderr)
+        return 2
+    config, config_sha256 = load_live_config(args.config)
+    if not config.api_key:
+        print(
+            f"Missing API key environment variable: {config.api_key_environment}",
+            file=sys.stderr,
+        )
+        return 2
+    gateway = PariTokGateway(
+        config.paritok_health_url,
+        config.paritok_stats_url,
+        timeout_seconds=min(config.timeout_seconds, 10.0),
+    )
+    health = gateway.health()
+    gateway.stats()
+    common = {
+        "model": config.model,
+        "api_key": config.api_key,
+        "input_cost_per_million": config.input_cost_per_million,
+        "output_cost_per_million": config.output_cost_per_million,
+        "timeout_seconds": config.timeout_seconds,
+        "temperature": config.temperature,
+        "max_retries": config.max_retries,
+    }
+    executor = ProxyPairedExecutor(
+        OpenAICompatibleAgent(config.baseline_endpoint, **common),
+        OpenAICompatibleAgent(config.paritok_endpoint, **common),
+        gateway,
+        experiment_id=config.experiment_id,
+        config_version=config.config_version,
+        config_sha256=config_sha256,
+        pricing_version=config.pricing_version,
+        require_proxy_telemetry=config.require_proxy_telemetry,
+    )
+    cases = load_benchmark_cases(args.manifest)
+    if args.limit is not None and args.limit <= 0:
+        print("--limit must be positive", file=sys.stderr)
+        return 2
+    if args.limit:
+        cases = cases[: args.limit]
+    events_path = Path(args.events)
+    partial_path = events_path.with_suffix(events_path.suffix + ".partial")
+    if partial_path.exists():
+        partial_path.unlink()
+    store = JsonlEventStore(partial_path)
+    outcomes = PairedExperimentRunner(executor, store.append, seed=args.seed).run(cases)
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    partial_path.replace(events_path)
+    manifest = {
+        "schema_version": 1,
+        "experiment_id": config.experiment_id,
+        "evidence_label": config.evidence_label,
+        "completed_at": date.today().isoformat(),
+        "config": {
+            "path": args.config,
+            "sha256": config_sha256,
+            "version": config.config_version,
+        },
+        "tasks": {
+            "path": args.manifest,
+            "sha256": _sha256(args.manifest),
+            "count": len(cases),
+        },
+        "events": {
+            "path": args.events,
+            "sha256": _sha256(args.events),
+            "count": len(outcomes),
+        },
+        "runtime": {"python": platform.python_version(), "platform": platform.platform()},
+        "paritok_health": {
+            "status": health.get("status"),
+            "version": health.get("version", "unknown"),
+        },
+        "secrets_recorded": False,
+    }
+    manifest_path = Path(args.run_manifest)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"Executed {len(cases)} live paired cases ({len(outcomes)} arm runs)")
+    print(f"Events: {args.events}")
+    print(f"Run manifest: {args.run_manifest}")
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -160,7 +255,19 @@ def build_parser() -> argparse.ArgumentParser:
     doctor.add_argument("--compressor-command")
     doctor.add_argument("--agent-endpoint")
     doctor.add_argument("--api-key-environment")
+    doctor.add_argument("--live-config")
+    doctor.add_argument("--probe-live", action="store_true")
     doctor.set_defaults(func=run_doctor_command)
+
+    live = subparsers.add_parser("live-run", help="run paid paired calls via direct and PariTok endpoints")
+    live.add_argument("--config", default="configs/phase-3.example.json")
+    live.add_argument("--manifest", default="evals/tasks/mvp_tasks.jsonl")
+    live.add_argument("--events", default="artifacts/phase-3-live-events.jsonl")
+    live.add_argument("--run-manifest", default="artifacts/phase-3-run-manifest.json")
+    live.add_argument("--seed", type=int, default=17)
+    live.add_argument("--limit", type=int)
+    live.add_argument("--confirm-live-costs", action="store_true")
+    live.set_defaults(func=run_live)
     return parser
 
 

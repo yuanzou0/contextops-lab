@@ -14,6 +14,8 @@ from urllib.parse import urlparse
 from .benchmark import load_benchmark_cases
 from .events import load_events
 from .models import ExperimentArm
+from .live_config import load_live_config
+from .paritok import PariTokGateway
 from .strategy import CompressionMode
 
 
@@ -43,6 +45,8 @@ def run_doctor(
     compressor_command: str | None = None,
     agent_endpoint: str | None = None,
     api_key_environment: str | None = None,
+    live_config: str | Path | None = None,
+    probe_live: bool = False,
 ) -> list[DoctorCheck]:
     checks: list[DoctorCheck] = []
     python_ok = sys.version_info >= (3, 10)
@@ -167,4 +171,64 @@ def run_doctor(
                 f"{api_key_environment} is set" if present else f"{api_key_environment} is not set",
             )
         )
+    if live_config:
+        try:
+            config, config_sha256 = load_live_config(live_config)
+            checks.append(
+                DoctorCheck(
+                    "live_config",
+                    CheckStatus.PASS,
+                    f"{config.config_version}; sha256={config_sha256[:12]}",
+                )
+            )
+            key_present = bool(config.api_key)
+            checks.append(
+                DoctorCheck(
+                    "live_api_key",
+                    CheckStatus.PASS if key_present else CheckStatus.WARN,
+                    f"{config.api_key_environment} is set"
+                    if key_present
+                    else f"{config.api_key_environment} is not set",
+                )
+            )
+            pricing_set = bool(
+                config.pricing_version != "replace-with-provider-price-date"
+                and (config.input_cost_per_million or config.output_cost_per_million)
+            )
+            checks.append(
+                DoctorCheck(
+                    "live_pricing",
+                    CheckStatus.PASS if pricing_set else CheckStatus.WARN,
+                    config.pricing_version
+                    if pricing_set
+                    else "replace example pricing before interpreting cost results",
+                )
+            )
+            if probe_live:
+                gateway = PariTokGateway(
+                    config.paritok_health_url,
+                    config.paritok_stats_url,
+                    timeout_seconds=min(config.timeout_seconds, 10.0),
+                )
+                health = gateway.health()
+                stats = gateway.stats()
+                checks.append(
+                    DoctorCheck(
+                        "paritok_gateway",
+                        CheckStatus.PASS,
+                        f"status={health.get('status')}; total_requests={stats.total_requests}",
+                    )
+                )
+            else:
+                checks.append(
+                    DoctorCheck(
+                        "paritok_gateway",
+                        CheckStatus.WARN,
+                        "not probed; pass --probe-live to verify health and telemetry",
+                    )
+                )
+        except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError) as error:
+            checks.append(DoctorCheck("live_config", CheckStatus.FAIL, str(error)))
+        except RuntimeError as error:
+            checks.append(DoctorCheck("paritok_gateway", CheckStatus.FAIL, str(error)))
     return checks

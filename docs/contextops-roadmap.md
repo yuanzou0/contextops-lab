@@ -75,3 +75,12 @@ Build items 1, 5, and 7 first. Together they form a coherent product:
 5. an evidence-backed rollout recommendation.
 
 This scope is more relevant to the target roles than retraining a 4B model and is feasible to explain end to end in interviews.
+
+## Delivery status
+
+- **Phase 1 — reliable MVP:** complete with 36 deterministic paired cases, validation, and fallback.
+- **Phase 2 — product decision loop:** complete with segmentation, failure analysis, dashboard,
+  evidence-gated policy, runtime modes, and diagnostics.
+- **Phase 3 — production-shaped evidence:** engineering contract complete in v0.3.0. Real evidence
+  remains gated on an isolated PariTok deployment, a selected provider/model, current pricing, and
+  explicit authorization for paid calls. See `phase-3-acceptance.md`.

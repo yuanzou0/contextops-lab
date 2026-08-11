@@ -37,13 +37,19 @@ class RequestEvent:
     tests_passed: bool | None
     manual_intervention: bool
     estimated_total_cost: float
-    schema_version: int = 2
+    schema_version: int = 3
     failure_reason: str | None = None
     upstream_error: str | None = None
     silent_failure: bool = False
     recorded_at: str | None = None
     experiment_config_version: str = "v1"
     pricing_version: str = "unspecified"
+    endpoint_role: str = "unspecified"
+    provider_input_tokens: int = 0
+    provider_output_tokens: int = 0
+    proxy_request_count: int = 0
+    proxy_tokens_saved: int = 0
+    config_sha256: str = ""
 
     def __post_init__(self) -> None:
         non_negative = {
@@ -58,6 +64,10 @@ class RequestEvent:
             "total_latency_ms": self.total_latency_ms,
             "estimated_total_cost": self.estimated_total_cost,
             "schema_version": self.schema_version,
+            "provider_input_tokens": self.provider_input_tokens,
+            "provider_output_tokens": self.provider_output_tokens,
+            "proxy_request_count": self.proxy_request_count,
+            "proxy_tokens_saved": self.proxy_tokens_saved,
         }
         invalid = [name for name, value in non_negative.items() if value < 0]
         if invalid:

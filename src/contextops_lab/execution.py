@@ -85,6 +85,8 @@ class OpenAICompatibleAgent:
         input_cost_per_million: float = 0.0,
         output_cost_per_million: float = 0.0,
         timeout_seconds: float = 120.0,
+        temperature: float = 0.0,
+        max_retries: int = 2,
     ):
         self.endpoint = endpoint
         self.model = model
@@ -92,12 +94,14 @@ class OpenAICompatibleAgent:
         self.input_cost_per_million = input_cost_per_million
         self.output_cost_per_million = output_cost_per_million
         self.timeout_seconds = timeout_seconds
+        self.temperature = temperature
+        self.max_retries = max_retries
 
     def complete(self, instruction: str, context: str, case: BenchmarkCase) -> CompletionResult:
         payload = json.dumps(
             {
                 "model": self.model,
-                "temperature": 0,
+                "temperature": self.temperature,
                 "messages": [
                     {"role": "system", "content": instruction},
                     {"role": "user", "content": context},
@@ -109,8 +113,19 @@ class OpenAICompatibleAgent:
             headers["Authorization"] = f"Bearer {self.api_key}"
         request = urllib.request.Request(self.endpoint, data=payload, headers=headers, method="POST")
         started = time.perf_counter()
-        with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
-            data = json.loads(response.read().decode("utf-8"))
+        last_error: Exception | None = None
+        for attempt in range(self.max_retries + 1):
+            try:
+                with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                    data = json.loads(response.read().decode("utf-8"))
+                break
+            except (OSError, TimeoutError) as error:
+                last_error = error
+                if attempt == self.max_retries:
+                    raise
+                time.sleep(min(0.25 * (2**attempt), 2.0))
+        else:  # pragma: no cover - loop either breaks or raises
+            raise RuntimeError("completion request failed") from last_error
         latency_ms = (time.perf_counter() - started) * 1000
         usage = data.get("usage", {})
         input_tokens = int(usage.get("prompt_tokens", estimate_tokens(context)))

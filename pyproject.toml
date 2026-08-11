@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "contextops-lab"
-version = "0.2.0"
+version = "0.3.0"
 description = "AI-agent context reliability, experimentation, and cost evaluation lab"
 requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
