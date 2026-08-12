@@ -1,0 +1,38 @@
+{
+  "completed_at": "2026-08-12",
+  "config": {
+    "path": "configs/phase-3-luna-smoke.json",
+    "sha256": "bbc6c1ec3c723676353e69ff0ac3ee91f72a001a112be7aaf609bf10ab46c876"
+  },
+  "cost_preflight": {
+    "authorized_ceiling_usd": 0.25,
+    "estimated_input_cost_upper_bound_usd": 0.1026,
+    "output_and_paritok_compute_excluded": true,
+    "pricing_version": "openai-2026-08-12"
+  },
+  "events": {
+    "path": "artifacts/phase-3-session-events.jsonl",
+    "sha256": "c0f5aa519e88c73969ba623295707be36f708ee2c9f4d20073944b34d59e69d7"
+  },
+  "evidence_label": "live_smoke_unreviewed",
+  "experiment_id": "contextops-luna-smoke-001",
+  "matrix": {
+    "path": "configs/phase-3-workloads.json",
+    "sha256": "0c9b806056d30b537477bc151c7aa129357b2dac2b156024cf66f46b69b17e82"
+  },
+  "paired_session_count": 8,
+  "paritok_health": {
+    "status": "ok",
+    "version": "1.0.0"
+  },
+  "request_count": 8,
+  "runtime": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.9"
+  },
+  "scenario_count": 4,
+  "schema_version": 1,
+  "secrets_recorded": false,
+  "stage": "smoke",
+  "suite_id": "contextops-phase3-matrix-v1"
+}

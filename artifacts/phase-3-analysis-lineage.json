@@ -1,0 +1,24 @@
+{
+  "evidence_label": "live_smoke_unreviewed",
+  "generated": "2026-08-12",
+  "input": {
+    "events": 8,
+    "path": "artifacts/phase-3-session-events.jsonl",
+    "sha256": "c0f5aa519e88c73969ba623295707be36f708ee2c9f4d20073944b34d59e69d7"
+  },
+  "outputs": {
+    "dashboard": {
+      "path": "artifacts/phase-3-dashboard.html",
+      "sha256": "9aa3c4e78500befa01d57eeb63e6a1a01df4d5b7ebf40f5c5c5695421ec9794b"
+    },
+    "policy": {
+      "path": "policies/phase-3-rollout-policy.json",
+      "sha256": "4d7e260199bf90834a910feeddb772cef744fd0d64bad2eabbc3158d2e80d4e2"
+    },
+    "report": {
+      "path": "docs/phase-3-results.md",
+      "sha256": "0681d0ba25234b26b83dd544f5820432d7ec3aafad28f083b9300978ebd698c6"
+    }
+  },
+  "schema_version": 1
+}
