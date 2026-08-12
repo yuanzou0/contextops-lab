@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "suite_id": "contextops-phase3-matrix-v1",
+  "context_tokens": [8000, 32000, 128000],
+  "session_turns": [1, 5, 10],
+  "profiles": [
+    {
+      "task_type": "read_heavy",
+      "language": "python",
+      "tool_count": 24,
+      "risk_level": "medium"
+    },
+    {
+      "task_type": "debugging",
+      "language": "typescript",
+      "tool_count": 36,
+      "risk_level": "medium"
+    },
+    {
+      "task_type": "mcp_heavy",
+      "language": "python",
+      "tool_count": 72,
+      "risk_level": "medium"
+    },
+    {
+      "task_type": "edit_critical",
+      "language": "rust",
+      "tool_count": 28,
+      "risk_level": "high"
+    }
+  ],
+  "stages": {
+    "smoke": {
+      "context_tokens": [8000],
+      "session_turns": [1],
+      "task_types": ["read_heavy", "debugging", "mcp_heavy", "edit_critical"]
+    },
+    "core": {
+      "context_tokens": [8000, 32000],
+      "session_turns": [1, 5],
+      "task_types": ["read_heavy", "debugging", "mcp_heavy", "edit_critical"]
+    },
+    "extended": {
+      "context_tokens": [8000, 32000, 128000],
+      "session_turns": [1, 5, 10],
+      "task_types": ["read_heavy", "debugging", "mcp_heavy", "edit_critical"]
+    }
+  }
+}

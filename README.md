@@ -130,6 +130,15 @@ See [`docs/phase-3-runbook.md`](docs/phase-3-runbook.md) and
 [`docs/phase-3-acceptance.md`](docs/phase-3-acceptance.md). The repository contains the tested
 integration and evidence contract, but it intentionally contains no fabricated live results.
 
+Before any paid call, audit the staged 36-scenario workload matrix and its input-cost ceiling:
+
+```bash
+contextops-lab workload-audit --stage smoke --model gpt-5.6-luna
+```
+
+The matrix covers read-heavy, debugging, MCP-heavy, and edit-critical work at 8K/32K/128K
+message-history payloads and 1/5/10 turns. Tool schemas are measured as additional input overhead.
+
 ## Success criteria
 
 A workload segment is eligible for rollout only when:

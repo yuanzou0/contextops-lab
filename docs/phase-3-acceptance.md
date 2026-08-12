@@ -21,6 +21,9 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
 - [x] Reproducible run manifest with config, task, and event hashes.
 - [x] `doctor --live-config ... --probe-live` readiness checks.
 - [x] Mocked HTTP contract tests with no paid calls.
+- [x] Staged 36-scenario workload matrix across 8K/32K/128K history and 1/5/10 turns.
+- [x] Versioned Luna/Terra pricing registry and paid-run cost preflight.
+- [x] Four-scenario Luna smoke stage capped before any provider request.
 
 ## Evidence acceptance
 

@@ -1,0 +1,76 @@
+{
+  "estimated_paired_input_cost_upper_bound_usd": 0.1035,
+  "estimated_paired_input_tokens_before_compression": 103500,
+  "excludes_output_and_paritok_compute_cost": true,
+  "model": "gpt-5.6-luna",
+  "paired_request_count": 8,
+  "pricing_version": "openai-2026-08-12",
+  "scenario_count": 4,
+  "scenarios": [
+    {
+      "context_tokens": 8000,
+      "estimated_baseline_input_cost_usd": 0.010949,
+      "estimated_input_tokens_per_arm": 10949,
+      "language": "python",
+      "required_signals": [
+        "anchor::read-heavy-8k-1t",
+        "src/python/read-heavy-8k-1t.py",
+        "Readheavy8K1TError"
+      ],
+      "risk_level": "medium",
+      "scenario_id": "read-heavy-8k-1t",
+      "session_turns": 1,
+      "task_type": "read_heavy",
+      "tool_count": 24
+    },
+    {
+      "context_tokens": 8000,
+      "estimated_baseline_input_cost_usd": 0.012424,
+      "estimated_input_tokens_per_arm": 12424,
+      "language": "typescript",
+      "required_signals": [
+        "anchor::debugging-8k-1t",
+        "src/typescript/debugging-8k-1t.ts",
+        "Debugging8K1TError"
+      ],
+      "risk_level": "medium",
+      "scenario_id": "debugging-8k-1t",
+      "session_turns": 1,
+      "task_type": "debugging",
+      "tool_count": 36
+    },
+    {
+      "context_tokens": 8000,
+      "estimated_baseline_input_cost_usd": 0.016889,
+      "estimated_input_tokens_per_arm": 16889,
+      "language": "python",
+      "required_signals": [
+        "anchor::mcp-heavy-8k-1t",
+        "src/python/mcp-heavy-8k-1t.py",
+        "Mcpheavy8K1TError"
+      ],
+      "risk_level": "medium",
+      "scenario_id": "mcp-heavy-8k-1t",
+      "session_turns": 1,
+      "task_type": "mcp_heavy",
+      "tool_count": 72
+    },
+    {
+      "context_tokens": 8000,
+      "estimated_baseline_input_cost_usd": 0.011488,
+      "estimated_input_tokens_per_arm": 11488,
+      "language": "rust",
+      "required_signals": [
+        "anchor::edit-critical-8k-1t",
+        "src/rust/edit-critical-8k-1t.rs",
+        "Editcritical8K1TError"
+      ],
+      "risk_level": "high",
+      "scenario_id": "edit-critical-8k-1t",
+      "session_turns": 1,
+      "task_type": "edit_critical",
+      "tool_count": 28
+    }
+  ],
+  "schema_version": 1
+}

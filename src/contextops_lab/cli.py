@@ -23,6 +23,13 @@ from .live_config import load_live_config
 from .paritok import PariTokGateway
 from .policy import generate_rollout_policy, write_policy
 from .reporting import build_markdown_report, build_phase2_report
+from .workloads import (
+    audit_stage,
+    build_audit_markdown,
+    load_pricing,
+    load_workload_matrix,
+    select_stage,
+)
 
 
 def run_offline(args: argparse.Namespace) -> int:
@@ -216,6 +223,31 @@ def run_live(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_workload_audit(args: argparse.Namespace) -> int:
+    matrix, scenarios = load_workload_matrix(args.matrix)
+    selected = select_stage(matrix, scenarios, args.stage)
+    pricing = load_pricing(args.pricing, args.model)
+    audit = audit_stage(selected, pricing)
+    output_path = Path(args.output)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(json.dumps(audit, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    report_path = Path(args.report)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(
+        build_audit_markdown(audit, stage=args.stage, suite_id=matrix["suite_id"]),
+        encoding="utf-8",
+    )
+    print(f"Audited {len(selected)} scenarios for {args.stage}")
+    print(f"Estimated paired requests: {audit['paired_request_count']}")
+    print(
+        "Estimated input-only upper bound: "
+        f"${audit['estimated_paired_input_cost_upper_bound_usd']:.4f}"
+    )
+    print(f"Audit: {args.output}")
+    print(f"Report: {args.report}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="contextops-lab")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -268,6 +300,17 @@ def build_parser() -> argparse.ArgumentParser:
     live.add_argument("--limit", type=int)
     live.add_argument("--confirm-live-costs", action="store_true")
     live.set_defaults(func=run_live)
+
+    workloads = subparsers.add_parser(
+        "workload-audit", help="expand and cost a staged long-context workload matrix"
+    )
+    workloads.add_argument("--matrix", default="configs/phase-3-workloads.json")
+    workloads.add_argument("--pricing", default="configs/openai-pricing-2026-08-12.json")
+    workloads.add_argument("--model", default="gpt-5.6-luna")
+    workloads.add_argument("--stage", choices=("smoke", "core", "extended"), default="smoke")
+    workloads.add_argument("--output", default="artifacts/phase-3-smoke-audit.json")
+    workloads.add_argument("--report", default="docs/phase-3-workload-audit.md")
+    workloads.set_defaults(func=run_workload_audit)
     return parser
 
 

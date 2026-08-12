@@ -12,6 +12,26 @@ For which AI-agent workloads does a configured compression treatment reduce cost
 - Start with 30–50 tasks for pipeline debugging; expand before making production claims.
 - Include long/read-heavy, debugging, edit-heavy, short/simple, MCP-heavy, and task-pivot scenarios.
 
+## Phase 3 staged workload matrix
+
+The production-shaped suite expands four decision-critical workload types across three history
+payload bands and three session lengths:
+
+| Axis | Values |
+|---|---|
+| Workload | read-heavy, debugging, MCP-heavy, edit-critical |
+| Message-history payload | 8K, 32K, 128K estimated tokens |
+| Session | 1, 5, 10 turns |
+| Rollout stage | smoke, core, extended |
+
+Tool schemas are additional input overhead rather than part of the history-payload target. This is
+intentional: tool filtering is one of the product effects under evaluation. The matrix expands to
+36 scenarios, but staged execution prevents accidental full-suite spend.
+
+```bash
+contextops-lab workload-audit --stage smoke --model gpt-5.6-luna
+```
+
 ## Event schema
 
 Record per request:
