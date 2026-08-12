@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import math
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -138,7 +139,7 @@ def _filler_line(scenario: WorkloadScenario, index: int) -> str:
     )
 
 
-def build_session_messages(scenario: WorkloadScenario) -> list[list[dict[str, str]]]:
+def build_session_messages(scenario: WorkloadScenario) -> list[list[dict[str, Any]]]:
     """Return the cumulative message list sent on each turn.
 
     The final prompt is within 3% of the target using the repository's deterministic token
@@ -151,40 +152,76 @@ def build_session_messages(scenario: WorkloadScenario) -> list[list[dict[str, st
             "paths, and error names exactly. Do not invent replacements."
         ),
     }
-    messages: list[dict[str, str]] = [system]
-    outputs: list[list[dict[str, str]]] = []
+    messages: list[dict[str, Any]] = [system]
+    outputs: list[list[dict[str, Any]]] = []
     target_chars = scenario.context_tokens * 4
-    fixed_signals = "\n".join(f"CRITICAL_SIGNAL: {value}" for value in scenario.required_signals)
-    protocol_overhead_chars = 400 + scenario.session_turns * 120
+    protocol_overhead_chars = 900 + scenario.session_turns * 500
     per_turn_chars = max(
         500,
-        (
-            target_chars
-            - len(system["content"])
-            - len(fixed_signals)
-            - protocol_overhead_chars
-        )
+        (target_chars - len(system["content"]) - protocol_overhead_chars)
         // scenario.session_turns,
     )
     line_index = 0
     for turn in range(1, scenario.session_turns + 1):
-        target_addition = per_turn_chars
-        lines = [f"SESSION={scenario.scenario_id} TURN={turn}/{scenario.session_turns}"]
-        if turn in {1, max(1, scenario.session_turns // 2), scenario.session_turns}:
-            signal_index = min(len(scenario.required_signals) - 1, len(outputs))
-            lines.append(f"CRITICAL_SIGNAL: {scenario.required_signals[signal_index]}")
-        while len("\n".join(lines)) < target_addition:
-            lines.append(_filler_line(scenario, line_index))
-            line_index += 1
-        content = "\n".join(lines)[:target_addition]
+        blocks = max(1, math.ceil((scenario.context_tokens / scenario.session_turns) / 32_000))
+        call_ids = [f"call_{scenario.scenario_id}_{turn}_{block}" for block in range(blocks)]
+        messages.append(
+            {
+                "role": "user",
+                "content": f"Inspect synthetic evidence batch {turn} for {scenario.scenario_id}.",
+            }
+        )
+        messages.append(
+            {
+                "role": "assistant",
+                "content": None,
+                "tool_calls": [
+                    {
+                        "id": call_id,
+                        "type": "function",
+                        "function": {
+                            "name": f"workspace_{scenario.task_type}_{block:03d}",
+                            "arguments": json.dumps(
+                                {"path": f"batch/{turn}/{block}", "query": "critical signal"}
+                            ),
+                        },
+                    }
+                    for block, call_id in enumerate(call_ids)
+                ],
+            }
+        )
+        signal_turns = (1, max(1, math.ceil(scenario.session_turns / 2)), scenario.session_turns)
+        turn_signals = [
+            signal
+            for signal, signal_turn in zip(scenario.required_signals, signal_turns, strict=True)
+            if signal_turn == turn
+        ]
+        block_chars = max(400, per_turn_chars // blocks)
+        for block, call_id in enumerate(call_ids):
+            lines = [
+                f"SESSION={scenario.scenario_id} TURN={turn}/{scenario.session_turns} "
+                f"BLOCK={block + 1}/{blocks}"
+            ]
+            if block == 0:
+                lines.extend(f"CRITICAL_SIGNAL: {signal}" for signal in turn_signals)
+            while len("\n".join(lines)) < block_chars:
+                lines.append(_filler_line(scenario, line_index))
+                line_index += 1
+            messages.append(
+                {
+                    "role": "tool",
+                    "tool_call_id": call_id,
+                    "content": "\n".join(lines)[:block_chars],
+                }
+            )
         if turn == scenario.session_turns:
-            content += (
-                "\nFINAL_TASK: Return all three CRITICAL_SIGNAL values exactly, one per line. "
-                f"Required values are: {fixed_signals}"
+            request = (
+                "FINAL_TASK: Return the three CRITICAL_SIGNAL values found in prior tool results "
+                "exactly, one per line. Do not include labels or commentary."
             )
         else:
-            content += "\nINTERMEDIATE_TASK: Reply only with CONTEXT_RECORDED."
-        messages.append({"role": "user", "content": content})
+            request = "INTERMEDIATE_TASK: Reply only with CONTEXT_RECORDED."
+        messages.append({"role": "user", "content": request})
         outputs.append([dict(message) for message in messages])
         if turn < scenario.session_turns:
             messages.append({"role": "assistant", "content": "CONTEXT_RECORDED"})

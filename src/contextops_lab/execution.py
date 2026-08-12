@@ -8,7 +8,7 @@ import time
 import urllib.request
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Protocol, Sequence
+from typing import Any, Protocol, Sequence
 
 from .benchmark import BenchmarkCase
 from .experiments import RunOutcome
@@ -85,8 +85,10 @@ class OpenAICompatibleAgent:
         input_cost_per_million: float = 0.0,
         output_cost_per_million: float = 0.0,
         timeout_seconds: float = 120.0,
-        temperature: float = 0.0,
+        temperature: float | None = None,
         max_retries: int = 2,
+        max_completion_tokens: int = 256,
+        reasoning_effort: str | None = "none",
     ):
         self.endpoint = endpoint
         self.model = model
@@ -96,18 +98,36 @@ class OpenAICompatibleAgent:
         self.timeout_seconds = timeout_seconds
         self.temperature = temperature
         self.max_retries = max_retries
+        self.max_completion_tokens = max_completion_tokens
+        self.reasoning_effort = reasoning_effort
 
     def complete(self, instruction: str, context: str, case: BenchmarkCase) -> CompletionResult:
-        payload = json.dumps(
-            {
-                "model": self.model,
-                "temperature": self.temperature,
-                "messages": [
-                    {"role": "system", "content": instruction},
-                    {"role": "user", "content": context},
-                ],
-            }
-        ).encode("utf-8")
+        return self.complete_messages(
+            [
+                {"role": "system", "content": instruction},
+                {"role": "user", "content": context},
+            ]
+        )
+
+    def complete_messages(
+        self,
+        messages: Sequence[dict[str, Any]],
+        *,
+        tools: Sequence[dict[str, Any]] | None = None,
+    ) -> CompletionResult:
+        body: dict[str, Any] = {
+            "model": self.model,
+            "messages": list(messages),
+            "max_completion_tokens": self.max_completion_tokens,
+        }
+        if self.temperature is not None:
+            body["temperature"] = self.temperature
+        if self.reasoning_effort is not None:
+            body["reasoning_effort"] = self.reasoning_effort
+        if tools:
+            body["tools"] = list(tools)
+            body["tool_choice"] = "none"
+        payload = json.dumps(body).encode("utf-8")
         headers = {"Content-Type": "application/json"}
         if self.api_key:
             headers["Authorization"] = f"Bearer {self.api_key}"
@@ -128,8 +148,11 @@ class OpenAICompatibleAgent:
             raise RuntimeError("completion request failed") from last_error
         latency_ms = (time.perf_counter() - started) * 1000
         usage = data.get("usage", {})
-        input_tokens = int(usage.get("prompt_tokens", estimate_tokens(context)))
-        output = data["choices"][0]["message"]["content"]
+        fallback_input = estimate_tokens(json.dumps(messages, sort_keys=True))
+        if tools:
+            fallback_input += estimate_tokens(json.dumps(tools, sort_keys=True))
+        input_tokens = int(usage.get("prompt_tokens", fallback_input))
+        output = data["choices"][0]["message"].get("content") or ""
         output_tokens = int(usage.get("completion_tokens", estimate_tokens(output)))
         cost = (
             input_tokens * self.input_cost_per_million

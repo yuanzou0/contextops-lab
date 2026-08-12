@@ -54,6 +54,17 @@ class Phase3WorkloadTests(unittest.TestCase):
             self.assertEqual(len(tools), scenario.tool_count)
             self.assertTrue(all(item["type"] == "function" for item in tools))
 
+    def test_history_uses_compressible_bounded_tool_results(self):
+        for scenario in self.scenarios:
+            sessions = build_session_messages(scenario)
+            tool_messages = [message for message in sessions[-1] if message["role"] == "tool"]
+            self.assertTrue(tool_messages)
+            self.assertTrue(
+                all(estimate_tokens(message["content"]) < 50_000 for message in tool_messages)
+            )
+            final_request = sessions[-1][-1]["content"]
+            self.assertNotIn(scenario.required_signals[0], final_request)
+
     def test_versioned_pricing_matches_selected_models(self):
         luna = load_pricing(PRICING, "gpt-5.6-luna")
         terra = load_pricing(PRICING, "gpt-5.6-terra")

@@ -63,6 +63,44 @@ class BenchmarkExecutionTests(unittest.TestCase):
         self.assertEqual(result.content, "answer")
         self.assertEqual(result.input_tokens, 10)
 
+    def test_message_completion_sends_tools_and_omits_unset_temperature(self):
+        captured = {}
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self):
+                return json.dumps(
+                    {
+                        "choices": [{"message": {"content": "CONTEXT_RECORDED"}}],
+                        "usage": {"prompt_tokens": 20, "completion_tokens": 3},
+                    }
+                ).encode()
+
+        def fake_open(request, timeout):
+            captured.update(json.loads(request.data))
+            return FakeResponse()
+
+        agent = OpenAICompatibleAgent(
+            "http://local.test/v1/chat/completions",
+            "gpt-5.6-luna",
+            temperature=None,
+            reasoning_effort="none",
+            max_completion_tokens=128,
+        )
+        tools = [{"type": "function", "function": {"name": "lookup", "parameters": {}}}]
+        with patch("urllib.request.urlopen", side_effect=fake_open):
+            result = agent.complete_messages([{"role": "user", "content": "hello"}], tools=tools)
+        self.assertEqual(result.content, "CONTEXT_RECORDED")
+        self.assertNotIn("temperature", captured)
+        self.assertEqual(captured["reasoning_effort"], "none")
+        self.assertEqual(captured["max_completion_tokens"], 128)
+        self.assertEqual(captured["tool_choice"], "none")
+
     def test_off_mode_does_not_invoke_compression(self):
         case = load_benchmark_cases(ROOT / "evals/tasks/mvp_tasks.jsonl")[0]
 

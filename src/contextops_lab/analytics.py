@@ -64,6 +64,10 @@ SEGMENTERS: dict[str, Callable[[RequestEvent], str]] = {
     "session_length": lambda event: _session_length(event.session_length),
     "tool_density": lambda event: _tool_density(event.tool_count),
     "model": lambda event: event.model,
+    "context_band": lambda event: f"{event.context_tokens // 1000}K"
+    if event.context_tokens
+    else "legacy",
+    "risk_level": lambda event: event.risk_level,
 }
 
 
@@ -89,8 +93,9 @@ def _wilson(successes: int, total: int) -> tuple[float, float]:
 
 
 def _success_difference_interval(events: list[RequestEvent]) -> tuple[float, float]:
-    baseline = [event for event in events if event.arm is ExperimentArm.BASELINE]
-    compressed = [event for event in events if event.arm is ExperimentArm.COMPRESSED]
+    terminal = [event for event in events if event.is_terminal_turn]
+    baseline = [event for event in terminal if event.arm is ExperimentArm.BASELINE]
+    compressed = [event for event in terminal if event.arm is ExperimentArm.COMPRESSED]
     baseline_low, baseline_high = _wilson(sum(event.task_success for event in baseline), len(baseline))
     compressed_low, compressed_high = _wilson(
         sum(event.task_success for event in compressed), len(compressed)
