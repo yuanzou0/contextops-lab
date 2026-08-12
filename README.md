@@ -135,7 +135,9 @@ contextops-lab live-session-run \
 See [`docs/phase-3-runbook.md`](docs/phase-3-runbook.md) and
 [`docs/phase-3-acceptance.md`](docs/phase-3-acceptance.md). The repository contains the tested
 integration and evidence contract, plus a local-runtime readiness record. It intentionally contains
-no fabricated provider results.
+no fabricated provider results. The first paid integration smoke is documented in
+[`docs/phase-3-results.md`](docs/phase-3-results.md); it validates cost reduction and exact recall
+for four cases while keeping rollout off because of sample size and latency.
 
 Before any paid call, audit the staged 36-scenario workload matrix and its input-cost ceiling:
 

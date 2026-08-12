@@ -14,7 +14,7 @@
   "output_cost_per_million": 15.0,
   "temperature": null,
   "timeout_seconds": 180.0,
-  "max_retries": 2,
+  "max_retries": 0,
   "max_completion_tokens": 256,
   "reasoning_effort": "low",
   "require_proxy_telemetry": true,

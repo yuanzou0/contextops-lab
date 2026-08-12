@@ -66,6 +66,11 @@ local compute are separate. Inspect the atomically written events and run manife
 if all four sessions have valid direct/proxy pairs, one terminal grade per arm, exact critical-signal
 recall, and exactly one proxy request per treatment turn.
 
+Keep provider retries disabled for measured runs. A slow first local compression can otherwise make
+the client retry a request that the gateway is still processing, duplicating provider cost and
+invalidating per-request telemetry. Pre-warm local dependencies and use a longer end-to-end timeout
+instead.
+
 ## 5. Terra formal experiment and decision artifacts
 
 ```bash

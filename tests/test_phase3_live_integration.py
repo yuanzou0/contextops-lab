@@ -184,6 +184,16 @@ class Phase3LiveIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(args.func(args), 2)
 
+    def test_live_configs_disable_retries_for_measured_runs(self):
+        for name in ("phase-3-luna-smoke.json", "phase-3-terra-formal.json"):
+            config, _ = load_live_config(ROOT / "configs" / name)
+            self.assertEqual(config.max_retries, 0)
+        luna, _ = load_live_config(ROOT / "configs/phase-3-luna-smoke.json")
+        self.assertGreaterEqual(
+            luna.timeout_seconds,
+            300,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

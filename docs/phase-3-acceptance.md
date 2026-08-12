@@ -32,7 +32,7 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
 
 - [x] PariTok gateway, telemetry, local model listing, and direct compression verified locally.
 - [ ] Provider key and a non-zero, date-versioned price entry configured.
-- [ ] A small paid smoke run passes before the full benchmark.
+- [x] A small paid Luna smoke run completes with exact critical-signal recall.
 - [ ] All 36 paired cases execute on an isolated proxy instance.
 - [ ] Results are reviewed for task equivalence, silent failures, cost per success, and P95 latency.
 - [ ] Production rollout policy remains locked until confidence and reliability gates pass.

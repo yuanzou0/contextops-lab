@@ -1,0 +1,33 @@
+{
+  "decision": "integration_validated_rollout_off",
+  "evidence_label": "live_smoke_unreviewed",
+  "failed_attempt": {
+    "diagnostic": "artifacts/phase-3-smoke-attempt-1-diagnostic.json",
+    "estimated_total_cost_including_retry_usd": 0.056486
+  },
+  "metrics": {
+    "baseline": {
+      "cost_usd": 0.037485,
+      "median_latency_ms": 2540.3547,
+      "p95_latency_ms": 2545.3043,
+      "provider_input_tokens": 36663,
+      "provider_output_tokens": 137,
+      "task_successes": 4
+    },
+    "paritok": {
+      "cost_usd": 0.007214,
+      "median_latency_ms": 43289.464,
+      "p95_latency_ms": 45156.53,
+      "provider_input_tokens": 6392,
+      "provider_output_tokens": 137,
+      "task_successes": 4
+    },
+    "cost_reduction_rate": 0.80755,
+    "input_token_reduction_rate": 0.825655,
+    "median_latency_multiple": 17.0407,
+    "successful_run_total_cost_usd": 0.044699
+  },
+  "observed_date": "2026-08-12",
+  "schema_version": 1,
+  "silent_failures": 0
+}

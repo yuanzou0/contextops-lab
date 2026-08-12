@@ -1,0 +1,17 @@
+{
+  "attempt": 1,
+  "completed": false,
+  "evidence_label": "live_smoke_diagnostic",
+  "failure": "proxy request delta was 2; isolated contract test confirmed client retry",
+  "observed_proxy_http_successes": 1,
+  "observed_proxy_stats_delta": 2,
+  "partial_event_count": 1,
+  "partial_events": "artifacts/phase-3-smoke-attempt-1-events.jsonl",
+  "remediation": {
+    "end_to_end_timeout_seconds": 300,
+    "provider_retries": 0,
+    "restart_isolated_gateway_before_retry": true
+  },
+  "schema_version": 1,
+  "status": "failed_closed"
+}

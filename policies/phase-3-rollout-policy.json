@@ -1,0 +1,129 @@
+{
+  "default_mode": "off",
+  "evidence_label": "live_smoke_unreviewed",
+  "generated": "2026-08-12",
+  "production_ready": false,
+  "rules": [
+    {
+      "dimension": "task_type",
+      "metrics": {
+        "baseline_cost_per_success": 0.008702,
+        "baseline_p95_latency_ms": 2545.3043340239674,
+        "baseline_success_rate": 1.0,
+        "compressed_cost_per_success": 0.001721,
+        "compressed_p95_latency_ms": 35489.98674983159,
+        "compressed_success_rate": 1.0,
+        "cost_improvement_rate": 0.8022293725580326,
+        "dimension": "task_type",
+        "fallback_rate": 0.0,
+        "p95_latency_delta_ms": 32944.68241580762,
+        "paired_tasks": 1,
+        "silent_failures": 0,
+        "success_delta_ci_high": 0.7934567085261071,
+        "success_delta_ci_low": -0.7934567085261071,
+        "success_rate_delta": 0.0,
+        "value": "debugging"
+      },
+      "mode": "off",
+      "reasons": [
+        "insufficient_sample",
+        "success_non_inferiority_failed",
+        "latency_budget_exceeded"
+      ],
+      "value": "debugging"
+    },
+    {
+      "dimension": "task_type",
+      "metrics": {
+        "baseline_cost_per_success": 0.008542,
+        "baseline_p95_latency_ms": 2535.4050409514457,
+        "baseline_success_rate": 1.0,
+        "compressed_cost_per_success": 0.001883,
+        "compressed_p95_latency_ms": 41422.39800002426,
+        "compressed_success_rate": 1.0,
+        "cost_improvement_rate": 0.7795598220557246,
+        "dimension": "task_type",
+        "fallback_rate": 0.0,
+        "p95_latency_delta_ms": 38886.99295907281,
+        "paired_tasks": 1,
+        "silent_failures": 0,
+        "success_delta_ci_high": 0.7934567085261071,
+        "success_delta_ci_low": -0.7934567085261071,
+        "success_rate_delta": 0.0,
+        "value": "edit_critical"
+      },
+      "mode": "off",
+      "reasons": [
+        "insufficient_sample",
+        "success_non_inferiority_failed",
+        "latency_budget_exceeded"
+      ],
+      "value": "edit_critical"
+    },
+    {
+      "dimension": "task_type",
+      "metrics": {
+        "baseline_cost_per_success": 0.011932,
+        "baseline_p95_latency_ms": 2777.970917057246,
+        "baseline_success_rate": 1.0,
+        "compressed_cost_per_success": 0.001871,
+        "compressed_p95_latency_ms": 46323.66329105571,
+        "compressed_success_rate": 1.0,
+        "cost_improvement_rate": 0.843194770365404,
+        "dimension": "task_type",
+        "fallback_rate": 0.0,
+        "p95_latency_delta_ms": 43545.69237399846,
+        "paired_tasks": 1,
+        "silent_failures": 0,
+        "success_delta_ci_high": 0.7934567085261071,
+        "success_delta_ci_low": -0.7934567085261071,
+        "success_rate_delta": 0.0,
+        "value": "mcp_heavy"
+      },
+      "mode": "off",
+      "reasons": [
+        "insufficient_sample",
+        "success_non_inferiority_failed",
+        "latency_budget_exceeded"
+      ],
+      "value": "mcp_heavy"
+    },
+    {
+      "dimension": "task_type",
+      "metrics": {
+        "baseline_cost_per_success": 0.008309,
+        "baseline_p95_latency_ms": 1983.9470000006258,
+        "baseline_success_rate": 1.0,
+        "compressed_cost_per_success": 0.001739,
+        "compressed_p95_latency_ms": 45156.53000003658,
+        "compressed_success_rate": 1.0,
+        "cost_improvement_rate": 0.7907088699001084,
+        "dimension": "task_type",
+        "fallback_rate": 0.0,
+        "p95_latency_delta_ms": 43172.58300003596,
+        "paired_tasks": 1,
+        "silent_failures": 0,
+        "success_delta_ci_high": 0.7934567085261071,
+        "success_delta_ci_low": -0.7934567085261071,
+        "success_rate_delta": 0.0,
+        "value": "read_heavy"
+      },
+      "mode": "off",
+      "reasons": [
+        "insufficient_sample",
+        "success_non_inferiority_failed",
+        "latency_budget_exceeded"
+      ],
+      "value": "read_heavy"
+    }
+  ],
+  "schema_version": 1,
+  "thresholds": {
+    "maximum_fallback_rate": 0.25,
+    "maximum_p95_latency_increase_ms": 500.0,
+    "maximum_success_degradation": 0.02,
+    "minimum_cost_improvement": 0.05,
+    "minimum_paired_tasks": 5,
+    "require_zero_silent_failures": true
+  }
+}
