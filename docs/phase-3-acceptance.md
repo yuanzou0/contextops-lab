@@ -16,7 +16,7 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
 - [x] Identical-model direct/proxy paired executor.
 - [x] PariTok `/health` and `/stats` client.
 - [x] Fail-closed telemetry attribution when concurrent proxy traffic is detected.
-- [x] Provider usage, proxy token delta, endpoint role, config hash, and pricing version in schema v3.
+- [x] Provider usage, proxy token delta, endpoint role, config hash, and pricing version in schema v4.
 - [x] Bounded HTTP retry behavior and explicit paid-call confirmation.
 - [x] Reproducible run manifest with config, task, and event hashes.
 - [x] `doctor --live-config ... --probe-live` readiness checks.
@@ -24,10 +24,13 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
 - [x] Staged 36-scenario workload matrix across 8K/32K/128K history and 1/5/10 turns.
 - [x] Versioned Luna/Terra pricing registry and paid-run cost preflight.
 - [x] Four-scenario Luna smoke stage capped before any provider request.
+- [x] Multi-turn agent/tool-call history with exactly one terminal task grade per arm.
+- [x] Compression-backend model check before any external provider request.
+- [x] Atomic partial-event output for interrupted live runs.
 
 ## Evidence acceptance
 
-- [ ] PariTok gateway health and telemetry verified in the target environment.
+- [x] PariTok gateway, telemetry, local model listing, and direct compression verified locally.
 - [ ] Provider key and a non-zero, date-versioned price entry configured.
 - [ ] A small paid smoke run passes before the full benchmark.
 - [ ] All 36 paired cases execute on an isolated proxy instance.
@@ -35,4 +38,5 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
 - [ ] Production rollout policy remains locked until confidence and reliability gates pass.
 
 Engineering readiness is not production evidence. The unchecked items require the operator's
-provider credentials, model choice, running PariTok deployment, and authorization to incur cost.
+provider credentials and authorization to incur cost. Local readiness evidence is recorded in
+`artifacts/phase-3-local-readiness.json`; it is not provider-performance evidence.

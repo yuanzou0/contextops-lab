@@ -30,9 +30,13 @@ class LiveExperimentConfig:
     pricing_version: str
     input_cost_per_million: float
     output_cost_per_million: float
-    temperature: float = 0.0
+    compression_backend_models_url: str = "http://127.0.0.1:11434/v1/models"
+    compression_model: str = "paritok-4b-v1"
+    temperature: float | None = None
     timeout_seconds: float = 120.0
     max_retries: int = 2
+    max_completion_tokens: int = 256
+    reasoning_effort: str | None = "none"
     require_proxy_telemetry: bool = True
     evidence_label: str = "live_unreviewed"
 
@@ -42,14 +46,21 @@ class LiveExperimentConfig:
             "paritok_endpoint",
             "paritok_health_url",
             "paritok_stats_url",
+            "compression_backend_models_url",
         ):
             _http_url(getattr(self, field), field)
         if not self.experiment_id or not self.config_version or not self.model:
             raise ValueError("experiment_id, config_version, and model are required")
-        if self.temperature < 0 or self.timeout_seconds <= 0 or self.max_retries < 0:
+        if self.temperature is not None and self.temperature < 0:
+            raise ValueError("temperature cannot be negative")
+        if self.timeout_seconds <= 0 or self.max_retries < 0 or self.max_completion_tokens <= 0:
             raise ValueError("temperature, timeout_seconds, and max_retries are invalid")
+        if self.reasoning_effort not in {None, "none", "low", "medium", "high", "xhigh", "max"}:
+            raise ValueError("reasoning_effort is invalid")
         if self.input_cost_per_million < 0 or self.output_cost_per_million < 0:
             raise ValueError("pricing values cannot be negative")
+        if not self.compression_model:
+            raise ValueError("compression_model is required")
 
     @property
     def api_key(self) -> str | None:

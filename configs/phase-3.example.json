@@ -6,13 +6,17 @@
   "paritok_endpoint": "http://127.0.0.1:8080/v1/chat/completions",
   "paritok_health_url": "http://127.0.0.1:8080/health",
   "paritok_stats_url": "http://127.0.0.1:8080/stats",
+  "compression_backend_models_url": "http://127.0.0.1:11434/v1/models",
+  "compression_model": "paritok-4b-v1",
   "api_key_environment": "CONTEXTOPS_PROVIDER_API_KEY",
   "pricing_version": "replace-with-provider-price-date",
   "input_cost_per_million": 0.0,
   "output_cost_per_million": 0.0,
-  "temperature": 0.0,
+  "temperature": null,
   "timeout_seconds": 120.0,
   "max_retries": 2,
+  "max_completion_tokens": 256,
+  "reasoning_effort": "none",
   "require_proxy_telemetry": true,
   "evidence_label": "live_unreviewed"
 }

@@ -23,6 +23,7 @@ from .live_config import load_live_config
 from .paritok import PariTokGateway
 from .policy import generate_rollout_policy, write_policy
 from .reporting import build_markdown_report, build_phase2_report
+from .session_live import MultiTurnProxyExecutor, run_paired_sessions
 from .workloads import (
     audit_stage,
     build_audit_markdown,
@@ -154,6 +155,10 @@ def run_live(args: argparse.Namespace) -> int:
     )
     health = gateway.health()
     gateway.stats()
+    gateway.require_compression_model(
+        config.compression_backend_models_url,
+        config.compression_model,
+    )
     common = {
         "model": config.model,
         "api_key": config.api_key,
@@ -162,6 +167,8 @@ def run_live(args: argparse.Namespace) -> int:
         "timeout_seconds": config.timeout_seconds,
         "temperature": config.temperature,
         "max_retries": config.max_retries,
+        "max_completion_tokens": config.max_completion_tokens,
+        "reasoning_effort": config.reasoning_effort,
     }
     executor = ProxyPairedExecutor(
         OpenAICompatibleAgent(config.baseline_endpoint, **common),
@@ -248,6 +255,117 @@ def run_workload_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_live_sessions(args: argparse.Namespace) -> int:
+    config, config_sha256 = load_live_config(args.config)
+    matrix, all_scenarios = load_workload_matrix(args.matrix)
+    scenarios = select_stage(matrix, all_scenarios, args.stage)
+    pricing = load_pricing(args.pricing, config.model)
+    if (
+        pricing.version != config.pricing_version
+        or pricing.input_per_million != config.input_cost_per_million
+        or pricing.output_per_million != config.output_cost_per_million
+    ):
+        print("Live config pricing does not match the selected pricing registry", file=sys.stderr)
+        return 2
+    audit = audit_stage(scenarios, pricing)
+    estimate = audit["estimated_paired_input_cost_upper_bound_usd"]
+    if estimate > args.max_estimated_input_cost_usd:
+        print(
+            f"Estimated input cost ${estimate:.4f} exceeds the configured ceiling "
+            f"${args.max_estimated_input_cost_usd:.4f}",
+            file=sys.stderr,
+        )
+        return 2
+    if not args.confirm_live_costs:
+        print("Refusing live model calls without --confirm-live-costs", file=sys.stderr)
+        return 2
+    if not config.api_key:
+        print(
+            f"Missing API key environment variable: {config.api_key_environment}",
+            file=sys.stderr,
+        )
+        return 2
+
+    gateway = PariTokGateway(
+        config.paritok_health_url,
+        config.paritok_stats_url,
+        timeout_seconds=min(config.timeout_seconds, 10.0),
+    )
+    health = gateway.health()
+    gateway.stats()
+    gateway.require_compression_model(
+        config.compression_backend_models_url,
+        config.compression_model,
+    )
+    common = {
+        "model": config.model,
+        "api_key": config.api_key,
+        "input_cost_per_million": config.input_cost_per_million,
+        "output_cost_per_million": config.output_cost_per_million,
+        "timeout_seconds": config.timeout_seconds,
+        "temperature": config.temperature,
+        "max_retries": config.max_retries,
+        "max_completion_tokens": config.max_completion_tokens,
+        "reasoning_effort": config.reasoning_effort,
+    }
+    executor = MultiTurnProxyExecutor(
+        OpenAICompatibleAgent(config.baseline_endpoint, **common),
+        OpenAICompatibleAgent(config.paritok_endpoint, **common),
+        gateway,
+        experiment_id=config.experiment_id,
+        config_version=config.config_version,
+        config_sha256=config_sha256,
+        pricing_version=config.pricing_version,
+        require_proxy_telemetry=config.require_proxy_telemetry,
+    )
+    events_path = Path(args.events)
+    partial_path = events_path.with_suffix(events_path.suffix + ".partial")
+    if partial_path.exists():
+        partial_path.unlink()
+    outcomes = run_paired_sessions(
+        scenarios,
+        executor,
+        JsonlEventStore(partial_path).append,
+        seed=args.seed,
+    )
+    events_path.parent.mkdir(parents=True, exist_ok=True)
+    partial_path.replace(events_path)
+    events = load_events(events_path)
+    manifest = {
+        "schema_version": 1,
+        "experiment_id": config.experiment_id,
+        "evidence_label": config.evidence_label,
+        "completed_at": date.today().isoformat(),
+        "stage": args.stage,
+        "suite_id": matrix["suite_id"],
+        "scenario_count": len(scenarios),
+        "paired_session_count": len(outcomes),
+        "request_count": len(events),
+        "cost_preflight": {
+            "pricing_version": pricing.version,
+            "estimated_input_cost_upper_bound_usd": estimate,
+            "authorized_ceiling_usd": args.max_estimated_input_cost_usd,
+            "output_and_paritok_compute_excluded": True,
+        },
+        "config": {"path": args.config, "sha256": config_sha256},
+        "matrix": {"path": args.matrix, "sha256": _sha256(args.matrix)},
+        "events": {"path": args.events, "sha256": _sha256(args.events)},
+        "paritok_health": {
+            "status": health.get("status"),
+            "version": health.get("version", "unknown"),
+        },
+        "runtime": {"python": platform.python_version(), "platform": platform.platform()},
+        "secrets_recorded": False,
+    }
+    manifest_path = Path(args.run_manifest)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"Executed {len(scenarios)} scenarios / {len(events)} requests")
+    print(f"Events: {args.events}")
+    print(f"Run manifest: {args.run_manifest}")
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="contextops-lab")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -311,6 +429,20 @@ def build_parser() -> argparse.ArgumentParser:
     workloads.add_argument("--output", default="artifacts/phase-3-smoke-audit.json")
     workloads.add_argument("--report", default="docs/phase-3-workload-audit.md")
     workloads.set_defaults(func=run_workload_audit)
+
+    sessions = subparsers.add_parser(
+        "live-session-run", help="run staged multi-turn direct/PariTok paired sessions"
+    )
+    sessions.add_argument("--config", default="configs/phase-3-luna-smoke.json")
+    sessions.add_argument("--matrix", default="configs/phase-3-workloads.json")
+    sessions.add_argument("--pricing", default="configs/openai-pricing-2026-08-12.json")
+    sessions.add_argument("--stage", choices=("smoke", "core", "extended"), default="smoke")
+    sessions.add_argument("--events", default="artifacts/phase-3-session-events.jsonl")
+    sessions.add_argument("--run-manifest", default="artifacts/phase-3-session-manifest.json")
+    sessions.add_argument("--seed", type=int, default=17)
+    sessions.add_argument("--max-estimated-input-cost-usd", type=float, default=0.25)
+    sessions.add_argument("--confirm-live-costs", action="store_true")
+    sessions.set_defaults(func=run_live_sessions)
     return parser
 
 

@@ -83,6 +83,44 @@ class Phase3LiveIntegrationTests(unittest.TestCase):
             self.assertEqual(gateway.health()["version"], "1.3.0")
             self.assertEqual(gateway.stats().tokens_saved, 280)
 
+    def test_gateway_accepts_currency_formatted_saved_cost(self):
+        stats = ProxyStats.from_dict({"estimated_cost_saved_usd": "$1.01"})
+        self.assertEqual(stats.estimated_cost_saved_usd, 1.01)
+
+    def test_gateway_fails_closed_when_compression_model_is_missing(self):
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self):
+                return json.dumps({"data": [{"id": "another-model"}]}).encode()
+
+        gateway = PariTokGateway("http://proxy/health", "http://proxy/stats")
+        with patch("urllib.request.urlopen", return_value=Response()):
+            with self.assertRaisesRegex(RuntimeError, "Compression model"):
+                gateway.require_compression_model("http://ollama/v1/models", "paritok-4b-v1")
+
+    def test_gateway_accepts_namespaced_ollama_model(self):
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self):
+                return json.dumps({"data": [{"id": "paritok/paritok-4b-v1:latest"}]}).encode()
+
+        gateway = PariTokGateway("http://proxy/health", "http://proxy/stats")
+        with patch("urllib.request.urlopen", return_value=Response()):
+            payload = gateway.require_compression_model(
+                "http://ollama/v1/models", "paritok-4b-v1"
+            )
+        self.assertEqual(payload["data"][0]["id"], "paritok/paritok-4b-v1:latest")
+
     def test_proxy_arm_attributes_tokens_from_isolated_stats_delta(self):
         case = load_benchmark_cases(ROOT / "evals/tasks/mvp_tasks.jsonl")[0]
         executor = ProxyPairedExecutor(
@@ -125,6 +163,25 @@ class Phase3LiveIntegrationTests(unittest.TestCase):
     def test_live_cli_requires_explicit_cost_confirmation(self):
         parser = build_parser()
         args = parser.parse_args(["live-run"])
+        self.assertEqual(args.func(args), 2)
+
+    def test_session_cli_requires_confirmation_before_api_key_or_gateway(self):
+        parser = build_parser()
+        args = parser.parse_args(["live-session-run"])
+        self.assertEqual(args.func(args), 2)
+
+    def test_session_cli_blocks_cost_above_explicit_ceiling(self):
+        parser = build_parser()
+        args = parser.parse_args(
+            [
+                "live-session-run",
+                "--stage",
+                "extended",
+                "--max-estimated-input-cost-usd",
+                "0.01",
+                "--confirm-live-costs",
+            ]
+        )
         self.assertEqual(args.func(args), 2)
 
 

@@ -81,7 +81,8 @@ This scope is more relevant to the target roles than retraining a 4B model and i
 - **Phase 1 — reliable MVP:** complete with 36 deterministic paired cases, validation, and fallback.
 - **Phase 2 — product decision loop:** complete with segmentation, failure analysis, dashboard,
   evidence-gated policy, runtime modes, and diagnostics.
-- **Phase 3 — production-shaped evidence:** integration contract completed in v0.3.0; v0.4.0 adds
-  a staged 36-scenario long-context workload and versioned cost preflight. Real evidence
-  remains gated on an isolated PariTok deployment, a selected provider/model, current pricing, and
-  explicit authorization for paid calls. See `phase-3-acceptance.md`.
+- **Phase 3 — production-shaped evidence:** integration contract completed in v0.3.0; v0.4.0 added
+  the staged workload and cost preflight; v0.5.0 adds real multi-turn execution, fail-closed local
+  model checks, atomic evidence output, and verified local PariTok/Ollama readiness. Provider
+  evidence remains gated on credentials and explicit authorization for paid calls. See
+  `phase-3-acceptance.md`.

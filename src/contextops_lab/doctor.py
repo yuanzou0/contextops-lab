@@ -212,11 +212,16 @@ def run_doctor(
                 )
                 health = gateway.health()
                 stats = gateway.stats()
+                gateway.require_compression_model(
+                    config.compression_backend_models_url,
+                    config.compression_model,
+                )
                 checks.append(
                     DoctorCheck(
                         "paritok_gateway",
                         CheckStatus.PASS,
-                        f"status={health.get('status')}; total_requests={stats.total_requests}",
+                        f"status={health.get('status')}; compression_model="
+                        f"{config.compression_model}; total_requests={stats.total_requests}",
                     )
                 )
             else:

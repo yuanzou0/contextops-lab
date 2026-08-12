@@ -29,15 +29,17 @@ def summarize(events: Iterable[RequestEvent]) -> dict[str, dict[str, float]]:
 
     result: dict[str, dict[str, float]] = {}
     for arm, rows in groups.items():
-        successes = sum(row.task_success for row in rows)
+        terminal_rows = [row for row in rows if row.is_terminal_turn]
+        successes = sum(row.task_success for row in terminal_rows)
         total_cost = sum(row.estimated_total_cost for row in rows)
         fallback_count = sum(row.fallback_reason is not None for row in rows)
         latencies = [row.total_latency_ms for row in rows]
         original_tokens = sum(row.original_tokens for row in rows)
         effective_tokens = sum(row.compressed_tokens + row.recalled_tokens for row in rows)
         result[arm] = {
-            "runs": float(len(rows)),
-            "task_success_rate": successes / len(rows),
+            "runs": float(len(terminal_rows)),
+            "requests": float(len(rows)),
+            "task_success_rate": successes / len(terminal_rows) if terminal_rows else 0.0,
             "cost_per_successful_task": total_cost / successes if successes else float("inf"),
             "fallback_rate": fallback_count / len(rows),
             "median_latency_ms": float(median(latencies)),

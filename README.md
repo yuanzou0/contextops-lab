@@ -114,21 +114,28 @@ Phase 2 deliverables:
 
 ## Phase 3 real-integration gate
 
-Phase 3 adds a production-shaped A/B path: the baseline calls a provider endpoint directly, while
-the treatment calls the identical model through a PariTok proxy. The runner snapshots proxy stats
-around each treatment request and fails closed if concurrent traffic makes attribution ambiguous.
+Phase 3 adds a production-shaped, multi-turn A/B path: the baseline calls a provider endpoint
+directly, while the treatment calls the identical model through a PariTok proxy. Historical tool
+results carry the long context that PariTok is designed to compress. The runner snapshots proxy
+stats around each treatment request and fails closed if the local compression model is unavailable
+or concurrent traffic makes attribution ambiguous.
 
 ```bash
 # Validate configuration and probe only health/telemetry (no completion cost)
 contextops-lab doctor --live-config configs/phase-3.local.json --probe-live
 
-# Explicit confirmation is mandatory for paid model calls
-contextops-lab live-run --config configs/phase-3.local.json --limit 2 --confirm-live-costs
+# Explicit confirmation and a hard cost ceiling are mandatory for paid model calls
+contextops-lab live-session-run \
+  --config configs/phase-3-luna-smoke.json \
+  --stage smoke \
+  --max-estimated-input-cost-usd 0.25 \
+  --confirm-live-costs
 ```
 
 See [`docs/phase-3-runbook.md`](docs/phase-3-runbook.md) and
 [`docs/phase-3-acceptance.md`](docs/phase-3-acceptance.md). The repository contains the tested
-integration and evidence contract, but it intentionally contains no fabricated live results.
+integration and evidence contract, plus a local-runtime readiness record. It intentionally contains
+no fabricated provider results.
 
 Before any paid call, audit the staged 36-scenario workload matrix and its input-cost ceiling:
 
