@@ -20,9 +20,10 @@ class SegmentResult:
     success_rate_delta: float
     success_delta_ci_low: float
     success_delta_ci_high: float
-    baseline_cost_per_success: float
-    compressed_cost_per_success: float
+    baseline_cost_per_success: float | None
+    compressed_cost_per_success: float | None
     cost_improvement_rate: float
+    treatment_cost_per_success_defined: bool
     baseline_p95_latency_ms: float
     compressed_p95_latency_ms: float
     p95_latency_delta_ms: float
@@ -72,7 +73,7 @@ SEGMENTERS: dict[str, Callable[[RequestEvent], str]] = {
 
 
 def _safe_improvement(baseline: float, treatment: float) -> float:
-    if baseline == float("inf") or baseline == 0:
+    if baseline == float("inf") or treatment == float("inf") or baseline == 0:
         return 0.0
     return (baseline - treatment) / baseline
 
@@ -144,11 +145,22 @@ def segment_events(
                     ),
                     success_delta_ci_low=ci_low,
                     success_delta_ci_high=ci_high,
-                    baseline_cost_per_success=baseline["cost_per_successful_task"],
-                    compressed_cost_per_success=compressed["cost_per_successful_task"],
+                    baseline_cost_per_success=(
+                        None
+                        if baseline["cost_per_successful_task"] == float("inf")
+                        else baseline["cost_per_successful_task"]
+                    ),
+                    compressed_cost_per_success=(
+                        None
+                        if compressed["cost_per_successful_task"] == float("inf")
+                        else compressed["cost_per_successful_task"]
+                    ),
                     cost_improvement_rate=_safe_improvement(
                         baseline["cost_per_successful_task"],
                         compressed["cost_per_successful_task"],
+                    ),
+                    treatment_cost_per_success_defined=(
+                        compressed["cost_per_successful_task"] != float("inf")
                     ),
                     baseline_p95_latency_ms=baseline["p95_latency_ms"],
                     compressed_p95_latency_ms=compressed["p95_latency_ms"],

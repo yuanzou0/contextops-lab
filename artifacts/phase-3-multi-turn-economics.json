@@ -1,0 +1,84 @@
+{
+  "break_even_enabled": false,
+  "latency_value_usd_per_second": null,
+  "limitation": "Break-even requires an explicit latency valuation; task-proxy success is not semantic quality equivalence.",
+  "schema_version": 1,
+  "tasks": [
+    {
+      "break_even_turn": null,
+      "curve": [
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.008702,
+          "cumulative_baseline_latency_ms": 2545.3043340239674,
+          "cumulative_cost_saving_usd": 0.006980999999999999,
+          "cumulative_latency_penalty_ms": 32944.68241580762,
+          "cumulative_treatment_cost_usd": 0.001721,
+          "cumulative_treatment_latency_ms": 35489.98674983159,
+          "net_value_usd": null,
+          "task_id": "debugging-8k-1t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 1
+        }
+      ],
+      "task_id": "debugging-8k-1t"
+    },
+    {
+      "break_even_turn": null,
+      "curve": [
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.008542,
+          "cumulative_baseline_latency_ms": 2535.4050409514457,
+          "cumulative_cost_saving_usd": 0.006658999999999999,
+          "cumulative_latency_penalty_ms": 38886.99295907281,
+          "cumulative_treatment_cost_usd": 0.001883,
+          "cumulative_treatment_latency_ms": 41422.39800002426,
+          "net_value_usd": null,
+          "task_id": "edit-critical-8k-1t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 1
+        }
+      ],
+      "task_id": "edit-critical-8k-1t"
+    },
+    {
+      "break_even_turn": null,
+      "curve": [
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.011932,
+          "cumulative_baseline_latency_ms": 2777.970917057246,
+          "cumulative_cost_saving_usd": 0.010061,
+          "cumulative_latency_penalty_ms": 43545.69237399846,
+          "cumulative_treatment_cost_usd": 0.001871,
+          "cumulative_treatment_latency_ms": 46323.66329105571,
+          "net_value_usd": null,
+          "task_id": "mcp-heavy-8k-1t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 1
+        }
+      ],
+      "task_id": "mcp-heavy-8k-1t"
+    },
+    {
+      "break_even_turn": null,
+      "curve": [
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.008309,
+          "cumulative_baseline_latency_ms": 1983.9470000006258,
+          "cumulative_cost_saving_usd": 0.00657,
+          "cumulative_latency_penalty_ms": 43172.58300003596,
+          "cumulative_treatment_cost_usd": 0.001739,
+          "cumulative_treatment_latency_ms": 45156.53000003658,
+          "net_value_usd": null,
+          "task_id": "read-heavy-8k-1t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 1
+        }
+      ],
+      "task_id": "read-heavy-8k-1t"
+    }
+  ]
+}

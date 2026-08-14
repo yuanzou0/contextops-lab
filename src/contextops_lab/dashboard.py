@@ -84,17 +84,17 @@ footer {{ color:var(--muted); margin-top:16px; font-size:12px; }}
 <body><main>
 <header><div><h1>ContextOps Lab</h1><div class="sub">Agent reliability, economics, and rollout decisions · {paired_tasks} paired tasks</div></div><div class="evidence">Evidence: {evidence}</div></header>
 <section class="grid">
-<div class="kpi"><span>Compressed task success</span><strong>{_pct(compressed['task_success_rate'])}</strong></div>
-<div class="kpi"><span>Success-rate delta</span><strong>{_pct(success_delta)}</strong></div>
+<div class="kpi"><span>Compressed task-proxy success</span><strong>{_pct(compressed['task_success_rate'])}</strong></div>
+<div class="kpi"><span>Task-proxy delta</span><strong>{_pct(success_delta)}</strong></div>
 <div class="kpi"><span>Cost / success improvement</span><strong>{_pct(cost_improvement)}</strong></div>
 <div class="kpi"><span>Fallback rate</span><strong>{_pct(compressed['fallback_rate'])}</strong></div>
 </section>
 <section class="content">
-<div class="panel"><div class="toolbar"><h2>Workload segmentation</h2><label>Dimension <select id="dimension"></select></label></div><div class="table-wrap"><table><thead><tr><th>Segment</th><th>Pairs</th><th>Success Δ</th><th>Cost improvement</th><th>Fallback</th><th>Recommendation</th></tr></thead><tbody id="segments"></tbody></table></div></div>
+<div class="panel"><div class="toolbar"><h2>Workload segmentation</h2><label>Dimension <select id="dimension"></select></label></div><div class="table-wrap"><table><thead><tr><th>Segment</th><th>Pairs</th><th>Task-proxy Δ</th><th>Cost improvement</th><th>Fallback</th><th>Recommendation</th></tr></thead><tbody id="segments"></tbody></table></div></div>
 <div class="panel"><h2>Failure reasons</h2><div id="failures"></div></div>
 </section>
 <section class="panel" style="margin-top:14px"><div class="decision"><div><h2 style="margin-bottom:4px">Rollout decision</h2><strong>{production_state}</strong></div><div class="counts"><span>off {mode_counts['off']}</span><span>conservative {mode_counts['conservative']}</span><span>balanced {mode_counts['balanced']}</span></div></div></section>
-<footer>Privacy-safe event schema · Failed tasks remain in cost denominators · Policy defaults to off when evidence is non-production.</footer>
+<footer>Task-proxy outcomes are not semantic equivalence · Failed tasks remain in cost denominators · Policy defaults to off when evidence is non-production.</footer>
 </main>
 <script>
 const DATA={payload};
@@ -103,7 +103,7 @@ const dims=[...new Set(DATA.segments.map(x=>x.dimension))];
 const select=document.getElementById('dimension');
 dims.forEach(d=>{{const o=document.createElement('option');o.value=d;o.textContent=d.replaceAll('_',' ');select.appendChild(o);}});
 function pct(x){{return (x*100).toFixed(1)+'%'}}
-function renderSegments(){{const tbody=document.getElementById('segments');tbody.textContent='';DATA.segments.filter(x=>x.dimension===select.value).forEach(x=>{{const mode=x.dimension==='task_type'?(RULES[x.value]||'off'):'—';const tr=document.createElement('tr');tr.innerHTML=`<td>${{x.value}}</td><td>${{x.paired_tasks}}</td><td>${{pct(x.success_rate_delta)}}</td><td>${{pct(x.cost_improvement_rate)}}</td><td>${{pct(x.fallback_rate)}}</td><td class="mode ${{mode}}">${{mode}}</td>`;tbody.appendChild(tr);}})}}
+function renderSegments(){{const tbody=document.getElementById('segments');tbody.textContent='';DATA.segments.filter(x=>x.dimension===select.value).forEach(x=>{{const mode=x.dimension==='task_type'?(RULES[x.value]||'off'):'—';const cost=x.treatment_cost_per_success_defined?pct(x.cost_improvement_rate):'N/A';const tr=document.createElement('tr');tr.innerHTML=`<td>${{x.value}}</td><td>${{x.paired_tasks}}</td><td>${{pct(x.success_rate_delta)}}</td><td>${{cost}}</td><td>${{pct(x.fallback_rate)}}</td><td class="mode ${{mode}}">${{mode}}</td>`;tbody.appendChild(tr);}})}}
 function renderFailures(){{const root=document.getElementById('failures');if(!DATA.failures.length){{root.textContent='No recorded failure events.';return}}const max=Math.max(...DATA.failures.map(x=>x.count));DATA.failures.forEach(x=>{{const row=document.createElement('div');row.className='bar-row';row.innerHTML=`<div class="bar-label"><span>${{x.reason}}</span><span>${{x.count}}</span></div><div class="bar"><i style="width:${{100*x.count/max}}%"></i></div>`;root.appendChild(row);}})}}
 select.addEventListener('change',renderSegments);select.value='task_type';renderSegments();renderFailures();
 </script></body></html>"""

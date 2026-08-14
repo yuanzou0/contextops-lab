@@ -1,6 +1,6 @@
 # ContextOps Lab
 
-**AI Agent Reliability & Cost Evaluation**
+**AI Agent Optimization Experimentation & Product Economics Lab**
 
 An independent paired-experiment and safety framework for deciding when context compression should be enabled in AI-agent workloads.
 
@@ -9,6 +9,43 @@ An independent paired-experiment and safety framework for deciding when context 
 > When does context compression reduce the cost of AI agents without degrading task success, reliability, or latency?
 
 PariTok-4B-v1 is the first planned compression treatment, not the name of this project. ContextOps Lab does **not** claim authorship of the upstream gateway, model, benchmarks, or reported savings.
+
+## Results at a glance
+
+| Evidence | N | Cost | Quality measure | Median latency | Decision |
+|---|---:|---:|---|---:|---|
+| Offline pipeline | 36 pairs | fixture only | deterministic task proxy | fixture | no rollout |
+| Live smoke | 4 pairs | 80.8% lower observed estimated provider cost | required signals preserved in 4/4 pairs | 17.0x worse | **OFF** |
+| Live Wave A | 4 pairs / 40 requests | 89.9% lower observed estimated provider cost | treatment proxy failed 4/4 terminal tasks | 15.9x worse | **STOP / OFF** |
+| Provider-free recovery | 4 scenarios / 12 signals | no provider calls | raw + guarded signal recall 12/12 | local boundary only | Wave B still blocked |
+| Production | — | not validated | not validated | not validated | locked |
+
+Across four controlled 8K/1-turn live pairs, the compression treatment showed 80.8% lower
+observed estimated provider cost while increasing median end-to-end latency 17.0x; the
+evidence-gated policy therefore kept rollout off. This smoke validates integration and exact
+signal preservation only—not semantic equivalence or production non-inferiority.
+
+The subsequent 32K/5-turn Wave A pilot reduced observed estimated provider cost by 89.9%, but the
+treatment failed the required-signal task proxy in all four workloads and increased median request
+latency 15.9x. Expansion is stopped pending signal-retention and fallback fixes; see
+[`docs/phase-3-wave-a-results.md`](docs/phase-3-wave-a-results.md).
+
+A provider-free controlled audit then confirmed that the installed PariTok 1.3.3 pipeline can reuse
+a query-dependent transformation after task intent changes. ContextOps now blocks unverified cache
+contracts for multi-turn execution by default; see
+[`docs/query-sensitive-cache-decision.md`](docs/query-sensitive-cache-decision.md).
+
+A prespecified provider-free recovery regression subsequently exercised the actual local PariTok
+4B pipeline under the query-aware contract across the same four 32K/5-turn workloads. It observed
+zero cross-query cache hits, 12/12 safe same-query replay hits, and 12/12 raw and guarded critical
+signals retained with no fallback. This validates the transformed-context boundary only; it does
+not establish end-task semantic quality, provider behavior, or acceptable interactive latency.
+
+The live path now has a ContextOps-owned external HTTP proxy boundary. It scopes compression cache
+entries to the active query, validates every transformed segment before upstream transmission, and
+forwards exact original content on rejection. Its cumulative safety telemetry is snapshotted around
+each treatment request; a declared verified cache contract is rejected unless this observable
+endpoint is present.
 
 ## Decision pipeline
 
@@ -19,14 +56,15 @@ Context Compression
         ↓
 Validation + Safe Fallback
         ↓
-Task Success × Cost × Latency
+Task-proxy Quality × Cost × Latency
         ↓
 Workload Segmentation
         ↓
 Rollout Policy
 ```
 
-The primary metric is **cost per successful task**, not compression ratio.
+The primary decision metric is **cost per independently reviewed successful task**, not
+compression ratio. Until independent reviews exist, the repository reports task-proxy success.
 
 ## Phase 1 MVP
 
@@ -49,7 +87,30 @@ pytest
 
 # Reproduce the Phase 1 offline validation evidence
 contextops-lab offline-benchmark
+
+# Provider-free cache-contract diagnostic (requires the optional live dependency, not an API key)
+contextops-lab cache-contract-audit
+
+# Deterministic transformed-context regression used by CI
+contextops-lab provider-free-regression --engine deterministic
+
+# Optional: actual local PariTok 4B/Ollama recovery regression; still no provider call
+contextops-lab provider-free-regression --engine local_paritok_4b
 ```
+
+Start the validated external proxy for a recovery run:
+
+```bash
+contextops-lab safe-proxy --cache-contract query_aware --port 8080
+
+# No provider completion: verifies proxy, Ollama, cache, validator, and telemetry contracts.
+contextops-lab doctor --live-config configs/phase-3-luna-recovery.json --probe-live
+```
+
+The four-scenario provider-backed recovery protocol is prespecified in
+[`docs/phase-3-recovery-protocol.md`](docs/phase-3-recovery-protocol.md). A successful bounded pilot
+would demonstrate recovery of the deterministic task proxy only; it cannot establish semantic
+non-inferiority or production readiness.
 
 The zero-install verification path uses only the Python standard library:
 
@@ -57,6 +118,9 @@ The zero-install verification path uses only the Python standard library:
 PYTHONPATH=src python -m unittest discover -s tests -v
 PYTHONPATH=src python -m contextops_lab.cli offline-benchmark
 ```
+
+`pytest` is the canonical development and CI runner. The `unittest` command is retained only as a
+dependency-free compatibility check; both discover the same `unittest.TestCase`-based suite.
 
 The framework is provider-neutral. Use `SubprocessCompressor` for a local or hosted compressor command and `OpenAICompatibleAgent` for a live agent endpoint. Both arms share the same agent and benchmark case; only the supplied context changes.
 
@@ -122,6 +186,8 @@ or concurrent traffic makes attribution ambiguous.
 
 ```bash
 # Validate configuration and probe only health/telemetry (no completion cost)
+cp configs/phase-3.example.json configs/phase-3.local.json
+# Edit the ignored local copy; never place an API key in JSON.
 contextops-lab doctor --live-config configs/phase-3.local.json --probe-live
 
 # Explicit confirmation and a hard cost ceiling are mandatory for paid model calls
@@ -136,8 +202,9 @@ See [`docs/phase-3-runbook.md`](docs/phase-3-runbook.md) and
 [`docs/phase-3-acceptance.md`](docs/phase-3-acceptance.md). The repository contains the tested
 integration and evidence contract, plus a local-runtime readiness record. It intentionally contains
 no fabricated provider results. The first paid integration smoke is documented in
-[`docs/phase-3-results.md`](docs/phase-3-results.md); it validates cost reduction and exact recall
-for four cases while keeping rollout off because of sample size and latency.
+[`docs/phase-3-results.md`](docs/phase-3-results.md); it observed cost reduction and exact marker
+recall in four cases while keeping rollout off because of sample size, semantic-review, and latency
+gaps.
 
 Before any paid call, audit the staged 36-scenario workload matrix and its input-cost ceiling:
 
@@ -148,16 +215,50 @@ contextops-lab workload-audit --stage smoke --model gpt-5.6-luna
 The matrix covers read-heavy, debugging, MCP-heavy, and edit-critical work at 8K/32K/128K
 message-history payloads and 1/5/10 turns. Tool schemas are measured as additional input overhead.
 
+## Evidence and multi-compressor controls
+
+The four-case Luna run is an integration smoke, not a non-inferiority result. The repository now
+enforces the missing evidence explicitly:
+
+```bash
+# Fails the quality-claim gate until every segment has >=5 pairs,
+# both 32K and 128K are observed, and terminal arms have human/LLM reviews.
+contextops-lab evidence-audit
+
+# Estimate paired provider vs local/proxy overhead (clearly labeled as an estimate).
+contextops-lab latency-audit
+
+# After restarting Ollama, separate cold, warm-uncached, and cache-reuse latency (no provider call).
+contextops-lab local-latency-probe --confirm-backend-restarted
+
+# Build cumulative cost/latency curves. Break-even remains disabled unless latency is valued.
+contextops-lab multi-turn-economics
+contextops-lab multi-turn-economics --latency-value-usd-per-second 0.10
+
+# Reproduce a provider-free comparison of two compressor adapters.
+contextops-lab compressor-compare
+
+# Audit the proposed 20-scenario evidence stage: 5 pairs per workload, 32K/128K.
+contextops-lab workload-audit --stage evidence --model gpt-5.6-luna
+```
+
+The second adapter, `ExtractiveRiskCompressor`, is a deterministic, answer-independent baseline.
+It proves that the evaluation layer can compare treatments; it is not presented as a replacement
+for PariTok or as live provider evidence.
+
 ## Success criteria
 
 A workload segment is eligible for rollout only when:
 
 1. silent data loss is zero;
-2. task success remains inside the declared non-inferiority margin;
+2. independently reviewed task quality remains inside the declared non-inferiority margin;
 3. cost per successful task improves;
 4. P95 latency remains within budget;
 5. recall and fallback paths meet their reliability targets.
 
 ## Attribution
 
-ContextOps Lab is an independent evaluation project. PariTok and its upstream code, weights, benchmarks, and trademarks belong to their respective authors. Review the upstream Apache-2.0 license and the Qwen base-model license before redistributing derived code or weights.
+ContextOps Lab is licensed under [Apache-2.0](LICENSE). It is an independent evaluation project.
+PariTok and its upstream code, weights, benchmarks, and trademarks belong to their respective
+authors. Review the upstream Apache-2.0 license and the Qwen base-model license before
+redistributing derived code or weights.

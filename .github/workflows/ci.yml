@@ -12,13 +12,39 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip
+      - name: Install development dependencies
+        run: python -m pip install -e '.[dev]'
       - name: Compile
         run: python -m compileall -q src tests
+      - name: Lint
+        run: ruff check .
       - name: Test
-        run: PYTHONPATH=src python -m unittest discover -s tests -v
+        run: pytest -q
       - name: Reproduce Phase 1 report
-        run: PYTHONPATH=src python -m contextops_lab.cli offline-benchmark
+        run: contextops-lab offline-benchmark
       - name: Reproduce Phase 2 decision artifacts
-        run: PYTHONPATH=src python -m contextops_lab.cli phase-2
+        run: contextops-lab phase-2
       - name: Run product preflight
-        run: PYTHONPATH=src python -m contextops_lab.cli doctor
+        run: contextops-lab doctor
+
+  provider-free-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install integration dependencies
+        run: python -m pip install -e '.[dev,live]'
+      - name: Test installed cache contract without provider calls
+        run: contextops-lab cache-contract-audit --output /tmp/cache-contract-audit.json
+      - name: Run deterministic transformed-context regression
+        run: >-
+          contextops-lab provider-free-regression
+          --engine deterministic
+          --output /tmp/provider-free-regression.json
+          --report /tmp/provider-free-regression.md
+      - name: Run integration-aware tests
+        run: pytest -q

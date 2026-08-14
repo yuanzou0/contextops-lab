@@ -6,7 +6,9 @@
 
 ## Executive result
 
-All four 8K-context paired scenarios succeeded in both arms and preserved every required signal.
+All four 8K-context paired scenarios passed the deterministic marker oracle in both arms and
+preserved every required signal. This establishes exact recall for these cases, not semantic
+quality equivalence; no human or LLM judge was used.
 PariTok reduced provider input by 82.6% and successful-run cost by 80.8%, but increased median
 end-to-end latency by 40.75 seconds (17.0x). This is a promising economics result and an
 unacceptable interactive-latency result. Do not expand to the Terra matrix until the latency path
@@ -14,7 +16,7 @@ has a product policy and a measured mitigation.
 
 | Metric | Direct baseline | PariTok | Change |
 |---|---:|---:|---:|
-| Task success | 4/4 | 4/4 | no observed degradation |
+| Required-signal task proxy | 4/4 | 4/4 | no observed proxy degradation |
 | Provider input tokens | 36,663 | 6,392 | -82.6% |
 | Provider output tokens | 137 | 137 | unchanged |
 | Estimated successful-run cost | $0.037485 | $0.007214 | -80.8% |
@@ -50,13 +52,31 @@ The completed run recorded $0.044699 in event-attributed provider cost. Includin
 attempt is estimated at approximately $0.0565 total, below the user-authorized $0.25 ceiling; the
 failed treatment usage is an estimate because the executor stopped before writing those events.
 
+## Local latency follow-up
+
+A provider-free three-state probe was run immediately after restarting Ollama. The
+`read-heavy-32k-5t` cold candidate took 38.82 seconds. A distinct `debugging-32k-5t` input then took
+29.18 seconds with the model loaded and no application cache hit. Repeating that exact second input
+hit the cache and took 4.69 milliseconds. Outputs shrank from 5,123 to 15 estimated tokens and from
+4,873 to 52 tokens, but neither has received semantic quality review.
+
+The scenarios are close in size but not identical, so the 9.64-second difference cannot be
+attributed entirely to model loading. The important product result is that warm, uncached
+compression remained around 29 seconds: cold loading is not the only blocker, while millisecond
+latency is available only for exact-input cache reuse. On this hardware and configuration, the
+result supports an eligibility policy that favors reusable/asynchronous context and rejects
+uncached synchronous work.
+
+Artifact: `artifacts/phase-3-local-latency.json`.
+
 ## Product decision
 
 - Keep the default rollout mode `off`.
 - Treat cost reduction as validated only for this four-case integration smoke.
 - Before Terra, add a latency-aware eligibility rule: compression is unsuitable for synchronous
   short sessions unless local work can be cached, precomputed, or amortized across later turns.
-- Run a warm-vs-cold latency experiment and separate local compression time from provider time.
+- Add instrumented backend timing for warm, uncached inference; the current paired subtraction is
+  only a local-plus-proxy estimate because PariTok 1.3.3 exposes no split timing headers.
 - Require at least five paired tasks per segment before applying the existing non-inferiority gate.
 
 Artifacts: `phase-3-session-events.jsonl`, `phase-3-session-manifest.json`,

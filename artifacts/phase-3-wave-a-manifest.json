@@ -1,0 +1,38 @@
+{
+  "completed_at": "2026-08-14",
+  "config": {
+    "path": "configs/phase-3-luna-wave-a.json",
+    "sha256": "ebf09588799b869efa883469ec923021f749cd31e643aaa31ddb5331141b730c"
+  },
+  "cost_preflight": {
+    "authorized_ceiling_usd": 1.25,
+    "estimated_input_cost_upper_bound_usd": 0.9683,
+    "output_and_paritok_compute_excluded": true,
+    "pricing_version": "openai-2026-08-12"
+  },
+  "events": {
+    "path": "artifacts/phase-3-wave-a-events.jsonl",
+    "sha256": "94927fcbd08c681edd774e80ea03d44a95ad828e342eb0725e143ce059953b16"
+  },
+  "evidence_label": "live_wave_a_unreviewed",
+  "experiment_id": "contextops-luna-wave-a-001",
+  "matrix": {
+    "path": "configs/phase-3-workloads.json",
+    "sha256": "b70f1cabe21f58d3a491809f01b58882e75cef71c83fccf1a43f0bcf5c4c118e"
+  },
+  "paired_session_count": 8,
+  "paritok_health": {
+    "status": "ok",
+    "version": "1.0.0"
+  },
+  "request_count": 40,
+  "runtime": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.9"
+  },
+  "scenario_count": 4,
+  "schema_version": 1,
+  "secrets_recorded": false,
+  "stage": "wave_a",
+  "suite_id": "contextops-phase3-matrix-v1"
+}

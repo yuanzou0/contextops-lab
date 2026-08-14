@@ -1,0 +1,74 @@
+{
+  "evidence_label": "live_wave_a_unreviewed",
+  "generated": "2026-08-14",
+  "input": {
+    "events": 40,
+    "path": "artifacts/phase-3-wave-a-events.jsonl",
+    "sha256": "94927fcbd08c681edd774e80ea03d44a95ad828e342eb0725e143ce059953b16"
+  },
+  "follow_up": {
+    "cache_contract_audit": {
+      "path": "artifacts/query-sensitive-cache-audit.json",
+      "sha256": "d328dabe9c34463cdaafc4466e784048e4ca1da137c4bc67c7065678862f90ee"
+    },
+    "decision_story": {
+      "path": "docs/query-sensitive-cache-decision.md",
+      "sha256": "75b0ab99c061fc34761e106a9e63bd0ebaf3825d832cefe6f30971a552288356"
+    },
+    "provider_free_protocol": {
+      "path": "docs/provider-free-regression-protocol.md",
+      "sha256": "cc24731fd3f12e77e13908e3ab3397fbf838659035508c12223d620717f0920d"
+    },
+    "provider_free_protocol_config": {
+      "path": "configs/provider-free-regression-v1.json",
+      "sha256": "e0a4e1d4aa0c2bdce07336d076f3e04b95ea555219a1d8803a3e0e2cc24c402a"
+    },
+    "provider_free_deterministic_regression": {
+      "path": "artifacts/provider-free-deterministic-regression.json",
+      "sha256": "cb9db073cc5362f20d336a73b5b934ae88b4e4539d24f8aab1e63d1d86da3a87"
+    },
+    "provider_free_deterministic_report": {
+      "path": "docs/provider-free-deterministic-regression.md",
+      "sha256": "c23d0361286122ceae9e1883f951c8131648c149aa1a09838221f8ff95a4d304"
+    },
+    "provider_free_local_4b_regression": {
+      "path": "artifacts/provider-free-local-4b-regression.json",
+      "sha256": "1009686733d214f06e7d411934572731a539c3a1df9b44c83291ce07aaadf2f7"
+    },
+    "provider_free_local_4b_report": {
+      "path": "docs/provider-free-local-4b-regression.md",
+      "sha256": "c789302c2822e8e78dfebc67002774b23339168f3a6ce4c519a295d698535ddf"
+    },
+    "recovery_protocol": {
+      "path": "docs/phase-3-recovery-protocol.md",
+      "sha256": "a00d28a7a1df2a826b114bfe3073aa3af11eb6a2923d984bc33371499b29a92f"
+    },
+    "recovery_preflight": {
+      "path": "artifacts/phase-3-recovery-preflight.json",
+      "sha256": "8d0f3a5591ad53faddd741ef7f6077f629755fd3cdec64997c2524f69e731c8f"
+    },
+    "recovery_preflight_report": {
+      "path": "docs/phase-3-recovery-preflight.md",
+      "sha256": "b65561968d6cfc93b96a1d8d01849c8bb57aadc460a38a66a0b85ac8ba8bd8ef"
+    },
+    "recovery_config": {
+      "path": "configs/phase-3-luna-recovery.json",
+      "sha256": "255b0462c12d0adb937ac6ec588833878e1e97d1882628b6a8b9fe0c4e92162e"
+    }
+  },
+  "outputs": {
+    "dashboard": {
+      "path": "artifacts/phase-3-wave-a-dashboard.html",
+      "sha256": "d00c75120304017497863272f60f45ed68f02496a00018d32f9503a77ffa6b55"
+    },
+    "policy": {
+      "path": "policies/phase-3-wave-a-policy.json",
+      "sha256": "42a090b1097c9dc9691c292dfd0ac8d644c944f4560db75f64b31b13be425996"
+    },
+    "report": {
+      "path": "docs/phase-3-wave-a-results.md",
+      "sha256": "5a3080866eb1409dbd40c184f837d63d3a28c6cd4cf4a54ac5ae58d08626656e"
+    }
+  },
+  "schema_version": 1
+}

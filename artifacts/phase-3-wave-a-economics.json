@@ -1,0 +1,292 @@
+{
+  "break_even_enabled": false,
+  "latency_value_usd_per_second": null,
+  "limitation": "Break-even requires an explicit latency valuation; task-proxy success is not semantic quality equivalence.",
+  "schema_version": 1,
+  "tasks": [
+    {
+      "break_even_turn": null,
+      "curve": [
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.007431,
+          "cumulative_baseline_latency_ms": 1882.9594580456614,
+          "cumulative_cost_saving_usd": 0.005932,
+          "cumulative_latency_penalty_ms": 27433.863749727607,
+          "cumulative_treatment_cost_usd": 0.001499,
+          "cumulative_treatment_latency_ms": 29316.82320777327,
+          "net_value_usd": null,
+          "task_id": "debugging-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 1
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.01982,
+          "cumulative_baseline_latency_ms": 3595.888416050002,
+          "cumulative_cost_saving_usd": 0.016717000000000003,
+          "cumulative_latency_penalty_ms": 52481.23483383097,
+          "cumulative_treatment_cost_usd": 0.003103,
+          "cumulative_treatment_latency_ms": 56077.12324988097,
+          "net_value_usd": null,
+          "task_id": "debugging-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 2
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.037172,
+          "cumulative_baseline_latency_ms": 5227.472291095182,
+          "cumulative_cost_saving_usd": 0.032360999999999994,
+          "cumulative_latency_penalty_ms": 77024.69850098714,
+          "cumulative_treatment_cost_usd": 0.004811,
+          "cumulative_treatment_latency_ms": 82252.17079208232,
+          "net_value_usd": null,
+          "task_id": "debugging-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 3
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.05948199999999999,
+          "cumulative_baseline_latency_ms": 6804.31970814243,
+          "cumulative_cost_saving_usd": 0.05285999999999999,
+          "cumulative_latency_penalty_ms": 101245.48320891336,
+          "cumulative_treatment_cost_usd": 0.006622,
+          "cumulative_treatment_latency_ms": 108049.80291705579,
+          "net_value_usd": null,
+          "task_id": "debugging-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 4
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.08692499999999999,
+          "cumulative_baseline_latency_ms": 8332.620083121583,
+          "cumulative_cost_saving_usd": 0.07822599999999999,
+          "cumulative_latency_penalty_ms": 130095.9602498915,
+          "cumulative_treatment_cost_usd": 0.008699,
+          "cumulative_treatment_latency_ms": 138428.5803330131,
+          "net_value_usd": null,
+          "task_id": "debugging-32k-5t",
+          "treatment_task_proxy_success": false,
+          "turn_id": 5
+        }
+      ],
+      "task_id": "debugging-32k-5t"
+    },
+    {
+      "break_even_turn": null,
+      "curve": [
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.007224,
+          "cumulative_baseline_latency_ms": 1902.278124820441,
+          "cumulative_cost_saving_usd": 0.005697000000000001,
+          "cumulative_latency_penalty_ms": 30639.01033322327,
+          "cumulative_treatment_cost_usd": 0.001527,
+          "cumulative_treatment_latency_ms": 32541.28845804371,
+          "net_value_usd": null,
+          "task_id": "edit-critical-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 1
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.019628,
+          "cumulative_baseline_latency_ms": 6203.440374694765,
+          "cumulative_cost_saving_usd": 0.016467,
+          "cumulative_latency_penalty_ms": 53195.328624220565,
+          "cumulative_treatment_cost_usd": 0.0031609999999999997,
+          "cumulative_treatment_latency_ms": 59398.76899891533,
+          "net_value_usd": null,
+          "task_id": "edit-critical-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 2
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.037218,
+          "cumulative_baseline_latency_ms": 7988.217666745186,
+          "cumulative_cost_saving_usd": 0.032318,
+          "cumulative_latency_penalty_ms": 81514.70295735635,
+          "cumulative_treatment_cost_usd": 0.0049,
+          "cumulative_treatment_latency_ms": 89502.92062410153,
+          "net_value_usd": null,
+          "task_id": "edit-critical-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 3
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.059988,
+          "cumulative_baseline_latency_ms": 9900.95524978824,
+          "cumulative_cost_saving_usd": 0.053243,
+          "cumulative_latency_penalty_ms": 108524.15533247404,
+          "cumulative_treatment_cost_usd": 0.006745,
+          "cumulative_treatment_latency_ms": 118425.11058226228,
+          "net_value_usd": null,
+          "task_id": "edit-critical-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 4
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.08811,
+          "cumulative_baseline_latency_ms": 13469.676957698539,
+          "cumulative_cost_saving_usd": 0.07926,
+          "cumulative_latency_penalty_ms": 142823.8496244885,
+          "cumulative_treatment_cost_usd": 0.00885,
+          "cumulative_treatment_latency_ms": 156293.52658218704,
+          "net_value_usd": null,
+          "task_id": "edit-critical-32k-5t",
+          "treatment_task_proxy_success": false,
+          "turn_id": 5
+        }
+      ],
+      "task_id": "edit-critical-32k-5t"
+    },
+    {
+      "break_even_turn": null,
+      "curve": [
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.010547,
+          "cumulative_baseline_latency_ms": 1813.3555829990655,
+          "cumulative_cost_saving_usd": 0.009001,
+          "cumulative_latency_penalty_ms": 31648.16499990411,
+          "cumulative_treatment_cost_usd": 0.001546,
+          "cumulative_treatment_latency_ms": 33461.52058290318,
+          "net_value_usd": null,
+          "task_id": "mcp-heavy-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 1
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.026504,
+          "cumulative_baseline_latency_ms": 3993.2619989849627,
+          "cumulative_cost_saving_usd": 0.023302,
+          "cumulative_latency_penalty_ms": 63468.99170894176,
+          "cumulative_treatment_cost_usd": 0.003202,
+          "cumulative_treatment_latency_ms": 67462.25370792672,
+          "net_value_usd": null,
+          "task_id": "mcp-heavy-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 2
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.047875,
+          "cumulative_baseline_latency_ms": 6446.401790948585,
+          "cumulative_cost_saving_usd": 0.042906,
+          "cumulative_latency_penalty_ms": 93723.4170420561,
+          "cumulative_treatment_cost_usd": 0.0049689999999999995,
+          "cumulative_treatment_latency_ms": 100169.81883300468,
+          "net_value_usd": null,
+          "task_id": "mcp-heavy-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 3
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.074656,
+          "cumulative_baseline_latency_ms": 8804.702583001927,
+          "cumulative_cost_saving_usd": 0.06781,
+          "cumulative_latency_penalty_ms": 123429.59674983285,
+          "cumulative_treatment_cost_usd": 0.006846,
+          "cumulative_treatment_latency_ms": 132234.29933283478,
+          "net_value_usd": null,
+          "task_id": "mcp-heavy-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 4
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.10703399999999999,
+          "cumulative_baseline_latency_ms": 11148.003000067547,
+          "cumulative_cost_saving_usd": 0.09612399999999999,
+          "cumulative_latency_penalty_ms": 242857.87508264184,
+          "cumulative_treatment_cost_usd": 0.01091,
+          "cumulative_treatment_latency_ms": 254005.8780827094,
+          "net_value_usd": null,
+          "task_id": "mcp-heavy-32k-5t",
+          "treatment_task_proxy_success": false,
+          "turn_id": 5
+        }
+      ],
+      "task_id": "mcp-heavy-32k-5t"
+    },
+    {
+      "break_even_turn": null,
+      "curve": [
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.006989,
+          "cumulative_baseline_latency_ms": 3466.637791832909,
+          "cumulative_cost_saving_usd": 0.005463000000000001,
+          "cumulative_latency_penalty_ms": 69219.9548331555,
+          "cumulative_treatment_cost_usd": 0.001526,
+          "cumulative_treatment_latency_ms": 72686.5926249884,
+          "net_value_usd": null,
+          "task_id": "read-heavy-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 1
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.019191,
+          "cumulative_baseline_latency_ms": 6712.610707851127,
+          "cumulative_cost_saving_usd": 0.016032,
+          "cumulative_latency_penalty_ms": 104038.35379215889,
+          "cumulative_treatment_cost_usd": 0.003159,
+          "cumulative_treatment_latency_ms": 110750.96450001001,
+          "net_value_usd": null,
+          "task_id": "read-heavy-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 2
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.036611000000000005,
+          "cumulative_baseline_latency_ms": 9107.564998790622,
+          "cumulative_cost_saving_usd": 0.031712000000000004,
+          "cumulative_latency_penalty_ms": 141011.07420912012,
+          "cumulative_treatment_cost_usd": 0.004899,
+          "cumulative_treatment_latency_ms": 150118.63920791075,
+          "net_value_usd": null,
+          "task_id": "read-heavy-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 3
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.059244000000000005,
+          "cumulative_baseline_latency_ms": 11442.28487368673,
+          "cumulative_cost_saving_usd": 0.052497,
+          "cumulative_latency_penalty_ms": 177934.0050010942,
+          "cumulative_treatment_cost_usd": 0.0067469999999999995,
+          "cumulative_treatment_latency_ms": 189376.28987478092,
+          "net_value_usd": null,
+          "task_id": "read-heavy-32k-5t",
+          "treatment_task_proxy_success": true,
+          "turn_id": 4
+        },
+        {
+          "baseline_task_proxy_success": true,
+          "cumulative_baseline_cost_usd": 0.087258,
+          "cumulative_baseline_latency_ms": 13328.285748604685,
+          "cumulative_cost_saving_usd": 0.078443,
+          "cumulative_latency_penalty_ms": 209899.24037619494,
+          "cumulative_treatment_cost_usd": 0.008815,
+          "cumulative_treatment_latency_ms": 223227.52612479962,
+          "net_value_usd": null,
+          "task_id": "read-heavy-32k-5t",
+          "treatment_task_proxy_success": false,
+          "turn_id": 5
+        }
+      ],
+      "task_id": "read-heavy-32k-5t"
+    }
+  ]
+}

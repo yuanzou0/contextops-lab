@@ -37,7 +37,7 @@ class RequestEvent:
     tests_passed: bool | None
     manual_intervention: bool
     estimated_total_cost: float
-    schema_version: int = 4
+    schema_version: int = 6
     failure_reason: str | None = None
     upstream_error: str | None = None
     silent_failure: bool = False
@@ -53,6 +53,9 @@ class RequestEvent:
     is_terminal_turn: bool = True
     context_tokens: int = 0
     risk_level: str = "unspecified"
+    outcome_measure: str = "task_proxy_success"
+    required_signals_total: int = 0
+    required_signals_recalled: int = 0
 
     def __post_init__(self) -> None:
         non_negative = {
@@ -72,6 +75,8 @@ class RequestEvent:
             "proxy_request_count": self.proxy_request_count,
             "proxy_tokens_saved": self.proxy_tokens_saved,
             "context_tokens": self.context_tokens,
+            "required_signals_total": self.required_signals_total,
+            "required_signals_recalled": self.required_signals_recalled,
         }
         invalid = [name for name, value in non_negative.items() if value < 0]
         if invalid:

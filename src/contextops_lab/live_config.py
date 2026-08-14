@@ -39,6 +39,8 @@ class LiveExperimentConfig:
     reasoning_effort: str | None = "none"
     require_proxy_telemetry: bool = True
     evidence_label: str = "live_unreviewed"
+    compression_cache_contract: str = "unverified"
+    contextops_safety_stats_url: str | None = None
 
     def __post_init__(self) -> None:
         for field in (
@@ -61,6 +63,10 @@ class LiveExperimentConfig:
             raise ValueError("pricing values cannot be negative")
         if not self.compression_model:
             raise ValueError("compression_model is required")
+        if self.compression_cache_contract not in {"unverified", "disabled", "query_aware"}:
+            raise ValueError("compression_cache_contract is invalid")
+        if self.contextops_safety_stats_url is not None:
+            _http_url(self.contextops_safety_stats_url, "contextops_safety_stats_url")
 
     @property
     def api_key(self) -> str | None:
