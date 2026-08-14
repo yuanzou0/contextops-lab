@@ -1,0 +1,94 @@
+{
+  "context_gate_passed": false,
+  "minimum_pairs_per_segment": 5,
+  "minimum_review_score": 0.8,
+  "quality_claim_allowed": false,
+  "quality_noninferiority_margin": 0.05,
+  "quality_review": {
+    "coverage_passed": false,
+    "gate_passed": false,
+    "methods": [],
+    "reviewed_terminal_arms": 0,
+    "segments": [
+      {
+        "conservative_95pct_ci_low": null,
+        "gate_passed": false,
+        "mean_treatment_minus_baseline": null,
+        "minimum_score": null,
+        "paired_reviews": 0,
+        "task_type": "debugging"
+      },
+      {
+        "conservative_95pct_ci_low": null,
+        "gate_passed": false,
+        "mean_treatment_minus_baseline": null,
+        "minimum_score": null,
+        "paired_reviews": 0,
+        "task_type": "edit_critical"
+      },
+      {
+        "conservative_95pct_ci_low": null,
+        "gate_passed": false,
+        "mean_treatment_minus_baseline": null,
+        "minimum_score": null,
+        "paired_reviews": 0,
+        "task_type": "mcp_heavy"
+      },
+      {
+        "conservative_95pct_ci_low": null,
+        "gate_passed": false,
+        "mean_treatment_minus_baseline": null,
+        "minimum_score": null,
+        "paired_reviews": 0,
+        "task_type": "read_heavy"
+      }
+    ],
+    "terminal_arms": 8
+  },
+  "required_contexts": [
+    32000,
+    128000
+  ],
+  "required_task_types": [
+    "read_heavy",
+    "debugging",
+    "mcp_heavy",
+    "edit_critical"
+  ],
+  "sample_gate_passed": false,
+  "schema_version": 1,
+  "segments": [
+    {
+      "contexts": [
+        8000
+      ],
+      "paired_tasks": 1,
+      "sample_gate_passed": false,
+      "task_type": "debugging"
+    },
+    {
+      "contexts": [
+        8000
+      ],
+      "paired_tasks": 1,
+      "sample_gate_passed": false,
+      "task_type": "edit_critical"
+    },
+    {
+      "contexts": [
+        8000
+      ],
+      "paired_tasks": 1,
+      "sample_gate_passed": false,
+      "task_type": "mcp_heavy"
+    },
+    {
+      "contexts": [
+        8000
+      ],
+      "paired_tasks": 1,
+      "sample_gate_passed": false,
+      "task_type": "read_heavy"
+    }
+  ]
+}

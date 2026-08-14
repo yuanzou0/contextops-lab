@@ -97,11 +97,23 @@ class MultiTurnProxyExecutor:
                 validator_result = "not_applied"
 
             terminal = turn_index == scenario.session_turns
+            recalled_signals = (
+                sum(signal in completion.content for signal in scenario.required_signals)
+                if terminal
+                else 0
+            )
             turn_success = (
-                all(signal in completion.content for signal in scenario.required_signals)
+                recalled_signals == len(scenario.required_signals)
                 if terminal
                 else completion.content.strip() == "CONTEXT_RECORDED"
             )
+            failure_reason = None
+            if not turn_success:
+                failure_reason = (
+                    "missing_required_signals"
+                    if terminal
+                    else "protocol_acknowledgement_failed"
+                )
             events.append(
                 RequestEvent(
                     experiment_id=self.experiment_id,
@@ -127,6 +139,7 @@ class MultiTurnProxyExecutor:
                     tests_passed=turn_success if terminal else None,
                     manual_intervention=False,
                     estimated_total_cost=completion.estimated_cost,
+                    failure_reason=failure_reason,
                     recorded_at=datetime.now(timezone.utc).isoformat(),
                     experiment_config_version=self.config_version,
                     pricing_version=self.pricing_version,
@@ -139,6 +152,13 @@ class MultiTurnProxyExecutor:
                     is_terminal_turn=terminal,
                     context_tokens=scenario.context_tokens,
                     risk_level=scenario.risk_level,
+                    outcome_measure=(
+                        "critical_signal_recall"
+                        if terminal
+                        else "protocol_acknowledgement"
+                    ),
+                    required_signals_total=len(scenario.required_signals) if terminal else 0,
+                    required_signals_recalled=recalled_signals,
                 )
             )
         return SessionOutcome(scenario.scenario_id, arm, tuple(events))

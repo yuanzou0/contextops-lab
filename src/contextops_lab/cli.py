@@ -11,15 +11,20 @@ from datetime import date
 from pathlib import Path
 
 from .benchmark import load_benchmark_cases
+from .compressors import ExtractiveRiskCompressor
 from .dashboard import build_dashboard, write_dashboard
 from .doctor import CheckStatus, run_doctor
+from .economics import build_multi_turn_economics
 from .events import JsonlEventStore, load_events
+from .evidence import audit_evidence, load_reviews
 from .execution import DualArmExecutor
 from .execution import OpenAICompatibleAgent
 from .experiments import PairedExperimentRunner
 from .fixtures import FixtureAgent, FixtureCompressor
 from .live import ProxyPairedExecutor
 from .live_config import load_live_config
+from .latency import decompose_paired_latency, measure_local_latency_states
+from .metrics import summarize
 from .paritok import PariTokGateway
 from .policy import generate_rollout_policy, write_policy
 from .reporting import build_markdown_report, build_phase2_report
@@ -27,6 +32,7 @@ from .session_live import MultiTurnProxyExecutor, run_paired_sessions
 from .workloads import (
     audit_stage,
     build_audit_markdown,
+    build_session_messages,
     load_pricing,
     load_workload_matrix,
     select_stage,
@@ -56,6 +62,122 @@ def run_offline(args: argparse.Namespace) -> int:
     print(f"Executed {len(cases)} paired cases ({len(events)} arm runs)")
     print(f"Events: {events_path}")
     print(f"Report: {report_path}")
+    return 0
+
+
+def run_compressor_compare(args: argparse.Namespace) -> int:
+    cases = load_benchmark_cases(args.manifest)
+    destination = Path(args.output)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    comparisons = {}
+    for compressor in (FixtureCompressor(), ExtractiveRiskCompressor()):
+        events = []
+        executor = DualArmExecutor(
+            FixtureAgent(),
+            compressor,
+            experiment_id=f"offline-{compressor.name}",
+            recorded_at="2000-01-01T00:00:00Z",
+            experiment_config_version="offline-compressor-comparison-v1",
+            pricing_version="fixture-pricing-v1",
+        )
+        PairedExperimentRunner(executor, events.append, seed=args.seed).run(cases)
+        comparisons[compressor.name] = summarize(events)
+    payload = {
+        "schema_version": 1,
+        "evidence_label": "offline_adapter_comparison",
+        "limitations": "Validates adapter comparability; does not reproduce PariTok live results.",
+        "compressors": comparisons,
+    }
+    destination.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"Compared {len(comparisons)} compressor adapters across {len(cases)} cases")
+    print(f"Comparison: {destination}")
+    return 0
+
+
+def run_evidence_audit(args: argparse.Namespace) -> int:
+    payload = audit_evidence(load_events(args.events), load_reviews(args.reviews))
+    destination = Path(args.output)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"Evidence audit: {destination}")
+    print(f"Quality claim allowed: {str(payload['quality_claim_allowed']).lower()}")
+    return 0 if payload["quality_claim_allowed"] else 3
+
+
+def run_latency_audit(args: argparse.Namespace) -> int:
+    rows = [row.to_dict() for row in decompose_paired_latency(load_events(args.events))]
+    payload = {
+        "schema_version": 1,
+        "measurement": "paired_estimate",
+        "limitation": (
+            "PariTok 1.3.3 exposes no split timing header; incremental latency combines local "
+            "compression and proxy overhead."
+        ),
+        "pairs": rows,
+    }
+    destination = Path(args.output)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"Latency audit: {destination}")
+    return 0
+
+
+def run_local_latency_probe(args: argparse.Namespace) -> int:
+    try:
+        from paritok.config import ParitokConfig
+        from paritok.pipelines.compress import CompressionPipeline
+    except ImportError:
+        print("Install the live extra: python -m pip install -e '.[live]'", file=sys.stderr)
+        return 2
+    matrix, scenarios = load_workload_matrix(args.matrix)
+    del matrix
+    by_id = {item.scenario_id: item for item in scenarios}
+    try:
+        cold_scenario = by_id[args.scenario]
+        warm_scenario = by_id[args.warm_scenario]
+    except KeyError as error:
+        print(f"Unknown scenario: {error.args[0]}", file=sys.stderr)
+        return 2
+    if cold_scenario.context_tokens != warm_scenario.context_tokens:
+        print("Cold and warm scenarios must use the same context band", file=sys.stderr)
+        return 2
+
+    def tool_content(scenario):
+        return next(
+            message["content"]
+            for message in build_session_messages(scenario)[-1]
+            if message["role"] == "tool"
+        )
+
+    pipeline = CompressionPipeline(ParitokConfig())
+    payload = measure_local_latency_states(
+        lambda content: pipeline.compress(
+            content,
+            query="Preserve critical software evidence",
+            upstream_model=args.model,
+        ),
+        tool_content(cold_scenario),
+        tool_content(warm_scenario),
+    )
+    payload["cold_scenario_id"] = cold_scenario.scenario_id
+    payload["warm_uncached_scenario_id"] = warm_scenario.scenario_id
+    payload["backend_restarted_before_probe"] = args.confirm_backend_restarted
+    destination = Path(args.output)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"Local latency probe: {destination}")
+    return 0
+
+
+def run_multi_turn_economics(args: argparse.Namespace) -> int:
+    payload = build_multi_turn_economics(
+        load_events(args.events),
+        latency_value_usd_per_second=args.latency_value_usd_per_second,
+    )
+    destination = Path(args.output)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"Multi-turn economics: {destination}")
     return 0
 
 
@@ -376,6 +498,49 @@ def build_parser() -> argparse.ArgumentParser:
     offline.add_argument("--seed", type=int, default=17)
     offline.set_defaults(func=run_offline)
 
+    compare = subparsers.add_parser(
+        "compressor-compare", help="compare deterministic compressor adapters offline"
+    )
+    compare.add_argument("--manifest", default="evals/tasks/mvp_tasks.jsonl")
+    compare.add_argument("--output", default="artifacts/compressor-comparison.json")
+    compare.add_argument("--seed", type=int, default=17)
+    compare.set_defaults(func=run_compressor_compare)
+
+    evidence = subparsers.add_parser(
+        "evidence-audit", help="check sample, context, and independent quality-review gates"
+    )
+    evidence.add_argument("--events", default="artifacts/phase-3-session-events.jsonl")
+    evidence.add_argument("--reviews")
+    evidence.add_argument("--output", default="artifacts/phase-3-evidence-audit.json")
+    evidence.set_defaults(func=run_evidence_audit)
+
+    latency = subparsers.add_parser(
+        "latency-audit", help="estimate paired provider versus local/proxy latency"
+    )
+    latency.add_argument("--events", default="artifacts/phase-3-session-events.jsonl")
+    latency.add_argument("--output", default="artifacts/phase-3-latency-audit.json")
+    latency.set_defaults(func=run_latency_audit)
+
+    local_latency = subparsers.add_parser(
+        "local-latency-probe", help="measure cold/warm local PariTok compression without a provider"
+    )
+    local_latency.add_argument("--matrix", default="configs/phase-3-workloads.json")
+    local_latency.add_argument("--scenario", default="read-heavy-32k-5t")
+    local_latency.add_argument("--warm-scenario", default="debugging-32k-5t")
+    local_latency.add_argument("--model", default="gpt-5.6-luna")
+    local_latency.add_argument("--confirm-backend-restarted", action="store_true")
+    local_latency.add_argument("--output", default="artifacts/phase-3-local-latency.json")
+    local_latency.set_defaults(func=run_local_latency_probe)
+
+    economics = subparsers.add_parser(
+        "multi-turn-economics",
+        help="build cumulative cost, latency, and explicit-value break-even curves",
+    )
+    economics.add_argument("--events", default="artifacts/phase-3-session-events.jsonl")
+    economics.add_argument("--latency-value-usd-per-second", type=float)
+    economics.add_argument("--output", default="artifacts/phase-3-multi-turn-economics.json")
+    economics.set_defaults(func=run_multi_turn_economics)
+
     policy = subparsers.add_parser("policy", help="generate an evidence-gated rollout policy")
     policy.add_argument("--events", default="artifacts/phase-1-events.jsonl")
     policy.add_argument("--output", default="policies/rollout-policy.json")
@@ -425,7 +590,9 @@ def build_parser() -> argparse.ArgumentParser:
     workloads.add_argument("--matrix", default="configs/phase-3-workloads.json")
     workloads.add_argument("--pricing", default="configs/openai-pricing-2026-08-12.json")
     workloads.add_argument("--model", default="gpt-5.6-luna")
-    workloads.add_argument("--stage", choices=("smoke", "core", "extended"), default="smoke")
+    workloads.add_argument(
+        "--stage", choices=("smoke", "core", "wave_a", "evidence", "extended"), default="smoke"
+    )
     workloads.add_argument("--output", default="artifacts/phase-3-smoke-audit.json")
     workloads.add_argument("--report", default="docs/phase-3-workload-audit.md")
     workloads.set_defaults(func=run_workload_audit)
@@ -436,7 +603,9 @@ def build_parser() -> argparse.ArgumentParser:
     sessions.add_argument("--config", default="configs/phase-3-luna-smoke.json")
     sessions.add_argument("--matrix", default="configs/phase-3-workloads.json")
     sessions.add_argument("--pricing", default="configs/openai-pricing-2026-08-12.json")
-    sessions.add_argument("--stage", choices=("smoke", "core", "extended"), default="smoke")
+    sessions.add_argument(
+        "--stage", choices=("smoke", "core", "wave_a", "evidence", "extended"), default="smoke"
+    )
     sessions.add_argument("--events", default="artifacts/phase-3-session-events.jsonl")
     sessions.add_argument("--run-manifest", default="artifacts/phase-3-session-manifest.json")
     sessions.add_argument("--seed", type=int, default=17)

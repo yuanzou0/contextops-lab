@@ -33,10 +33,16 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
 - [x] PariTok gateway, telemetry, local model listing, and direct compression verified locally.
 - [ ] Provider key and a non-zero, date-versioned price entry configured.
 - [x] A small paid Luna smoke run completes with exact critical-signal recall.
+- [x] A bounded 32K/5-turn Wave A pilot completes and correctly keeps rollout off after 4/4
+  treatment terminal task-proxy failures.
+- [ ] At least five paired tasks per workload at 32K/128K complete.
+- [ ] Independent human or calibrated LLM reviews cover terminal responses.
+- [ ] Cold/warm latency is decomposed with instrumented local and provider timing.
 - [ ] All 36 paired cases execute on an isolated proxy instance.
 - [ ] Results are reviewed for task equivalence, silent failures, cost per success, and P95 latency.
 - [ ] Production rollout policy remains locked until confidence and reliability gates pass.
 
 Engineering readiness is not production evidence. The unchecked items require the operator's
-provider credentials and authorization to incur cost. Local readiness evidence is recorded in
+provider credentials and authorization to incur cost. Marker recall is a safety check, not a
+semantic-quality verdict; see `quality-review-protocol.md`. Local readiness evidence is recorded in
 `artifacts/phase-3-local-readiness.json`; it is not provider-performance evidence.

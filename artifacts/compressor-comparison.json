@@ -1,0 +1,51 @@
+{
+  "compressors": {
+    "extractive-risk-baseline": {
+      "baseline": {
+        "cost_per_successful_task": 0.00029961111111111106,
+        "effective_token_ratio": 1.0,
+        "fallback_rate": 0.0,
+        "median_latency_ms": 13.9,
+        "p95_latency_ms": 14.0,
+        "requests": 36.0,
+        "runs": 36.0,
+        "task_success_rate": 1.0
+      },
+      "compressed": {
+        "cost_per_successful_task": 0.00013294444444444443,
+        "effective_token_ratio": 0.29461556548318835,
+        "fallback_rate": 0.0,
+        "median_latency_ms": 9.783208052627742,
+        "p95_latency_ms": 9.883417018130421,
+        "requests": 36.0,
+        "runs": 36.0,
+        "task_success_rate": 1.0
+      }
+    },
+    "offline-fixture-compressor": {
+      "baseline": {
+        "cost_per_successful_task": 0.00029961111111111106,
+        "effective_token_ratio": 1.0,
+        "fallback_rate": 0.0,
+        "median_latency_ms": 13.9,
+        "p95_latency_ms": 14.0,
+        "requests": 36.0,
+        "runs": 36.0,
+        "task_success_rate": 1.0
+      },
+      "compressed": {
+        "cost_per_successful_task": 0.00014238888888888887,
+        "effective_token_ratio": 0.292264284034799,
+        "fallback_rate": 0.05555555555555555,
+        "median_latency_ms": 12.5,
+        "p95_latency_ms": 12.6,
+        "requests": 36.0,
+        "runs": 36.0,
+        "task_success_rate": 1.0
+      }
+    }
+  },
+  "evidence_label": "offline_adapter_comparison",
+  "limitations": "Validates adapter comparability; does not reproduce PariTok live results.",
+  "schema_version": 1
+}

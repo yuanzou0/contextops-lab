@@ -1,0 +1,24 @@
+{
+  "evidence_label": "live_wave_a_unreviewed",
+  "generated": "2026-08-14",
+  "input": {
+    "events": 40,
+    "path": "artifacts/phase-3-wave-a-events.jsonl",
+    "sha256": "94927fcbd08c681edd774e80ea03d44a95ad828e342eb0725e143ce059953b16"
+  },
+  "outputs": {
+    "dashboard": {
+      "path": "artifacts/phase-3-wave-a-dashboard.html",
+      "sha256": "d00c75120304017497863272f60f45ed68f02496a00018d32f9503a77ffa6b55"
+    },
+    "policy": {
+      "path": "policies/phase-3-wave-a-policy.json",
+      "sha256": "42a090b1097c9dc9691c292dfd0ac8d644c944f4560db75f64b31b13be425996"
+    },
+    "report": {
+      "path": "docs/phase-3-wave-a-results.md",
+      "sha256": "1f0675a03e41be40df933cdf37a1da6987dceb734b0e462e5ac52842062ca7f0"
+    }
+  },
+  "schema_version": 1
+}

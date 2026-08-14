@@ -14,6 +14,16 @@ For which AI-agent workloads does a configured compression treatment reduce cost
 
 ## Phase 3 staged workload matrix
 
+The `smoke` stage remains a four-case integration check. It must not be used for non-inferiority.
+The `evidence` stage selects 20 scenarios—five per workload—using 32K and 128K contexts. It is the
+minimum live sample eligible for independent quality review; `extended` remains the full 36-case
+matrix.
+
+For multi-turn product economics, report cumulative provider-cost saving and cumulative latency
+penalty separately at every turn. A single break-even number is permitted only when the analysis
+declares an explicit USD-per-second latency valuation; dollars and seconds must never be combined
+implicitly. Task-proxy preservation remains separate from independently reviewed semantic quality.
+
 The production-shaped suite expands four decision-critical workload types across three history
 payload bands and three session lengths:
 

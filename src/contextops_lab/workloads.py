@@ -90,9 +90,17 @@ def select_stage(matrix: dict, scenarios: list[WorkloadScenario], stage: str) ->
         rule = matrix["stages"][stage]
     except KeyError as error:
         raise ValueError(f"Unknown workload stage: {stage}") from error
+    types = set(rule["task_types"])
+    if "combinations" in rule:
+        combinations = {(int(context), int(turns)) for context, turns in rule["combinations"]}
+        return [
+            scenario
+            for scenario in scenarios
+            if (scenario.context_tokens, scenario.session_turns) in combinations
+            and scenario.task_type in types
+        ]
     contexts = set(map(int, rule["context_tokens"]))
     turns = set(map(int, rule["session_turns"]))
-    types = set(rule["task_types"])
     return [
         scenario
         for scenario in scenarios

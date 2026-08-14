@@ -1,6 +1,6 @@
 # ContextOps Lab — Phase 1 Analysis Report
 
-**Generated:** 2026-08-11
+**Generated:** 2026-08-14
 **Evidence level:** offline deterministic pipeline validation
 
 ## Executive conclusion
@@ -9,14 +9,14 @@ This report validates the paired-experiment, safety fallback, event, and analyti
 
 ## Overall results
 
-| Arm | Runs | Task success | Cost / success | Fallback | P95 latency | Token ratio |
+| Arm | Runs | Task-proxy success | Cost / proxy success | Fallback | P95 latency | Token ratio |
 |---|---:|---:|---:|---:|---:|---:|
 | baseline | 36 | 100.0% | 0.000300 | 0.0% | 14.0 ms | 100.0% |
 | compressed | 36 | 100.0% | 0.000142 | 5.6% | 12.6 ms | 29.2% |
 
 ## Workload segmentation
 
-| Workload | Compressed runs | Success | Fallback | Token ratio |
+| Workload | Compressed runs | Task-proxy success | Fallback | Token ratio |
 |---|---:|---:|---:|---:|
 | debugging | 8 | 100.0% | 0.0% | 25.7% |
 | edit_critical | 6 | 100.0% | 0.0% | 24.8% |

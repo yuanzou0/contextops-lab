@@ -71,7 +71,27 @@ the client retry a request that the gateway is still processing, duplicating pro
 invalidating per-request telemetry. Pre-warm local dependencies and use a longer end-to-end timeout
 instead.
 
+Before expanding the matrix, restart Ollama and immediately run `contextops-lab
+local-latency-probe --confirm-backend-restarted`. It makes no provider request and records a cold candidate, a distinct-input
+warm uncached call, and exact-input cache reuse. The cold label is valid only when the backend was
+actually restarted. Combine that artifact with
+`contextops-lab latency-audit`, whose direct arm is the provider control. The paired subtraction is
+explicitly labeled an estimate because PariTok 1.3.3 does not expose split timing headers.
+
 ## 5. Terra formal experiment and decision artifacts
+
+Before the full evidence stage, use the bounded Wave A pilot to test all four workloads at
+32K/5-turn. It is still directional evidence, not non-inferiority:
+
+```bash
+contextops-lab live-session-run \
+  --config configs/phase-3-luna-wave-a.json \
+  --stage wave_a \
+  --events artifacts/phase-3-wave-a-events.jsonl \
+  --run-manifest artifacts/phase-3-wave-a-manifest.json \
+  --max-estimated-input-cost-usd 1.25 \
+  --confirm-live-costs
+```
 
 ```bash
 contextops-lab live-session-run \

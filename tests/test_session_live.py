@@ -74,6 +74,9 @@ class SessionLiveTests(unittest.TestCase):
         self.assertEqual([event.turn_id for event in outcome.events], [1, 2, 3, 4, 5])
         self.assertTrue(all(event.proxy_request_count == 1 for event in outcome.events))
         self.assertTrue(all(event.proxy_tokens_saved == 40 for event in outcome.events))
+        self.assertEqual(outcome.events[-1].outcome_measure, "critical_signal_recall")
+        self.assertEqual(outcome.events[-1].required_signals_total, 3)
+        self.assertEqual(outcome.events[-1].required_signals_recalled, 3)
 
     def test_paired_runner_and_metrics_count_session_success_not_ack_turns(self):
         baseline = FakeMessageAgent(self.scenario.required_signals)
