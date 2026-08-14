@@ -78,6 +78,20 @@ actually restarted. Combine that artifact with
 `contextops-lab latency-audit`, whose direct arm is the provider control. The paired subtraction is
 explicitly labeled an estimate because PariTok 1.3.3 does not expose split timing headers.
 
+### Query-sensitive cache safety gate
+
+Run the provider-free contract audit before any further multi-turn experiment:
+
+```bash
+contextops-lab cache-contract-audit
+```
+
+Multi-turn execution defaults to the `unverified` cache contract and therefore fails closed before
+checking an API key or calling a provider. A future integration config must declare
+`compression_cache_contract` as `disabled` or `query_aware`. The
+`--allow-unsafe-query-sensitive-cache-experiment` flag exists only to reproduce a controlled unsafe
+condition and is recorded as non-rollout research evidence.
+
 ## 5. Terra formal experiment and decision artifacts
 
 Before the full evidence stage, use the bounded Wave A pilot to test all four workloads at

@@ -2,6 +2,7 @@ import unittest
 from dataclasses import replace
 
 from contextops_lab.benchmark import load_benchmark_cases
+from contextops_lab.cache_safety import audit_installed_paritok_cache, decide_cache_safety
 from contextops_lab.compressors import ExtractiveRiskCompressor
 from contextops_lab.eligibility import decide_eligibility
 from contextops_lab.economics import build_multi_turn_economics
@@ -9,6 +10,7 @@ from contextops_lab.evidence import QualityReview, audit_evidence
 from contextops_lab.events import load_events
 from contextops_lab.latency import decompose_paired_latency, measure_local_latency_states
 from contextops_lab.models import ExperimentArm
+from contextops_lab.workloads import load_workload_matrix
 
 
 class ProductEvidenceTests(unittest.TestCase):
@@ -44,6 +46,47 @@ class ProductEvidenceTests(unittest.TestCase):
         )
         self.assertFalse(drifted.eligible)
         self.assertIn("query_sensitive_cache_risk", drifted.reasons)
+
+        undeclared = decide_eligibility(
+            context_tokens=128_000,
+            session_turns=5,
+            risk_level="medium",
+            reusable_cache=True,
+        )
+        self.assertFalse(undeclared.eligible)
+        self.assertIn("query_sensitive_cache_risk", undeclared.reasons)
+
+    def test_multi_turn_cache_contract_fails_closed_but_preserves_research_override(self):
+        _, scenarios = load_workload_matrix("configs/phase-3-workloads.json")
+        multi_turn = [next(row for row in scenarios if row.session_turns == 5)]
+        blocked = decide_cache_safety(multi_turn, contract="unverified")
+        self.assertFalse(blocked.allowed)
+        self.assertFalse(blocked.rollout_eligible)
+        self.assertIn("cache_contract_unverified", blocked.reasons)
+
+        disabled = decide_cache_safety(multi_turn, contract="disabled")
+        self.assertTrue(disabled.allowed)
+        self.assertTrue(disabled.rollout_eligible)
+
+        research = decide_cache_safety(
+            multi_turn,
+            contract="unverified",
+            allow_unsafe_experiment=True,
+        )
+        self.assertTrue(research.allowed)
+        self.assertFalse(research.rollout_eligible)
+        self.assertTrue(research.research_override)
+
+    def test_installed_paritok_cache_audit_is_provider_free_and_controlled(self):
+        try:
+            import paritok  # noqa: F401
+        except ImportError:
+            self.skipTest("optional live dependency is not installed")
+        payload = audit_installed_paritok_cache()
+        self.assertTrue(payload["content_only_query_reuse_observed"])
+        self.assertTrue(payload["isolation_interventions_passed"])
+        self.assertEqual(payload["content_only"]["model_calls"], 1)
+        self.assertEqual(payload["cache_disabled"]["model_calls"], 2)
 
     def test_current_smoke_fails_sample_context_and_review_gates(self):
         events = load_events("artifacts/phase-3-session-events.jsonl")

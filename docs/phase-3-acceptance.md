@@ -35,6 +35,10 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
 - [x] A small paid Luna smoke run completes with exact critical-signal recall.
 - [x] A bounded 32K/5-turn Wave A pilot completes and correctly keeps rollout off after 4/4
   treatment terminal task-proxy failures.
+- [x] Provider-free controlled audit reproduces cross-query reuse under the installed content-only
+  cache behavior and verifies disabled/query-aware isolation interventions.
+- [x] Multi-turn execution fails closed for an unverified cache contract; any research override is
+  explicitly non-rollout evidence.
 - [ ] At least five paired tasks per workload at 32K/128K complete.
 - [ ] Independent human or calibrated LLM reviews cover terminal responses.
 - [ ] Cold/warm latency is decomposed with instrumented local and provider timing.

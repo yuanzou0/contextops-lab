@@ -29,6 +29,11 @@ treatment failed the required-signal task proxy in all four workloads and increa
 latency 15.9x. Expansion is stopped pending signal-retention and fallback fixes; see
 [`docs/phase-3-wave-a-results.md`](docs/phase-3-wave-a-results.md).
 
+A provider-free controlled audit then confirmed that the installed PariTok 1.3.3 pipeline can reuse
+a query-dependent transformation after task intent changes. ContextOps now blocks unverified cache
+contracts for multi-turn execution by default; see
+[`docs/query-sensitive-cache-decision.md`](docs/query-sensitive-cache-decision.md).
+
 ## Decision pipeline
 
 ```text
@@ -69,6 +74,9 @@ pytest
 
 # Reproduce the Phase 1 offline validation evidence
 contextops-lab offline-benchmark
+
+# Provider-free cache-contract diagnostic (requires the optional live dependency, not an API key)
+contextops-lab cache-contract-audit
 ```
 
 The zero-install verification path uses only the Python standard library:

@@ -58,8 +58,16 @@ early tool outputs are first compressed while the user asks for the intermediate
 `CONTEXT_RECORDED` acknowledgement. When the fifth-turn query changes to the final signal-recall
 task, those identical tool outputs can reuse summaries created for the earlier intent instead of
 being recompressed for the final task. This mechanism fits the observed pattern, but the absent raw
-responses mean it should be verified with a provider-free transformed-context audit before being
-called the sole cause.
+responses mean it cannot be called the sole cause.
+
+A subsequent provider-free controlled audit held the content, pipeline, deterministic compression
+model, and configuration constant. Under the installed content-only behavior, changing the query
+produced a cache hit and reused the first output after only one model call. Cache-disabled and
+query-aware reference interventions each produced query-specific outputs, while repeating the
+second query under the query-aware condition still hit cache. This confirms that the mechanism is
+present in PariTok 1.3.3 and strengthens the attribution, without claiming that it explains every
+Wave A terminal failure. See `query-sensitive-cache-decision.md` and
+`artifacts/query-sensitive-cache-audit.json`.
 
 The live proxy path reports compression telemetry but does not expose the transformed context to
 ContextOps before the upstream call. Consequently, ContextOps cannot apply its content validator

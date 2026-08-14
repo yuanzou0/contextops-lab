@@ -6,6 +6,16 @@
     "path": "artifacts/phase-3-wave-a-events.jsonl",
     "sha256": "94927fcbd08c681edd774e80ea03d44a95ad828e342eb0725e143ce059953b16"
   },
+  "follow_up": {
+    "cache_contract_audit": {
+      "path": "artifacts/query-sensitive-cache-audit.json",
+      "sha256": "d328dabe9c34463cdaafc4466e784048e4ca1da137c4bc67c7065678862f90ee"
+    },
+    "decision_story": {
+      "path": "docs/query-sensitive-cache-decision.md",
+      "sha256": "15e2880459e40367d719c188543580f6700304b5d167c8f5502e883d74ad8f51"
+    }
+  },
   "outputs": {
     "dashboard": {
       "path": "artifacts/phase-3-wave-a-dashboard.html",
@@ -17,7 +27,7 @@
     },
     "report": {
       "path": "docs/phase-3-wave-a-results.md",
-      "sha256": "1f0675a03e41be40df933cdf37a1da6987dceb734b0e462e5ac52842062ca7f0"
+      "sha256": "7720a4054c46e1161b3195566cf27cde3eb4bcae7ebd65fbc2fa8a40b2ec2919"
     }
   },
   "schema_version": 1

@@ -21,11 +21,12 @@ repository; **partial/external** means only part of the behavior exists or belon
 
 ### 2. Adaptive tool discovery
 
-**Status: external/partial.** PariTok 1.3.3 supplies tool filtering and ContextOps measures its
-telemetry, but ContextOps Lab has not implemented its own intent-drift detector or recovery engine.
-Wave A also exposed a query-sensitive cache risk: content cached under an intermediate intent may
-be reused after the user task changes. Runtime eligibility now fails closed when cache reuse and
-query drift are both declared.
+**Status: isolation complete; upstream repair external.** PariTok 1.3.3 supplies tool filtering and
+ContextOps measures its telemetry, but ContextOps Lab has not implemented its own recovery engine.
+Wave A exposed a query-sensitive cache risk: content cached under an intermediate intent may be
+reused after the user task changes. A provider-free controlled audit reproduced that behavior in
+the installed pipeline. Runtime execution now fails closed unless the cache contract is declared
+`disabled` or `query_aware`; a research override is explicitly never rollout-eligible.
 
 - **Problem:** Freezing tool selection helps prompt caching but can fail when the user changes goals mid-session.
 - **Build:** Keep a permanent core-tool allowlist, detect intent drift, refresh only the optional tool segment, and provide deterministic full-schema recovery.
@@ -115,5 +116,6 @@ This scope is more relevant to the target roles than retraining a 4B model and i
   is complete but insufficient for a quality non-inferiority claim. The proposed evidence stage has
   five 32K/128K pairs per workload and requires independent human/LLM review. A 32K/5-turn Wave A
   pilot subsequently failed the terminal task proxy in 4/4 treatment workloads, so expansion is
-  stopped until signal retention and the external-proxy fallback boundary are fixed. See
-  `phase-3-acceptance.md`.
+  stopped. Query-sensitive cache reuse is now isolated and reproduced provider-free, while an
+  upstream cache repair and the external-proxy fallback boundary remain prerequisites for a
+  recovery pilot. See `phase-3-acceptance.md` and `query-sensitive-cache-decision.md`.

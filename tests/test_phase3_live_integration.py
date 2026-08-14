@@ -184,6 +184,20 @@ class Phase3LiveIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(args.func(args), 2)
 
+    def test_session_cli_blocks_unverified_cache_before_paid_wave_a(self):
+        parser = build_parser()
+        args = parser.parse_args(
+            [
+                "live-session-run",
+                "--config",
+                "configs/phase-3-luna-wave-a.json",
+                "--stage",
+                "wave_a",
+                "--confirm-live-costs",
+            ]
+        )
+        self.assertEqual(args.func(args), 2)
+
     def test_live_configs_disable_retries_for_measured_runs(self):
         for name in ("phase-3-luna-smoke.json", "phase-3-terra-formal.json"):
             config, _ = load_live_config(ROOT / "configs" / name)

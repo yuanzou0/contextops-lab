@@ -11,6 +11,7 @@ from datetime import date
 from pathlib import Path
 
 from .benchmark import load_benchmark_cases
+from .cache_safety import audit_installed_paritok_cache, decide_cache_safety
 from .compressors import ExtractiveRiskCompressor
 from .dashboard import build_dashboard, write_dashboard
 from .doctor import CheckStatus, run_doctor
@@ -102,6 +103,27 @@ def run_evidence_audit(args: argparse.Namespace) -> int:
     print(f"Evidence audit: {destination}")
     print(f"Quality claim allowed: {str(payload['quality_claim_allowed']).lower()}")
     return 0 if payload["quality_claim_allowed"] else 3
+
+
+def run_cache_contract_audit(args: argparse.Namespace) -> int:
+    try:
+        payload = audit_installed_paritok_cache()
+    except RuntimeError as error:
+        print(str(error), file=sys.stderr)
+        return 2
+    destination = Path(args.output)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    print(f"Cache contract audit: {destination}")
+    print(
+        "Content-only query reuse observed: "
+        f"{str(payload['content_only_query_reuse_observed']).lower()}"
+    )
+    print(
+        "Isolation interventions passed: "
+        f"{str(payload['isolation_interventions_passed']).lower()}"
+    )
+    return 0 if payload["isolation_interventions_passed"] else 3
 
 
 def run_latency_audit(args: argparse.Namespace) -> int:
@@ -381,6 +403,19 @@ def run_live_sessions(args: argparse.Namespace) -> int:
     config, config_sha256 = load_live_config(args.config)
     matrix, all_scenarios = load_workload_matrix(args.matrix)
     scenarios = select_stage(matrix, all_scenarios, args.stage)
+    cache_safety = decide_cache_safety(
+        scenarios,
+        contract=config.compression_cache_contract,
+        allow_unsafe_experiment=args.allow_unsafe_query_sensitive_cache_experiment,
+    )
+    if not cache_safety.allowed:
+        print(
+            "Refusing multi-turn execution: compression cache contract is unverified across "
+            "task-intent changes. Declare disabled/query_aware in the live config, or use the "
+            "explicit research-only override.",
+            file=sys.stderr,
+        )
+        return 2
     pricing = load_pricing(args.pricing, config.model)
     if (
         pricing.version != config.pricing_version
@@ -478,6 +513,7 @@ def run_live_sessions(args: argparse.Namespace) -> int:
         },
         "runtime": {"python": platform.python_version(), "platform": platform.platform()},
         "secrets_recorded": False,
+        "cache_safety": cache_safety.to_dict(),
     }
     manifest_path = Path(args.run_manifest)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
@@ -513,6 +549,13 @@ def build_parser() -> argparse.ArgumentParser:
     evidence.add_argument("--reviews")
     evidence.add_argument("--output", default="artifacts/phase-3-evidence-audit.json")
     evidence.set_defaults(func=run_evidence_audit)
+
+    cache_audit = subparsers.add_parser(
+        "cache-contract-audit",
+        help="test query-sensitive PariTok cache behavior without provider or Ollama calls",
+    )
+    cache_audit.add_argument("--output", default="artifacts/query-sensitive-cache-audit.json")
+    cache_audit.set_defaults(func=run_cache_contract_audit)
 
     latency = subparsers.add_parser(
         "latency-audit", help="estimate paired provider versus local/proxy latency"
@@ -611,6 +654,11 @@ def build_parser() -> argparse.ArgumentParser:
     sessions.add_argument("--seed", type=int, default=17)
     sessions.add_argument("--max-estimated-input-cost-usd", type=float, default=0.25)
     sessions.add_argument("--confirm-live-costs", action="store_true")
+    sessions.add_argument(
+        "--allow-unsafe-query-sensitive-cache-experiment",
+        action="store_true",
+        help="research only: bypass the unverified-cache block; never marks rollout eligible",
+    )
     sessions.set_defaults(func=run_live_sessions)
     return parser
 

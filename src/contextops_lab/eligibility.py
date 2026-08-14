@@ -24,7 +24,7 @@ def decide_eligibility(
     risk_level: str,
     synchronous: bool = True,
     reusable_cache: bool = False,
-    query_stable: bool = True,
+    query_stable: bool | None = None,
 ) -> EligibilityDecision:
     """Choose a conservative mode before paying local-compression latency.
 
@@ -38,7 +38,7 @@ def decide_eligibility(
         reasons.append("latency_not_amortized")
     if synchronous and context_tokens < 128_000 and not reusable_cache:
         reasons.append("synchronous_latency_risk")
-    if reusable_cache and not query_stable:
+    if reusable_cache and query_stable is not True:
         reasons.append("query_sensitive_cache_risk")
     if reasons:
         return EligibilityDecision(False, "off", tuple(reasons))
