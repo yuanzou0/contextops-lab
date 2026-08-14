@@ -10,7 +10,8 @@ from contextops_lab.evidence import QualityReview, audit_evidence
 from contextops_lab.events import load_events
 from contextops_lab.latency import decompose_paired_latency, measure_local_latency_states
 from contextops_lab.models import ExperimentArm
-from contextops_lab.workloads import load_workload_matrix
+from contextops_lab.provider_free_regression import RegressionSpec, run_provider_free_regression
+from contextops_lab.workloads import load_workload_matrix, select_stage
 
 
 class ProductEvidenceTests(unittest.TestCase):
@@ -87,6 +88,29 @@ class ProductEvidenceTests(unittest.TestCase):
         self.assertTrue(payload["isolation_interventions_passed"])
         self.assertEqual(payload["content_only"]["model_calls"], 1)
         self.assertEqual(payload["cache_disabled"]["model_calls"], 2)
+
+    def test_deterministic_transformed_context_regression(self):
+        try:
+            import paritok  # noqa: F401
+        except ImportError:
+            self.skipTest("optional live dependency is not installed")
+        matrix, scenarios = load_workload_matrix("configs/phase-3-workloads.json")
+        selected = select_stage(matrix, scenarios, "wave_a")
+        payload = run_provider_free_regression(
+            selected,
+            RegressionSpec(
+                engine="deterministic",
+                conditions=("content_only", "disabled", "query_aware"),
+                stage="wave_a",
+                config_version="test-v1",
+            ),
+        )
+        self.assertEqual(payload["provider_requests"], 0)
+        self.assertTrue(payload["cache_behavior_all_passed"])
+        self.assertTrue(payload["guarded_safety_all_passed"])
+        self.assertTrue(payload["recovery_conditions_raw_quality_passed"])
+        content_only = [row for row in payload["rows"] if row["condition"] == "content_only"]
+        self.assertTrue(all(row["cross_query_final_cache_hits"] == 3 for row in content_only))
 
     def test_current_smoke_fails_sample_context_and_review_gates(self):
         events = load_events("artifacts/phase-3-session-events.jsonl")

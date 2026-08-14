@@ -100,19 +100,14 @@ def _pipeline_result(pipeline: Any, model: _IntentModel, content: str, queries: 
     }
 
 
-def audit_installed_paritok_cache() -> dict[str, Any]:
-    """Run a controlled, provider-free intervention against the installed PariTok pipeline.
-
-    The compression model is replaced by a deterministic local stand-in. The audit therefore
-    tests cache-key behavior without Ollama or an upstream provider; it does not retest semantic
-    compression quality or prove that cache reuse was the sole cause of the Wave A failures.
-    """
+def build_paritok_storage(contract: str) -> Any:
+    """Build an isolated storage backend for a declared cache contract."""
+    if contract not in {"content_only", "disabled", "query_aware"}:
+        raise ValueError(f"Unsupported diagnostic cache contract: {contract}")
     try:
-        from paritok.config import ParitokConfig
-        from paritok.pipelines.compress import CompressionPipeline
         from paritok.storage import MemoryShadowStorage
     except ImportError as error:
-        raise RuntimeError("Install the live extra before running cache-contract-audit") from error
+        raise RuntimeError("Install the live extra before building PariTok storage") from error
 
     class CacheDisabledStorage(MemoryShadowStorage):
         def cache_compressed(self, shadow_id: str, compressed: str) -> None:
@@ -139,6 +134,26 @@ def audit_installed_paritok_cache() -> dict[str, Any]:
         def get_cached_compressed(self, shadow_id: str) -> str | None:
             return super().get_cached_compressed(self._cache_key(shadow_id))
 
+    if contract == "content_only":
+        return MemoryShadowStorage()
+    if contract == "disabled":
+        return CacheDisabledStorage()
+    return QueryAwareStorage()
+
+
+def audit_installed_paritok_cache() -> dict[str, Any]:
+    """Run a controlled, provider-free intervention against the installed PariTok pipeline.
+
+    The compression model is replaced by a deterministic local stand-in. The audit therefore
+    tests cache-key behavior without Ollama or an upstream provider; it does not retest semantic
+    compression quality or prove that cache reuse was the sole cause of the Wave A failures.
+    """
+    try:
+        from paritok.config import ParitokConfig
+        from paritok.pipelines.compress import CompressionPipeline
+    except ImportError as error:
+        raise RuntimeError("Install the live extra before running cache-contract-audit") from error
+
     config = ParitokConfig()
     config.compression.min_tokens = 0
     config.compression.max_tokens = 50_000
@@ -159,9 +174,9 @@ def audit_installed_paritok_cache() -> dict[str, Any]:
         "paritok.pipelines.compress.count_tokens",
         side_effect=lambda text, *_: max(1, len(text) // 4),
     ):
-        content_only = run(MemoryShadowStorage(), (intermediate, final))
-        disabled = run(CacheDisabledStorage(), (intermediate, final))
-        query_aware = run(QueryAwareStorage(), (intermediate, final, final))
+        content_only = run(build_paritok_storage("content_only"), (intermediate, final))
+        disabled = run(build_paritok_storage("disabled"), (intermediate, final))
+        query_aware = run(build_paritok_storage("query_aware"), (intermediate, final, final))
     try:
         package_version = version("paritok")
     except PackageNotFoundError:

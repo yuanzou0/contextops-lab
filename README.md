@@ -17,6 +17,7 @@ PariTok-4B-v1 is the first planned compression treatment, not the name of this p
 | Offline pipeline | 36 pairs | fixture only | deterministic task proxy | fixture | no rollout |
 | Live smoke | 4 pairs | 80.8% lower observed estimated provider cost | required signals preserved in 4/4 pairs | 17.0x worse | **OFF** |
 | Live Wave A | 4 pairs / 40 requests | 89.9% lower observed estimated provider cost | treatment proxy failed 4/4 terminal tasks | 15.9x worse | **STOP / OFF** |
+| Provider-free recovery | 4 scenarios / 12 signals | no provider calls | raw + guarded signal recall 12/12 | local boundary only | Wave B still blocked |
 | Production | — | not validated | not validated | not validated | locked |
 
 Across four controlled 8K/1-turn live pairs, the compression treatment showed 80.8% lower
@@ -33,6 +34,12 @@ A provider-free controlled audit then confirmed that the installed PariTok 1.3.3
 a query-dependent transformation after task intent changes. ContextOps now blocks unverified cache
 contracts for multi-turn execution by default; see
 [`docs/query-sensitive-cache-decision.md`](docs/query-sensitive-cache-decision.md).
+
+A prespecified provider-free recovery regression subsequently exercised the actual local PariTok
+4B pipeline under the query-aware contract across the same four 32K/5-turn workloads. It observed
+zero cross-query cache hits, 12/12 safe same-query replay hits, and 12/12 raw and guarded critical
+signals retained with no fallback. This validates the transformed-context boundary only; it does
+not establish end-task semantic quality, provider behavior, or acceptable interactive latency.
 
 ## Decision pipeline
 
@@ -77,6 +84,12 @@ contextops-lab offline-benchmark
 
 # Provider-free cache-contract diagnostic (requires the optional live dependency, not an API key)
 contextops-lab cache-contract-audit
+
+# Deterministic transformed-context regression used by CI
+contextops-lab provider-free-regression --engine deterministic
+
+# Optional: actual local PariTok 4B/Ollama recovery regression; still no provider call
+contextops-lab provider-free-regression --engine local_paritok_4b
 ```
 
 The zero-install verification path uses only the Python standard library:

@@ -52,6 +52,28 @@ events did not retain raw completions or transformed contexts.
 
 Artifact: `artifacts/query-sensitive-cache-audit.json`.
 
+## Provider-free recovery regression
+
+After prespecifying the protocol and gates, ContextOps exercised the actual local PariTok 4B
+pipeline under the `query_aware` contract on the four original 32K/5-turn workloads. Across three
+signal-bearing segments per workload it observed:
+
+- 0/12 cross-query cache hits after intent changed;
+- 12/12 same-query replay cache hits;
+- 12/12 task-critical signals retained by raw compressed output;
+- 12/12 signals retained after validation/fallback, with zero fallbacks;
+- zero upstream provider requests and $0 provider cost.
+
+The deterministic negative control also behaved as designed: content-only caching produced 12/12
+cross-query hits and 0/12 raw signal recall, while the validator recovered guarded recall to 12/12
+through exact-original fallback. Disabled and query-aware recovery conditions retained 24/24 raw
+signals in total.
+
+This closes the provider-free transformed-context recovery gate. It does **not** establish end-task
+semantic equivalence, provider compatibility, or acceptable synchronous latency, so Wave B remains
+ineligible. Protocol and reports: `provider-free-regression-protocol.md`,
+`provider-free-deterministic-regression.md`, and `provider-free-local-4b-regression.md`.
+
 ## Runtime isolation contract
 
 The live configuration supports three states:
@@ -108,7 +130,10 @@ the evaluation and safety decision.
 Do not start Wave B until all of the following are true:
 
 1. the integration declares and verifies `disabled` or `query_aware` cache behavior;
-2. the original four Wave A scenarios recover 4/4 terminal task-proxy success;
+2. the original four Wave A scenarios recover 4/4 terminal task-proxy success in a provider-backed
+   recovery pilot (provider-free transformed-context recovery is complete);
 3. intermediate protocol success remains 16/16;
-4. transformed-context validation or exact-original fallback is available before the upstream call;
+4. transformed-context validation or exact-original fallback is available before the upstream call
+   (implemented and verified in the directly observable local pipeline, but not yet integrated into
+   the external proxy path);
 5. latency passes a separately declared synchronous or asynchronous workload threshold.

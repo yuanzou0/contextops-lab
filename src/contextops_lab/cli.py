@@ -28,6 +28,11 @@ from .latency import decompose_paired_latency, measure_local_latency_states
 from .metrics import summarize
 from .paritok import PariTokGateway
 from .policy import generate_rollout_policy, write_policy
+from .provider_free_regression import (
+    RegressionSpec,
+    run_provider_free_regression,
+    write_regression_artifacts,
+)
 from .reporting import build_markdown_report, build_phase2_report
 from .session_live import MultiTurnProxyExecutor, run_paired_sessions
 from .workloads import (
@@ -124,6 +129,44 @@ def run_cache_contract_audit(args: argparse.Namespace) -> int:
         f"{str(payload['isolation_interventions_passed']).lower()}"
     )
     return 0 if payload["isolation_interventions_passed"] else 3
+
+
+def run_provider_free_regression_command(args: argparse.Namespace) -> int:
+    protocol = json.loads(Path(args.config).read_text(encoding="utf-8"))
+    matrix, scenarios = load_workload_matrix(args.matrix)
+    del matrix
+    rule = protocol["scenario_filter"]
+    selected = [
+        scenario
+        for scenario in scenarios
+        if scenario.context_tokens == int(rule["context_tokens"])
+        and scenario.session_turns == int(rule["session_turns"])
+        and scenario.task_type in set(rule["task_types"])
+    ]
+    condition_key = (
+        "deterministic_conditions" if args.engine == "deterministic" else "local_conditions"
+    )
+    spec = RegressionSpec(
+        engine=args.engine,
+        conditions=tuple(protocol[condition_key]),
+        stage=protocol["stage"],
+        config_version=protocol["config_version"],
+    )
+    try:
+        payload = run_provider_free_regression(selected, spec)
+    except RuntimeError as error:
+        print(str(error), file=sys.stderr)
+        return 2
+    write_regression_artifacts(payload, args.output, args.report)
+    print(f"Provider-free regression: {args.output}")
+    print(f"Report: {args.report}")
+    print(f"Provider requests / cost: {payload['provider_requests']} / $0.00")
+    passed = (
+        payload["cache_behavior_all_passed"]
+        and payload["guarded_safety_all_passed"]
+        and payload["recovery_conditions_raw_quality_passed"]
+    )
+    return 0 if passed else 3
 
 
 def run_latency_audit(args: argparse.Namespace) -> int:
@@ -556,6 +599,19 @@ def build_parser() -> argparse.ArgumentParser:
     )
     cache_audit.add_argument("--output", default="artifacts/query-sensitive-cache-audit.json")
     cache_audit.set_defaults(func=run_cache_contract_audit)
+
+    regression = subparsers.add_parser(
+        "provider-free-regression",
+        help="run transformed-context cache, signal, and fallback regression without a provider",
+    )
+    regression.add_argument(
+        "--engine", choices=("deterministic", "local_paritok_4b"), default="deterministic"
+    )
+    regression.add_argument("--config", default="configs/provider-free-regression-v1.json")
+    regression.add_argument("--matrix", default="configs/phase-3-workloads.json")
+    regression.add_argument("--output", default="artifacts/provider-free-regression.json")
+    regression.add_argument("--report", default="docs/provider-free-regression.md")
+    regression.set_defaults(func=run_provider_free_regression_command)
 
     latency = subparsers.add_parser(
         "latency-audit", help="estimate paired provider versus local/proxy latency"

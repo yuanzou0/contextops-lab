@@ -13,7 +13,31 @@
     },
     "decision_story": {
       "path": "docs/query-sensitive-cache-decision.md",
-      "sha256": "15e2880459e40367d719c188543580f6700304b5d167c8f5502e883d74ad8f51"
+      "sha256": "a01abbee4c4b4c2d9493b1e1ca5978660c13aac6b8290a57c1ec5720889a18ef"
+    },
+    "provider_free_protocol": {
+      "path": "docs/provider-free-regression-protocol.md",
+      "sha256": "cc24731fd3f12e77e13908e3ab3397fbf838659035508c12223d620717f0920d"
+    },
+    "provider_free_protocol_config": {
+      "path": "configs/provider-free-regression-v1.json",
+      "sha256": "e0a4e1d4aa0c2bdce07336d076f3e04b95ea555219a1d8803a3e0e2cc24c402a"
+    },
+    "provider_free_deterministic_regression": {
+      "path": "artifacts/provider-free-deterministic-regression.json",
+      "sha256": "cb9db073cc5362f20d336a73b5b934ae88b4e4539d24f8aab1e63d1d86da3a87"
+    },
+    "provider_free_deterministic_report": {
+      "path": "docs/provider-free-deterministic-regression.md",
+      "sha256": "c23d0361286122ceae9e1883f951c8131648c149aa1a09838221f8ff95a4d304"
+    },
+    "provider_free_local_4b_regression": {
+      "path": "artifacts/provider-free-local-4b-regression.json",
+      "sha256": "1009686733d214f06e7d411934572731a539c3a1df9b44c83291ce07aaadf2f7"
+    },
+    "provider_free_local_4b_report": {
+      "path": "docs/provider-free-local-4b-regression.md",
+      "sha256": "c789302c2822e8e78dfebc67002774b23339168f3a6ce4c519a295d698535ddf"
     }
   },
   "outputs": {
@@ -27,7 +51,7 @@
     },
     "report": {
       "path": "docs/phase-3-wave-a-results.md",
-      "sha256": "7720a4054c46e1161b3195566cf27cde3eb4bcae7ebd65fbc2fa8a40b2ec2919"
+      "sha256": "5e5318b88a4271dda84fec8332b2b204f8af9467e87ac7e369bab07f56c00bef"
     }
   },
   "schema_version": 1

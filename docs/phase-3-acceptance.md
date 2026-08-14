@@ -37,6 +37,9 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
   treatment terminal task-proxy failures.
 - [x] Provider-free controlled audit reproduces cross-query reuse under the installed content-only
   cache behavior and verifies disabled/query-aware isolation interventions.
+- [x] Prespecified provider-free regression verifies the actual local PariTok 4B query-aware path
+  across four 32K/5-turn workloads: 0/12 cross-query hits, 12/12 replay hits, and 12/12 raw and
+  guarded signal recall. This is transformed-context evidence, not terminal task success.
 - [x] Multi-turn execution fails closed for an unverified cache contract; any research override is
   explicitly non-rollout evidence.
 - [ ] At least five paired tasks per workload at 32K/128K complete.

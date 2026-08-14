@@ -74,6 +74,13 @@ ContextOps before the upstream call. Consequently, ContextOps cannot apply its c
 or automatic original-context fallback inside this external proxy path. That is now a production
 safety blocker, not merely a reporting limitation.
 
+A later prespecified provider-free recovery regression tested the directly observable local
+pipeline with query-aware storage. All four original workload types retained all 12/12 critical
+signals in raw compressed output and after validation, with zero cross-query cache hits and 12/12
+safe same-query replay hits. This supports a small recovery hypothesis; it does not retroactively
+change this live result or unlock Wave B because no upstream agent response, independent semantic
+review, or provider-path latency was measured.
+
 ## Cost control
 
 The input-only preflight upper bound was $0.9683 and the user-authorized ceiling was $1.25. The
