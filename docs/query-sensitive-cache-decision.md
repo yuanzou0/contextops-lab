@@ -134,6 +134,6 @@ Do not start Wave B until all of the following are true:
    recovery pilot (provider-free transformed-context recovery is complete);
 3. intermediate protocol success remains 16/16;
 4. transformed-context validation or exact-original fallback is available before the upstream call
-   (implemented and verified in the directly observable local pipeline, but not yet integrated into
-   the external proxy path);
+   (now implemented and contract-tested in the ContextOps-safe external HTTP proxy; provider-backed
+   recovery remains unobserved);
 5. latency passes a separately declared synchronous or asynchronous workload threshold.

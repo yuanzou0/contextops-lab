@@ -42,6 +42,11 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
   guarded signal recall. This is transformed-context evidence, not terminal task success.
 - [x] Multi-turn execution fails closed for an unverified cache contract; any research override is
   explicitly non-rollout evidence.
+- [x] A real OpenAI-compatible ContextOps-safe PariTok proxy applies query-aware cache isolation,
+  validates transformed segments before upstream forwarding, substitutes exact original content on
+  rejection, and exposes attributable safety telemetry.
+- [x] Recovery-pilot protocol and four-scenario cost preflight are fixed before paid observation.
+- [ ] The four-scenario provider-backed recovery pilot restores 4/4 terminal task-proxy success.
 - [ ] At least five paired tasks per workload at 32K/128K complete.
 - [ ] Independent human or calibrated LLM reviews cover terminal responses.
 - [ ] Cold/warm latency is decomposed with instrumented local and provider timing.

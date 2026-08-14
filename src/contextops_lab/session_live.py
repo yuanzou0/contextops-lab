@@ -9,7 +9,7 @@ from typing import Any, Callable, Protocol, Sequence
 
 from .execution import CompletionResult
 from .models import ExperimentArm, RequestEvent
-from .paritok import PariTokGateway
+from .paritok import ContextOpsSafetyGateway, ContextOpsSafetyStats, PariTokGateway
 from .workloads import WorkloadScenario, build_session_messages, build_tool_schemas
 
 
@@ -49,6 +49,7 @@ class MultiTurnProxyExecutor:
         config_sha256: str,
         pricing_version: str,
         require_proxy_telemetry: bool = True,
+        safety_gateway: ContextOpsSafetyGateway | None = None,
     ):
         if baseline_agent.model != paritok_agent.model:
             raise ValueError("Both experiment arms must use the same model")
@@ -60,6 +61,7 @@ class MultiTurnProxyExecutor:
         self.config_sha256 = config_sha256
         self.pricing_version = pricing_version
         self.require_proxy_telemetry = require_proxy_telemetry
+        self.safety_gateway = safety_gateway
 
     def run_arm(self, scenario: WorkloadScenario, arm: ExperimentArm) -> SessionOutcome:
         requests = build_session_messages(scenario)
@@ -71,11 +73,15 @@ class MultiTurnProxyExecutor:
             compressed_tokens = 0
             proxy_requests = 0
             proxy_tokens_saved = 0
+            compression_latency_ms = 0.0
+            fallback_reason = None
             if arm is ExperimentArm.COMPRESSED:
                 before = self.gateway.stats()
+                safety_before = self.safety_gateway.stats() if self.safety_gateway else None
                 completion = agent.complete_messages(messages, tools=tools)
                 after = self.gateway.stats()
                 delta = after.delta(before)
+                safety_delta = self._safety_delta(safety_before)
                 if self.require_proxy_telemetry and delta.total_requests != 1:
                     raise RuntimeError(
                         "Expected exactly one PariTok request between telemetry snapshots; "
@@ -85,9 +91,21 @@ class MultiTurnProxyExecutor:
                 compressed_tokens = delta.input_tokens_compressed or completion.input_tokens
                 proxy_requests = delta.total_requests
                 proxy_tokens_saved = delta.tokens_saved
-                treatment_name = "paritok-proxy:multi-turn"
-                endpoint_role = "treatment_proxy"
-                validator_result = "proxy_managed"
+                if safety_delta is None:
+                    treatment_name = "paritok-proxy:multi-turn"
+                    endpoint_role = "treatment_proxy"
+                    validator_result = "proxy_managed"
+                else:
+                    treatment_name = "contextops-safe-paritok-proxy:multi-turn"
+                    endpoint_role = "treatment_safe_proxy"
+                    compression_latency_ms = safety_delta.compression_latency_ms
+                    if safety_delta.fallbacks:
+                        validator_result = "fallback"
+                        fallback_reason = self._primary_fallback_reason(safety_delta)
+                    elif safety_delta.validated:
+                        validator_result = "pass"
+                    else:
+                        validator_result = "safe_passthrough"
             else:
                 completion = agent.complete_messages(messages, tools=tools)
                 original_tokens = completion.input_tokens
@@ -131,10 +149,10 @@ class MultiTurnProxyExecutor:
                     original_tokens=original_tokens,
                     compressed_tokens=compressed_tokens,
                     recalled_tokens=0,
-                    compression_latency_ms=0.0,
+                    compression_latency_ms=compression_latency_ms,
                     total_latency_ms=completion.latency_ms,
                     validator_result=validator_result,
-                    fallback_reason=None,
+                    fallback_reason=fallback_reason,
                     task_success=turn_success,
                     tests_passed=turn_success if terminal else None,
                     manual_intervention=False,
@@ -162,6 +180,25 @@ class MultiTurnProxyExecutor:
                 )
             )
         return SessionOutcome(scenario.scenario_id, arm, tuple(events))
+
+    def _safety_delta(
+        self,
+        before: ContextOpsSafetyStats | None,
+    ) -> ContextOpsSafetyStats | None:
+        if not self.safety_gateway:
+            return None
+        if before is None:  # pragma: no cover - defensive invariant
+            raise RuntimeError("Missing ContextOps safety pre-request snapshot")
+        delta = self.safety_gateway.stats().delta(before)
+        if delta.fallbacks != delta.exact_original_fallbacks:
+            raise RuntimeError("A ContextOps fallback was not exact-original")
+        return delta
+
+    @staticmethod
+    def _primary_fallback_reason(stats: ContextOpsSafetyStats) -> str:
+        if not stats.fallback_reasons:
+            return "unknown_fallback"
+        return sorted(stats.fallback_reasons.items(), key=lambda row: (-row[1], row[0]))[0][0]
 
 
 def run_paired_sessions(

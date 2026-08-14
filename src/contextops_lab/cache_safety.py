@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+from contextvars import ContextVar
 from dataclasses import asdict, dataclass
 from importlib.metadata import PackageNotFoundError, version
 from typing import Any, Sequence
@@ -120,19 +121,24 @@ def build_paritok_storage(contract: str) -> Any:
     class QueryAwareStorage(MemoryShadowStorage):
         def __init__(self) -> None:
             super().__init__()
-            self._active_query_hash = "unset"
+            self._active_query_hash: ContextVar[str] = ContextVar(
+                "contextops_active_query_hash", default="unset"
+            )
 
         def set_active_query(self, query: str) -> None:
-            self._active_query_hash = hashlib.sha256(query.encode()).hexdigest()
+            self._active_query_hash.set(hashlib.sha256(query.encode()).hexdigest())
 
         def _cache_key(self, shadow_id: str) -> str:
-            return f"{shadow_id}:{self._active_query_hash}"
+            return f"{shadow_id}:{self._active_query_hash.get()}"
 
         def cache_compressed(self, shadow_id: str, compressed: str) -> None:
             super().cache_compressed(self._cache_key(shadow_id), compressed)
 
         def get_cached_compressed(self, shadow_id: str) -> str | None:
             return super().get_cached_compressed(self._cache_key(shadow_id))
+
+        def invalidate_compressed(self, shadow_id: str) -> None:
+            self._compressed_cache.pop(self._cache_key(shadow_id), None)
 
     if contract == "content_only":
         return MemoryShadowStorage()

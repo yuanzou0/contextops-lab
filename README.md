@@ -41,6 +41,12 @@ zero cross-query cache hits, 12/12 safe same-query replay hits, and 12/12 raw an
 signals retained with no fallback. This validates the transformed-context boundary only; it does
 not establish end-task semantic quality, provider behavior, or acceptable interactive latency.
 
+The live path now has a ContextOps-owned external HTTP proxy boundary. It scopes compression cache
+entries to the active query, validates every transformed segment before upstream transmission, and
+forwards exact original content on rejection. Its cumulative safety telemetry is snapshotted around
+each treatment request; a declared verified cache contract is rejected unless this observable
+endpoint is present.
+
 ## Decision pipeline
 
 ```text
@@ -91,6 +97,20 @@ contextops-lab provider-free-regression --engine deterministic
 # Optional: actual local PariTok 4B/Ollama recovery regression; still no provider call
 contextops-lab provider-free-regression --engine local_paritok_4b
 ```
+
+Start the validated external proxy for a recovery run:
+
+```bash
+contextops-lab safe-proxy --cache-contract query_aware --port 8080
+
+# No provider completion: verifies proxy, Ollama, cache, validator, and telemetry contracts.
+contextops-lab doctor --live-config configs/phase-3-luna-recovery.json --probe-live
+```
+
+The four-scenario provider-backed recovery protocol is prespecified in
+[`docs/phase-3-recovery-protocol.md`](docs/phase-3-recovery-protocol.md). A successful bounded pilot
+would demonstrate recovery of the deterministic task proxy only; it cannot establish semantic
+non-inferiority or production readiness.
 
 The zero-install verification path uses only the Python standard library:
 

@@ -4,7 +4,7 @@ from pathlib import Path
 from contextops_lab.execution import CompletionResult
 from contextops_lab.metrics import summarize
 from contextops_lab.models import ExperimentArm
-from contextops_lab.paritok import ProxyStats
+from contextops_lab.paritok import ContextOpsSafetyStats, ProxyStats
 from contextops_lab.session_live import MultiTurnProxyExecutor, run_paired_sessions
 from contextops_lab.workloads import load_workload_matrix
 
@@ -40,6 +40,29 @@ class IncrementingGateway:
             input_tokens_compressed=(request + after) * 60,
             tokens_saved=(request + after) * 40,
             estimated_cost_saved_usd=(request + after) * 0.00004,
+        )
+
+
+class IncrementingSafetyGateway:
+    def __init__(self):
+        self.call = 0
+
+    def stats(self):
+        request = self.call // 2
+        after = self.call % 2
+        self.call += 1
+        count = request + after
+        return ContextOpsSafetyStats(
+            cache_contract="query_aware",
+            total_compressions=count,
+            validated=count,
+            validator_passes=count,
+            fallbacks=0,
+            exact_original_fallbacks=0,
+            skipped=0,
+            cache_hits=0,
+            compression_latency_ms=count * 5.0,
+            fallback_reasons={},
         )
 
 
@@ -98,6 +121,28 @@ class SessionLiveTests(unittest.TestCase):
         self.assertEqual(metrics["baseline"]["runs"], 1)
         self.assertEqual(metrics["baseline"]["requests"], 5)
         self.assertAlmostEqual(metrics["baseline"]["cost_per_successful_task"], 0.005)
+
+    def test_safe_proxy_telemetry_is_attributed_to_treatment_events(self):
+        baseline = FakeMessageAgent(self.scenario.required_signals)
+        treatment = FakeMessageAgent(self.scenario.required_signals)
+        executor = MultiTurnProxyExecutor(
+            baseline,
+            treatment,
+            IncrementingGateway(),
+            experiment_id="safe-session-test",
+            config_version="v1",
+            config_sha256="c" * 64,
+            pricing_version="openai-test",
+            safety_gateway=IncrementingSafetyGateway(),
+        )
+        outcome = executor.run_arm(self.scenario, ExperimentArm.COMPRESSED)
+        self.assertTrue(outcome.terminal_success)
+        self.assertTrue(all(event.validator_result == "pass" for event in outcome.events))
+        self.assertTrue(all(event.fallback_reason is None for event in outcome.events))
+        self.assertTrue(all(event.compression_latency_ms == 5.0 for event in outcome.events))
+        self.assertTrue(
+            all(event.endpoint_role == "treatment_safe_proxy" for event in outcome.events)
+        )
 
 
 if __name__ == "__main__":

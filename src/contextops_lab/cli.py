@@ -26,7 +26,7 @@ from .live import ProxyPairedExecutor
 from .live_config import load_live_config
 from .latency import decompose_paired_latency, measure_local_latency_states
 from .metrics import summarize
-from .paritok import PariTokGateway
+from .paritok import ContextOpsSafetyGateway, PariTokGateway
 from .policy import generate_rollout_policy, write_policy
 from .provider_free_regression import (
     RegressionSpec,
@@ -35,6 +35,7 @@ from .provider_free_regression import (
 )
 from .reporting import build_markdown_report, build_phase2_report
 from .session_live import MultiTurnProxyExecutor, run_paired_sessions
+from .safe_proxy import run_safe_proxy
 from .workloads import (
     audit_stage,
     build_audit_markdown,
@@ -459,6 +460,16 @@ def run_live_sessions(args: argparse.Namespace) -> int:
             file=sys.stderr,
         )
         return 2
+    if (
+        config.compression_cache_contract in {"disabled", "query_aware"}
+        and not config.contextops_safety_stats_url
+    ):
+        print(
+            "Refusing verified-cache execution without an observable ContextOps safety endpoint. "
+            "Use contextops-lab safe-proxy and configure contextops_safety_stats_url.",
+            file=sys.stderr,
+        )
+        return 2
     pricing = load_pricing(args.pricing, config.model)
     if (
         pricing.version != config.pricing_version
@@ -497,6 +508,17 @@ def run_live_sessions(args: argparse.Namespace) -> int:
         config.compression_backend_models_url,
         config.compression_model,
     )
+    safety_gateway = None
+    safety_health = None
+    if config.contextops_safety_stats_url:
+        safety_gateway = ContextOpsSafetyGateway(
+            config.contextops_safety_stats_url,
+            timeout_seconds=min(config.timeout_seconds, 10.0),
+        )
+        safety_health = safety_gateway.health(
+            expected_contract=config.compression_cache_contract,
+        )
+        safety_gateway.stats()
     common = {
         "model": config.model,
         "api_key": config.api_key,
@@ -517,6 +539,7 @@ def run_live_sessions(args: argparse.Namespace) -> int:
         config_sha256=config_sha256,
         pricing_version=config.pricing_version,
         require_proxy_telemetry=config.require_proxy_telemetry,
+        safety_gateway=safety_gateway,
     )
     events_path = Path(args.events)
     partial_path = events_path.with_suffix(events_path.suffix + ".partial")
@@ -554,6 +577,16 @@ def run_live_sessions(args: argparse.Namespace) -> int:
             "status": health.get("status"),
             "version": health.get("version", "unknown"),
         },
+        "contextops_safety": (
+            {
+                "status": safety_health.get("status"),
+                "cache_contract": safety_health.get("cache_contract"),
+                "validator_contract": safety_health.get("validator_contract"),
+                "stats_url": config.contextops_safety_stats_url,
+            }
+            if safety_health
+            else None
+        ),
         "runtime": {"python": platform.python_version(), "platform": platform.platform()},
         "secrets_recorded": False,
         "cache_safety": cache_safety.to_dict(),
@@ -564,6 +597,19 @@ def run_live_sessions(args: argparse.Namespace) -> int:
     print(f"Executed {len(scenarios)} scenarios / {len(events)} requests")
     print(f"Events: {args.events}")
     print(f"Run manifest: {args.run_manifest}")
+    return 0
+
+
+def run_safe_proxy_command(args: argparse.Namespace) -> int:
+    run_safe_proxy(
+        host=args.host,
+        port=args.port,
+        openai_base_url=args.openai_url,
+        anthropic_base_url=args.anthropic_url,
+        config_path=args.config_file,
+        cache_contract=args.cache_contract,
+        log_level=args.log_level,
+    )
     return 0
 
 
@@ -716,6 +762,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="research only: bypass the unverified-cache block; never marks rollout eligible",
     )
     sessions.set_defaults(func=run_live_sessions)
+
+    safe_proxy = subparsers.add_parser(
+        "safe-proxy",
+        help="start PariTok with query-aware cache and ContextOps exact-original fallback",
+    )
+    safe_proxy.add_argument("--host", default="127.0.0.1")
+    safe_proxy.add_argument("--port", type=int, default=8080)
+    safe_proxy.add_argument("--openai-url", default="https://api.openai.com")
+    safe_proxy.add_argument("--anthropic-url", default="https://api.anthropic.com")
+    safe_proxy.add_argument("--config-file")
+    safe_proxy.add_argument(
+        "--cache-contract",
+        choices=("disabled", "query_aware"),
+        default="query_aware",
+    )
+    safe_proxy.add_argument(
+        "--log-level",
+        choices=("debug", "info", "warning", "error"),
+        default="info",
+    )
+    safe_proxy.set_defaults(func=run_safe_proxy_command)
     return parser
 
 

@@ -13,7 +13,7 @@
     },
     "decision_story": {
       "path": "docs/query-sensitive-cache-decision.md",
-      "sha256": "a01abbee4c4b4c2d9493b1e1ca5978660c13aac6b8290a57c1ec5720889a18ef"
+      "sha256": "75b0ab99c061fc34761e106a9e63bd0ebaf3825d832cefe6f30971a552288356"
     },
     "provider_free_protocol": {
       "path": "docs/provider-free-regression-protocol.md",
@@ -38,6 +38,22 @@
     "provider_free_local_4b_report": {
       "path": "docs/provider-free-local-4b-regression.md",
       "sha256": "c789302c2822e8e78dfebc67002774b23339168f3a6ce4c519a295d698535ddf"
+    },
+    "recovery_protocol": {
+      "path": "docs/phase-3-recovery-protocol.md",
+      "sha256": "a00d28a7a1df2a826b114bfe3073aa3af11eb6a2923d984bc33371499b29a92f"
+    },
+    "recovery_preflight": {
+      "path": "artifacts/phase-3-recovery-preflight.json",
+      "sha256": "8d0f3a5591ad53faddd741ef7f6077f629755fd3cdec64997c2524f69e731c8f"
+    },
+    "recovery_preflight_report": {
+      "path": "docs/phase-3-recovery-preflight.md",
+      "sha256": "b65561968d6cfc93b96a1d8d01849c8bb57aadc460a38a66a0b85ac8ba8bd8ef"
+    },
+    "recovery_config": {
+      "path": "configs/phase-3-luna-recovery.json",
+      "sha256": "255b0462c12d0adb937ac6ec588833878e1e97d1882628b6a8b9fe0c4e92162e"
     }
   },
   "outputs": {
@@ -51,7 +67,7 @@
     },
     "report": {
       "path": "docs/phase-3-wave-a-results.md",
-      "sha256": "5e5318b88a4271dda84fec8332b2b204f8af9467e87ac7e369bab07f56c00bef"
+      "sha256": "5a3080866eb1409dbd40c184f837d63d3a28c6cd4cf4a54ac5ae58d08626656e"
     }
   },
   "schema_version": 1

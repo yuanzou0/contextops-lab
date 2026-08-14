@@ -81,6 +81,11 @@ safe same-query replay hits. This supports a small recovery hypothesis; it does 
 change this live result or unlock Wave B because no upstream agent response, independent semantic
 review, or provider-path latency was measured.
 
+The subsequent v0.8.0 safety wrapper adds that previously missing external-proxy boundary:
+query-aware cache isolation, per-segment validation, exact-original fallback, and attributable
+safety counters. This is a post-Wave-A engineering change. It does not alter the results above;
+the prespecified four-scenario provider-backed recovery pilot must test it separately.
+
 ## Cost control
 
 The input-only preflight upper bound was $0.9683 and the user-authorized ceiling was $1.25. The

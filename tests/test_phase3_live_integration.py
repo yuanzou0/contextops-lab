@@ -9,7 +9,12 @@ from contextops_lab.execution import CompletionResult
 from contextops_lab.live import ProxyPairedExecutor
 from contextops_lab.live_config import load_live_config
 from contextops_lab.models import ExperimentArm
-from contextops_lab.paritok import PariTokGateway, ProxyStats
+from contextops_lab.paritok import (
+    ContextOpsSafetyGateway,
+    ContextOpsSafetyStats,
+    PariTokGateway,
+    ProxyStats,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -86,6 +91,51 @@ class Phase3LiveIntegrationTests(unittest.TestCase):
     def test_gateway_accepts_currency_formatted_saved_cost(self):
         stats = ProxyStats.from_dict({"estimated_cost_saved_usd": "$1.01"})
         self.assertEqual(stats.estimated_cost_saved_usd, 1.01)
+
+    def test_contextops_safety_gateway_verifies_contract_and_deltas_counters(self):
+        payloads = iter(
+            [
+                {
+                    "status": "ok",
+                    "cache_contract": "query_aware",
+                    "validator_contract": "exact_original_on_rejection",
+                },
+                {
+                    "cache_contract": "query_aware",
+                    "total_compressions": 2,
+                    "validated": 2,
+                    "validator_passes": 1,
+                    "fallbacks": 1,
+                    "exact_original_fallbacks": 1,
+                    "skipped": 0,
+                    "cache_hits": 0,
+                    "compression_latency_ms": 20,
+                    "fallback_reasons": {"identifier_loss": 1},
+                },
+            ]
+        )
+
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self):
+                return json.dumps(next(payloads)).encode()
+
+        gateway = ContextOpsSafetyGateway("http://proxy/contextops/stats")
+        with patch("urllib.request.urlopen", side_effect=[Response(), Response()]):
+            gateway.health(expected_contract="query_aware")
+            current = gateway.stats()
+        previous = ContextOpsSafetyStats(
+            "query_aware", 1, 1, 1, 0, 0, 0, 0, 5.0, {}
+        )
+        delta = current.delta(previous)
+        self.assertEqual(delta.fallbacks, 1)
+        self.assertEqual(delta.exact_original_fallbacks, 1)
+        self.assertEqual(delta.fallback_reasons, {"identifier_loss": 1})
 
     def test_gateway_fails_closed_when_compression_model_is_missing(self):
         class Response:
@@ -207,6 +257,9 @@ class Phase3LiveIntegrationTests(unittest.TestCase):
             luna.timeout_seconds,
             300,
         )
+        recovery, _ = load_live_config(ROOT / "configs/phase-3-luna-recovery.json")
+        self.assertEqual(recovery.compression_cache_contract, "query_aware")
+        self.assertTrue(recovery.contextops_safety_stats_url)
 
 
 if __name__ == "__main__":
