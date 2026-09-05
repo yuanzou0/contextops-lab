@@ -13,6 +13,7 @@ from pathlib import Path
 from .benchmark import load_benchmark_cases
 from .cache_safety import audit_installed_paritok_cache, decide_cache_safety
 from .compressors import ExtractiveRiskCompressor
+from .compatibility import audit_installed_paritok_compatibility, write_compatibility_audit
 from .dashboard import build_dashboard, write_dashboard
 from .doctor import CheckStatus, run_doctor
 from .economics import build_multi_turn_economics
@@ -130,6 +131,19 @@ def run_cache_contract_audit(args: argparse.Namespace) -> int:
         f"{str(payload['isolation_interventions_passed']).lower()}"
     )
     return 0 if payload["isolation_interventions_passed"] else 3
+
+
+def run_compatibility_audit(args: argparse.Namespace) -> int:
+    try:
+        payload = audit_installed_paritok_compatibility(args.matrix)
+    except (OSError, ValueError, RuntimeError, json.JSONDecodeError) as error:
+        print(str(error), file=sys.stderr)
+        return 2
+    write_compatibility_audit(payload, args.output)
+    print(f"PariTok compatibility audit: {args.output}")
+    print(f"Installed version: {payload['installed_version']}")
+    print(f"Compatibility passed: {str(payload['passed']).lower()}")
+    return 0 if payload["passed"] else 3
 
 
 def run_provider_free_regression_command(args: argparse.Namespace) -> int:
@@ -645,6 +659,14 @@ def build_parser() -> argparse.ArgumentParser:
     )
     cache_audit.add_argument("--output", default="artifacts/query-sensitive-cache-audit.json")
     cache_audit.set_defaults(func=run_cache_contract_audit)
+
+    compatibility = subparsers.add_parser(
+        "compatibility-audit",
+        help="verify the installed PariTok version against the tested compatibility matrix",
+    )
+    compatibility.add_argument("--matrix", default="configs/paritok-compatibility.json")
+    compatibility.add_argument("--output", default="artifacts/paritok-compatibility.json")
+    compatibility.set_defaults(func=run_compatibility_audit)
 
     regression = subparsers.add_parser(
         "provider-free-regression",
