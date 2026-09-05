@@ -1,0 +1,34 @@
+{
+    "backend_restarted_before_probe": true,
+    "cold_scenario_id": "read-heavy-32k-5t",
+  "cold_start_valid_only_if_backend_restarted": true,
+  "measurement": "local_compression_only",
+  "schema_version": 2,
+  "states": [
+    {
+      "cache_hit": false,
+      "compressed_tokens": 15,
+      "iteration": 1,
+      "latency_ms": 38820.62504114583,
+      "original_tokens": 5123,
+      "state": "cold_candidate"
+    },
+    {
+      "cache_hit": false,
+      "compressed_tokens": 52,
+      "iteration": 2,
+      "latency_ms": 29184.517541900277,
+      "original_tokens": 4873,
+      "state": "warm_uncached"
+    },
+    {
+      "cache_hit": true,
+      "compressed_tokens": 52,
+      "iteration": 3,
+      "latency_ms": 4.688916029408574,
+      "original_tokens": 4873,
+      "state": "cache_reuse"
+    }
+  ],
+  "warm_uncached_scenario_id": "debugging-32k-5t"
+}

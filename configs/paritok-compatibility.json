@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "default_version": "1.3.11",
+  "latest_checked_at": "2026-09-05",
+  "source": "https://pypi.org/project/paritok/1.3.11/",
+  "tested_versions": [
+    {
+      "version": "1.3.3",
+      "role": "historical_evidence_reproduction",
+      "expected_cache_audit": {
+        "content_only_query_reuse_observed": true,
+        "isolation_interventions_passed": true
+      }
+    },
+    {
+      "version": "1.3.11",
+      "role": "current_default_runtime",
+      "expected_cache_audit": {
+        "content_only_query_reuse_observed": true,
+        "isolation_interventions_passed": true
+      }
+    }
+  ]
+}

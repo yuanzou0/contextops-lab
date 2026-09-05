@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "config_version": "provider-free-regression-v1",
+  "stage": "wave_a",
+  "scenario_filter": {
+    "context_tokens": 32000,
+    "session_turns": 5,
+    "task_types": [
+      "read_heavy",
+      "debugging",
+      "mcp_heavy",
+      "edit_critical"
+    ]
+  },
+  "deterministic_conditions": [
+    "content_only",
+    "disabled",
+    "query_aware"
+  ],
+  "local_conditions": [
+    "query_aware"
+  ],
+  "primary_outcomes": [
+    "cross_query_cache_hits",
+    "same_query_replay_cache_hits",
+    "raw_required_signal_recall",
+    "guarded_required_signal_recall",
+    "fallback_reason"
+  ],
+  "acceptance": {
+    "query_aware_cross_query_cache_hits": 0,
+    "query_aware_same_query_replay_hit_rate": 1.0,
+    "guarded_required_signal_recall_rate": 1.0,
+    "raw_required_signal_recall_rate_for_recovery_pilot": 1.0,
+    "provider_requests": 0
+  },
+  "stop_rules": [
+    "stop local run on backend error",
+    "do not enable Wave B after provider-free evidence alone",
+    "do not change outcome definitions after observing results"
+  ],
+  "privacy": {
+    "store_raw_original": false,
+    "store_raw_transformed": false,
+    "store_output_hashes_only": true
+  }
+}

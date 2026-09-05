@@ -1,0 +1,148 @@
+{
+  "cache_behavior_all_passed": true,
+  "claim_boundary": "Measures transformed-context signal retention and cache/fallback mechanics without an upstream agent provider. It does not measure end-task semantic quality, provider behavior, or synchronous latency eligibility.",
+  "condition_scenario_count": 4,
+  "conditions": [
+    "query_aware"
+  ],
+  "config_version": "provider-free-regression-v1",
+  "engine": "local_paritok_4b",
+  "evidence_label": "provider_free_local_paritok_4b_transformed_context_regression",
+  "guarded_required_signals_recalled": 12,
+  "guarded_safety_all_passed": true,
+  "paritok_version": "1.3.3",
+  "provider_cost_usd": 0.0,
+  "provider_requests": 0,
+  "raw_compression_quality_all_passed": true,
+  "raw_content_recorded": false,
+  "raw_required_signals_recalled": 12,
+  "recovery_conditions_raw_quality_passed": true,
+  "required_signals_total": 12,
+  "rows": [
+    {
+      "cache_behavior_passed": true,
+      "condition": "query_aware",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 429.979,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "4213d018e726803594ea50cac745b7143ea506e66d2af07c6a8a0d083804c53b",
+        "2a2f3724c65c78d9a151cc1422ca6dd6b2a760ec294987434a5d96c961ca9462",
+        "f98d61aecbb57a76611e971ec4b860740b320818ce5c4c3b650843cab544ac8c"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "b84ef72a49815b9cd367e8cf5ed5b9138b65545c725a19dd9c5075de16238b56",
+        "965aac2c42855f03ca9b97cbd7ec337c0bff309588db30a0a7184244c497145b",
+        "209ff3fd1738625a86a6443cbd99c581d80c9b0f9c2624edf6e87dbebdd29bc4"
+      ],
+      "model_calls": null,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "read-heavy-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "read_heavy"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "query_aware",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 244.842,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "644d30687e73ad0f3e2defa5b7ce1bb7853a3253e0f8b1eb4fb2d684b23952fa",
+        "757d2ee681425c0cfd133e915a21ae5db1448a860591e48fa99f6f1161aeb5be",
+        "a2798d350dc3c42fb07369a2cae3c9873d7937864a54f4a1c37cd01c7b369dc9"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "e452f1c82b962351b8ec84e49f42d2f60ea1ee91003bcac9b98997ea1f20f2a5",
+        "7b91e1136002bd0c9ece54d4576307d0660c3efb3caab4e3a3ebfc5ff1155c7d",
+        "5e47420c257939021dbe6f0f0d4d2b983419c7e24b93d9fd62005dc47c7b7605"
+      ],
+      "model_calls": null,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "debugging-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "debugging"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "query_aware",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 291.559,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "974dc52e6dbf47eaf9b68c921af3e143e5388aac1959e444c5763af71c9c3e2e",
+        "f9dbeb0aaf64c103ef8b2e8fd5070b0c0b9ef28e7c4d760593d59717abb3ebf0",
+        "935309167a6c9edcab253b88f7842ece40b8cad251284e81fe2b6a53b10eab34"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "b47e3699e40a901ee4f0973e80f98fa0334c371ab690e7538ee2341c92247254",
+        "3e7a96d9d222d79dec808a8cbe9e6d1761a8348b3d0642f12b471fe84c402237",
+        "d297f85ff7016d9ec34f40c8bf255b2bd39ff36972fa771398f1a3c42085e513"
+      ],
+      "model_calls": null,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "mcp-heavy-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "mcp_heavy"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "query_aware",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 438.064,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "b8e4c87e2ecb3ecdb232a8475195c763f0792a3afe32c6a4ae56804a4c677fb9",
+        "bb7c8e9e9c40d6ad7d7b3a56e15a630c6a29c176bd6e76f2c273029d809a89b2",
+        "2deee321f3071e8e4883e32df0833c768012d294357a8242efe0c9d46e8f69f7"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "6efa35512dda648a897a44ca60eddc0d0fa59f58b147ab600fdf53ec46d84708",
+        "a05fec34246024d93cd09220fd9e947ee8dcae32415c76da40d23a9fb0a53b43",
+        "0a324bfd174df0efb432edd46609c93fe6f2dd88ccb7569f19f30ec955a4a218"
+      ],
+      "model_calls": null,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "edit-critical-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "edit_critical"
+    }
+  ],
+  "scenario_count": 4,
+  "schema_version": 1,
+  "stage": "wave_a",
+  "token_counter": "deterministic_len_div_4_not_an_outcome",
+  "wave_b_eligible": false
+}

@@ -1,0 +1,76 @@
+{
+  "estimated_paired_input_cost_upper_bound_usd": 0.9683,
+  "estimated_paired_input_tokens_before_compression": 968346,
+  "excludes_output_and_paritok_compute_cost": true,
+  "model": "gpt-5.6-luna",
+  "paired_request_count": 40,
+  "pricing_version": "openai-2026-08-12",
+  "scenario_count": 4,
+  "scenarios": [
+    {
+      "context_tokens": 32000,
+      "estimated_baseline_input_cost_usd": 0.111098,
+      "estimated_input_tokens_per_arm": 111098,
+      "language": "python",
+      "required_signals": [
+        "anchor::read-heavy-32k-5t",
+        "src/python/read-heavy-32k-5t.py",
+        "Readheavy32K5TError"
+      ],
+      "risk_level": "medium",
+      "scenario_id": "read-heavy-32k-5t",
+      "session_turns": 5,
+      "task_type": "read_heavy",
+      "tool_count": 24
+    },
+    {
+      "context_tokens": 32000,
+      "estimated_baseline_input_cost_usd": 0.118451,
+      "estimated_input_tokens_per_arm": 118451,
+      "language": "typescript",
+      "required_signals": [
+        "anchor::debugging-32k-5t",
+        "src/typescript/debugging-32k-5t.ts",
+        "Debugging32K5TError"
+      ],
+      "risk_level": "medium",
+      "scenario_id": "debugging-32k-5t",
+      "session_turns": 5,
+      "task_type": "debugging",
+      "tool_count": 36
+    },
+    {
+      "context_tokens": 32000,
+      "estimated_baseline_input_cost_usd": 0.140787,
+      "estimated_input_tokens_per_arm": 140787,
+      "language": "python",
+      "required_signals": [
+        "anchor::mcp-heavy-32k-5t",
+        "src/python/mcp-heavy-32k-5t.py",
+        "Mcpheavy32K5TError"
+      ],
+      "risk_level": "medium",
+      "scenario_id": "mcp-heavy-32k-5t",
+      "session_turns": 5,
+      "task_type": "mcp_heavy",
+      "tool_count": 72
+    },
+    {
+      "context_tokens": 32000,
+      "estimated_baseline_input_cost_usd": 0.113837,
+      "estimated_input_tokens_per_arm": 113837,
+      "language": "rust",
+      "required_signals": [
+        "anchor::edit-critical-32k-5t",
+        "src/rust/edit-critical-32k-5t.rs",
+        "Editcritical32K5TError"
+      ],
+      "risk_level": "high",
+      "scenario_id": "edit-critical-32k-5t",
+      "session_turns": 5,
+      "task_type": "edit_critical",
+      "tool_count": 28
+    }
+  ],
+  "schema_version": 1
+}

@@ -35,7 +35,7 @@ def build_markdown_report(events: Iterable[RequestEvent], *, evidence_label: str
         "",
         "## Overall results",
         "",
-        "| Arm | Runs | Task success | Cost / success | Fallback | P95 latency | Token ratio |",
+        "| Arm | Runs | Task-proxy success | Cost / proxy success | Fallback | P95 latency | Token ratio |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for arm in ("baseline", "compressed"):
@@ -51,7 +51,7 @@ def build_markdown_report(events: Iterable[RequestEvent], *, evidence_label: str
             "",
             "## Workload segmentation",
             "",
-            "| Workload | Compressed runs | Success | Fallback | Token ratio |",
+            "| Workload | Compressed runs | Task-proxy success | Fallback | Token ratio |",
             "|---|---:|---:|---:|---:|",
         ]
     )
@@ -104,16 +104,21 @@ def build_phase2_report(events: Iterable[RequestEvent], policy: dict, *, evidenc
         "",
         "## Workload policy recommendations",
         "",
-        "| Workload | Paired tasks | Success Δ (95% CI) | Cost improvement | Fallback | Mode | Reasons |",
+        "| Workload | Paired tasks | Task-proxy Δ (95% CI) | Cost improvement | Fallback | Mode | Reasons |",
         "|---|---:|---:|---:|---:|---|---|",
     ]
     rules = {rule["value"]: rule for rule in policy.get("rules", [])}
     for segment in segments:
         rule = rules[segment.value]
+        cost_improvement = (
+            _pct(segment.cost_improvement_rate)
+            if segment.treatment_cost_per_success_defined
+            else "N/A (0 treatment successes)"
+        )
         lines.append(
             f"| {segment.value} | {segment.paired_tasks} | {_pct(segment.success_rate_delta)} "
             f"[{_pct(segment.success_delta_ci_low)}, {_pct(segment.success_delta_ci_high)}] | "
-            f"{_pct(segment.cost_improvement_rate)} | {_pct(segment.fallback_rate)} | "
+            f"{cost_improvement} | {_pct(segment.fallback_rate)} | "
             f"{rule['mode']} | {', '.join(rule['reasons'])} |"
         )
     lines.extend(["", "## Failure analysis", ""])

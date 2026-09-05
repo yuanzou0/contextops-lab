@@ -44,7 +44,9 @@ def _select_mode(segment: SegmentResult, thresholds: PolicyThresholds) -> tuple[
         blockers.append("insufficient_sample")
     if segment.success_delta_ci_low < -thresholds.maximum_success_degradation:
         blockers.append("success_non_inferiority_failed")
-    if segment.cost_improvement_rate < thresholds.minimum_cost_improvement:
+    if not segment.treatment_cost_per_success_defined:
+        blockers.append("no_successful_treatment_tasks")
+    elif segment.cost_improvement_rate < thresholds.minimum_cost_improvement:
         blockers.append("cost_improvement_below_threshold")
     if (
         thresholds.require_zero_silent_failures

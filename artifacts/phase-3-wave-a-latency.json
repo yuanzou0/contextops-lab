@@ -1,0 +1,35 @@
+{
+  "limitation": "PariTok 1.3.3 exposes no split timing header; incremental latency combines local compression and proxy overhead.",
+  "measurement": "paired_estimate",
+  "pairs": [
+    {
+      "baseline_provider_ms": 1528.3003749791533,
+      "incremental_local_and_proxy_ms": 28850.47704097815,
+      "measurement": "paired_estimate",
+      "task_id": "debugging-32k-5t",
+      "treatment_end_to_end_ms": 30378.777415957302
+    },
+    {
+      "baseline_provider_ms": 3568.7217079102993,
+      "incremental_local_and_proxy_ms": 34299.694292014465,
+      "measurement": "paired_estimate",
+      "task_id": "edit-critical-32k-5t",
+      "treatment_end_to_end_ms": 37868.415999924764
+    },
+    {
+      "baseline_provider_ms": 2343.3004170656204,
+      "incremental_local_and_proxy_ms": 119428.27833280899,
+      "measurement": "paired_estimate",
+      "task_id": "mcp-heavy-32k-5t",
+      "treatment_end_to_end_ms": 121771.5787498746
+    },
+    {
+      "baseline_provider_ms": 1886.0008749179542,
+      "incremental_local_and_proxy_ms": 31965.235375100747,
+      "measurement": "paired_estimate",
+      "task_id": "read-heavy-32k-5t",
+      "treatment_end_to_end_ms": 33851.2362500187
+    }
+  ],
+  "schema_version": 1
+}

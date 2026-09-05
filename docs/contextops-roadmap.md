@@ -6,7 +6,13 @@ PariTok is the first planned treatment evaluated by ContextOps Lab. The product 
 
 ## P0 — Make failure safe
 
+Status labels below are authoritative: **complete** means implemented and tested in this
+repository; **partial/external** means only part of the behavior exists or belongs to PariTok;
+**proposed** means roadmap only and must not be described as shipped in a résumé or interview.
+
 ### 1. Compression validation and automatic fallback
+
+**Status: complete (ContextOps Lab).**
 
 - **Problem:** Empty, malformed, or identifier-damaging summaries can silently corrupt an agent task.
 - **Build:** Validate non-empty output, reference integrity, required identifiers, file paths, error strings, and size bounds. On failure, forward the original and emit a structured fallback event.
@@ -15,17 +21,34 @@ PariTok is the first planned treatment evaluated by ContextOps Lab. The product 
 
 ### 2. Adaptive tool discovery
 
+**Status: isolation complete; upstream repair external.** PariTok 1.3.3 supplies tool filtering and
+ContextOps measures its telemetry, but ContextOps Lab has not implemented its own recovery engine.
+Wave A exposed a query-sensitive cache risk: content cached under an intermediate intent may be
+reused after the user task changes. A provider-free controlled audit reproduced that behavior in
+the installed pipeline. Runtime execution now fails closed unless the cache contract is declared
+`disabled` or `query_aware`; a research override is explicitly never rollout-eligible.
+A prespecified local PariTok 4B regression then retained 12/12 critical signals under the
+query-aware reference contract. Integration of that storage contract and fallback boundary into
+the external live proxy is now implemented and contract-tested; provider-backed terminal-task
+recovery remains unobserved until the bounded recovery pilot runs.
+
 - **Problem:** Freezing tool selection helps prompt caching but can fail when the user changes goals mid-session.
 - **Build:** Keep a permanent core-tool allowlist, detect intent drift, refresh only the optional tool segment, and provide deterministic full-schema recovery.
 - **Acceptance:** Core tools are never dropped; tool false-negative rate is measured; task pivots recover without restarting the session.
 
 ### 3. Durable, versioned original-context storage
 
+**Status: proposed.** No Redis deployment, tenant isolation, encryption, or restart-recovery suite
+is implemented in this repository.
+
 - **Problem:** In-memory references disappear on restart or expiration.
 - **Build:** Make Redis the production default, namespace references by tenant/session, store content version and expiry metadata, encrypt sensitive originals, and expose retrieval health.
 - **Acceptance:** Restart recovery tests pass; expired references return an explicit status; tenant isolation tests pass.
 
 ### 4. Protocol compatibility regression suite
+
+**Status: proposed.** Current mocked tests cover the OpenAI-compatible path used by Phase 3; they
+are not a multi-provider golden conformance suite.
 
 - **Problem:** Anthropic, OpenAI Chat Completions, Responses, Gemini-compatible tools, and streaming have different edge cases.
 - **Build:** Golden request/response fixtures covering tool calls, streaming, errors, images, custom tools, and recovery loops.
@@ -35,17 +58,27 @@ PariTok is the first planned treatment evaluated by ContextOps Lab. The product 
 
 ### 5. Evaluation lab and analytics dashboard
 
+**Status: partial.** The lab, dashboard, cost and latency metrics are implemented. The Luna smoke
+has one pair per segment, so non-inferiority remains unproven pending the 20-scenario evidence stage
+and independent quality reviews.
+
 - **Build:** Run paired compressed/uncompressed tasks and display cost per successful task, quality-adjusted savings, P50/P95 latency, recall rate, tool false negatives, and fallback rate.
 - **Segment:** Session length, tool count, task type, repository size, language, upstream model, and deployment mode.
 - **Decision:** Enable compression only for cohorts where the confidence interval supports positive net value.
 
 ### 6. Risk-aware compression policy
 
+**Status: partial.** A deterministic latency-aware eligibility rule now keeps short synchronous
+requests off and allows long amortizable contexts, but it has not been calibrated on 32K/128K live
+evidence.
+
 - **Build:** Select compression level using content type, age, task intent, edit risk, identifier density, and available context budget.
 - **Policy examples:** Preserve exact current-file edit context; compress stale logs aggressively; summarize old reasoning only near the context threshold.
 - **Acceptance:** Lower quality-adjusted cost than a single fixed policy without violating success-rate guardrails.
 
 ### 7. Preflight and explainability
+
+**Status: complete for the OpenAI/PariTok path; broader provider support proposed.**
 
 - **Build:** Add a `doctor` command and per-request explanation: backend health, selected tools, compressed blocks, fallback reason, privacy mode, and expected/realized savings.
 - **Acceptance:** Setup failures are actionable; silent no-op compression is distinguishable from “nothing eligible to compress.”
@@ -83,6 +116,12 @@ This scope is more relevant to the target roles than retraining a 4B model and i
   evidence-gated policy, runtime modes, and diagnostics.
 - **Phase 3 — production-shaped evidence:** integration contract completed in v0.3.0; v0.4.0 added
   the staged workload and cost preflight; v0.5.0 adds real multi-turn execution, fail-closed local
-  model checks, atomic evidence output, and verified local PariTok/Ollama readiness. Provider
-  evidence remains gated on credentials and explicit authorization for paid calls. See
-  `phase-3-acceptance.md`.
+  model checks, atomic evidence output, and verified local PariTok/Ollama readiness. The Luna smoke
+  is complete but insufficient for a quality non-inferiority claim. The proposed evidence stage has
+  five 32K/128K pairs per workload and requires independent human/LLM review. A 32K/5-turn Wave A
+  pilot subsequently failed the terminal task proxy in 4/4 treatment workloads, so expansion is
+  stopped. Query-sensitive cache reuse is now isolated and reproduced provider-free, while an
+  actual local PariTok 4B recovery regression passes the transformed-context signal gates. The
+  external-proxy cache/fallback boundary is implemented and observable. Provider-backed
+  terminal-task recovery, independent review, and latency eligibility remain prerequisites for
+  Wave B. See `phase-3-acceptance.md` and `query-sensitive-cache-decision.md`.

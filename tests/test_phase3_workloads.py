@@ -36,6 +36,17 @@ class Phase3WorkloadTests(unittest.TestCase):
     def test_stages_limit_cost_exposure(self):
         self.assertEqual(len(select_stage(self.matrix, self.scenarios, "smoke")), 4)
         self.assertEqual(len(select_stage(self.matrix, self.scenarios, "core")), 16)
+        wave_a = select_stage(self.matrix, self.scenarios, "wave_a")
+        self.assertEqual(len(wave_a), 4)
+        self.assertEqual(
+            {(item.context_tokens, item.session_turns) for item in wave_a},
+            {(32000, 5)},
+        )
+        evidence = select_stage(self.matrix, self.scenarios, "evidence")
+        self.assertEqual(len(evidence), 20)
+        self.assertEqual({item.context_tokens for item in evidence}, {32000, 128000})
+        for task_type in {item.task_type for item in evidence}:
+            self.assertEqual(sum(item.task_type == task_type for item in evidence), 5)
         self.assertEqual(len(select_stage(self.matrix, self.scenarios, "extended")), 36)
 
     def test_generated_history_hits_payload_band_and_preserves_signals(self):

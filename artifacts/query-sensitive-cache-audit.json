@@ -1,0 +1,63 @@
+{
+  "cache_disabled": {
+    "model_calls": 2,
+    "outputs_change_with_query": true,
+    "results": [
+      {
+        "cache_hit": false,
+        "output_sha256": "68406fed3f65dabb5c1b07498ca48cceb2ba23ea33a1dbc053399ed0f4d06256"
+      },
+      {
+        "cache_hit": false,
+        "output_sha256": "f85f03718af111ecec972d3f3f40a5ce4847b0e7587c813ed48dd84dd13e2635"
+      }
+    ]
+  },
+  "claim_boundary": "Confirms that the installed pipeline can reuse a query-dependent transformation after intent changes under controlled conditions. It supports, but does not alone prove, the Wave A root-cause attribution.",
+  "content_only": {
+    "model_calls": 1,
+    "outputs_change_with_query": false,
+    "results": [
+      {
+        "cache_hit": false,
+        "output_sha256": "68406fed3f65dabb5c1b07498ca48cceb2ba23ea33a1dbc053399ed0f4d06256"
+      },
+      {
+        "cache_hit": true,
+        "output_sha256": "68406fed3f65dabb5c1b07498ca48cceb2ba23ea33a1dbc053399ed0f4d06256"
+      }
+    ]
+  },
+  "content_only_query_reuse_observed": true,
+  "controlled_variables": [
+    "content",
+    "pipeline",
+    "compression_model",
+    "configuration"
+  ],
+  "evidence_label": "provider_free_controlled_cache_contract_audit",
+  "independent_variable": "cache_contract",
+  "isolation_interventions_passed": true,
+  "paritok_version": "1.3.3",
+  "query_aware": {
+    "model_calls": 2,
+    "outputs_change_with_query": true,
+    "results": [
+      {
+        "cache_hit": false,
+        "output_sha256": "68406fed3f65dabb5c1b07498ca48cceb2ba23ea33a1dbc053399ed0f4d06256"
+      },
+      {
+        "cache_hit": false,
+        "output_sha256": "f85f03718af111ecec972d3f3f40a5ce4847b0e7587c813ed48dd84dd13e2635"
+      },
+      {
+        "cache_hit": true,
+        "output_sha256": "f85f03718af111ecec972d3f3f40a5ce4847b0e7587c813ed48dd84dd13e2635"
+      }
+    ]
+  },
+  "query_changed": true,
+  "rollout_decision": "off",
+  "schema_version": 1
+}

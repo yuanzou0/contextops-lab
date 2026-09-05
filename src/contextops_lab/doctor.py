@@ -15,7 +15,7 @@ from .benchmark import load_benchmark_cases
 from .events import load_events
 from .models import ExperimentArm
 from .live_config import load_live_config
-from .paritok import PariTokGateway
+from .paritok import ContextOpsSafetyGateway, PariTokGateway
 from .strategy import CompressionMode
 
 
@@ -224,6 +224,30 @@ def run_doctor(
                         f"{config.compression_model}; total_requests={stats.total_requests}",
                     )
                 )
+                if config.contextops_safety_stats_url:
+                    safety_gateway = ContextOpsSafetyGateway(
+                        config.contextops_safety_stats_url,
+                        timeout_seconds=min(config.timeout_seconds, 10.0),
+                    )
+                    safety = safety_gateway.health(
+                        expected_contract=config.compression_cache_contract,
+                    )
+                    checks.append(
+                        DoctorCheck(
+                            "contextops_safety_boundary",
+                            CheckStatus.PASS,
+                            f"cache={safety.get('cache_contract')}; "
+                            f"validator={safety.get('validator_contract')}",
+                        )
+                    )
+                elif config.compression_cache_contract in {"disabled", "query_aware"}:
+                    checks.append(
+                        DoctorCheck(
+                            "contextops_safety_boundary",
+                            CheckStatus.FAIL,
+                            "verified cache contract lacks contextops_safety_stats_url",
+                        )
+                    )
             else:
                 checks.append(
                     DoctorCheck(

@@ -1,0 +1,137 @@
+{
+  "default_mode": "off",
+  "evidence_label": "live_wave_a_unreviewed",
+  "generated": "2026-08-14",
+  "production_ready": false,
+  "rules": [
+    {
+      "dimension": "task_type",
+      "metrics": {
+        "baseline_cost_per_success": 0.086925,
+        "baseline_p95_latency_ms": 1712.9289580043405,
+        "baseline_success_rate": 1.0,
+        "compressed_cost_per_success": null,
+        "compressed_p95_latency_ms": 29316.82320777327,
+        "compressed_success_rate": 0.0,
+        "cost_improvement_rate": 0.0,
+        "dimension": "task_type",
+        "fallback_rate": 0.0,
+        "p95_latency_delta_ms": 27603.894249768928,
+        "paired_tasks": 1,
+        "silent_failures": 0,
+        "success_delta_ci_high": 0.5869134170522141,
+        "success_delta_ci_low": -1.0,
+        "success_rate_delta": -1.0,
+        "treatment_cost_per_success_defined": false,
+        "value": "debugging"
+      },
+      "mode": "off",
+      "reasons": [
+        "insufficient_sample",
+        "success_non_inferiority_failed",
+        "no_successful_treatment_tasks",
+        "latency_budget_exceeded"
+      ],
+      "value": "debugging"
+    },
+    {
+      "dimension": "task_type",
+      "metrics": {
+        "baseline_cost_per_success": 0.08811000000000001,
+        "baseline_p95_latency_ms": 3568.7217079102993,
+        "baseline_success_rate": 1.0,
+        "compressed_cost_per_success": null,
+        "compressed_p95_latency_ms": 32541.28845804371,
+        "compressed_success_rate": 0.0,
+        "cost_improvement_rate": 0.0,
+        "dimension": "task_type",
+        "fallback_rate": 0.0,
+        "p95_latency_delta_ms": 28972.56675013341,
+        "paired_tasks": 1,
+        "silent_failures": 0,
+        "success_delta_ci_high": 0.5869134170522141,
+        "success_delta_ci_low": -1.0,
+        "success_rate_delta": -1.0,
+        "treatment_cost_per_success_defined": false,
+        "value": "edit_critical"
+      },
+      "mode": "off",
+      "reasons": [
+        "insufficient_sample",
+        "success_non_inferiority_failed",
+        "no_successful_treatment_tasks",
+        "latency_budget_exceeded"
+      ],
+      "value": "edit_critical"
+    },
+    {
+      "dimension": "task_type",
+      "metrics": {
+        "baseline_cost_per_success": 0.10703399999999999,
+        "baseline_p95_latency_ms": 2358.300792053342,
+        "baseline_success_rate": 1.0,
+        "compressed_cost_per_success": null,
+        "compressed_p95_latency_ms": 34000.733125023544,
+        "compressed_success_rate": 0.0,
+        "cost_improvement_rate": 0.0,
+        "dimension": "task_type",
+        "fallback_rate": 0.0,
+        "p95_latency_delta_ms": 31642.432332970202,
+        "paired_tasks": 1,
+        "silent_failures": 0,
+        "success_delta_ci_high": 0.5869134170522141,
+        "success_delta_ci_low": -1.0,
+        "success_rate_delta": -1.0,
+        "treatment_cost_per_success_defined": false,
+        "value": "mcp_heavy"
+      },
+      "mode": "off",
+      "reasons": [
+        "insufficient_sample",
+        "success_non_inferiority_failed",
+        "no_successful_treatment_tasks",
+        "latency_budget_exceeded"
+      ],
+      "value": "mcp_heavy"
+    },
+    {
+      "dimension": "task_type",
+      "metrics": {
+        "baseline_cost_per_success": 0.087258,
+        "baseline_p95_latency_ms": 3245.972916018218,
+        "baseline_success_rate": 1.0,
+        "compressed_cost_per_success": null,
+        "compressed_p95_latency_ms": 39367.67470790073,
+        "compressed_success_rate": 0.0,
+        "cost_improvement_rate": 0.0,
+        "dimension": "task_type",
+        "fallback_rate": 0.0,
+        "p95_latency_delta_ms": 36121.701791882515,
+        "paired_tasks": 1,
+        "silent_failures": 0,
+        "success_delta_ci_high": 0.5869134170522141,
+        "success_delta_ci_low": -1.0,
+        "success_rate_delta": -1.0,
+        "treatment_cost_per_success_defined": false,
+        "value": "read_heavy"
+      },
+      "mode": "off",
+      "reasons": [
+        "insufficient_sample",
+        "success_non_inferiority_failed",
+        "no_successful_treatment_tasks",
+        "latency_budget_exceeded"
+      ],
+      "value": "read_heavy"
+    }
+  ],
+  "schema_version": 1,
+  "thresholds": {
+    "maximum_fallback_rate": 0.25,
+    "maximum_p95_latency_increase_ms": 500.0,
+    "maximum_success_degradation": 0.02,
+    "minimum_cost_improvement": 0.05,
+    "minimum_paired_tasks": 5,
+    "require_zero_silent_failures": true
+  }
+}

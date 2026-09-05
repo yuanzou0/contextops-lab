@@ -1,0 +1,406 @@
+{
+  "cache_behavior_all_passed": true,
+  "claim_boundary": "Measures transformed-context signal retention and cache/fallback mechanics without an upstream agent provider. It does not measure end-task semantic quality, provider behavior, or synchronous latency eligibility.",
+  "condition_scenario_count": 12,
+  "conditions": [
+    "content_only",
+    "disabled",
+    "query_aware"
+  ],
+  "config_version": "provider-free-regression-v1",
+  "engine": "deterministic",
+  "evidence_label": "provider_free_deterministic_transformed_context_regression",
+  "guarded_required_signals_recalled": 36,
+  "guarded_safety_all_passed": true,
+  "paritok_version": "1.3.3",
+  "provider_cost_usd": 0.0,
+  "provider_requests": 0,
+  "raw_compression_quality_all_passed": false,
+  "raw_content_recorded": false,
+  "raw_required_signals_recalled": 24,
+  "recovery_conditions_raw_quality_passed": true,
+  "required_signals_total": 36,
+  "rows": [
+    {
+      "cache_behavior_passed": true,
+      "condition": "content_only",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 3,
+      "elapsed_seconds": 0.004,
+      "fallback_count": 3,
+      "fallback_reasons": {
+        "error_message_loss": 1,
+        "file_path_loss": 1,
+        "identifier_loss": 1
+      },
+      "final_output_sha256": [
+        "41bf680204f35ff3af1671997578cc6f3b5248243aa6d31ec5e27e6b9e232437",
+        "001cbe03b73c764f179bd289e7aa5db41a12bbdab53389a9bfc6b60267507f07",
+        "8c7a3f01dad55c1e3664df1ebd2958148d06900febe7631f4430de72b522ce4d"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "41bf680204f35ff3af1671997578cc6f3b5248243aa6d31ec5e27e6b9e232437",
+        "001cbe03b73c764f179bd289e7aa5db41a12bbdab53389a9bfc6b60267507f07",
+        "8c7a3f01dad55c1e3664df1ebd2958148d06900febe7631f4430de72b522ce4d"
+      ],
+      "model_calls": 3,
+      "raw_compression_quality_passed": false,
+      "raw_required_signals_recalled": 0,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "read-heavy-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "read_heavy"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "content_only",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 3,
+      "elapsed_seconds": 0.004,
+      "fallback_count": 3,
+      "fallback_reasons": {
+        "error_message_loss": 1,
+        "file_path_loss": 1,
+        "identifier_loss": 1
+      },
+      "final_output_sha256": [
+        "235360dbc005d8182e3d4957d4fe329e3c31e0691eba918b1f12d4c7fdaba42d",
+        "fc29729d48a03a81badfaa2347b1ddcf1438f15d747e1de7c2b122486730b964",
+        "9d54c346b445b87dbf7865b16995a9729ce13177824674e69cd129a2aa37794c"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "235360dbc005d8182e3d4957d4fe329e3c31e0691eba918b1f12d4c7fdaba42d",
+        "fc29729d48a03a81badfaa2347b1ddcf1438f15d747e1de7c2b122486730b964",
+        "9d54c346b445b87dbf7865b16995a9729ce13177824674e69cd129a2aa37794c"
+      ],
+      "model_calls": 3,
+      "raw_compression_quality_passed": false,
+      "raw_required_signals_recalled": 0,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "debugging-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "debugging"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "content_only",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 3,
+      "elapsed_seconds": 0.004,
+      "fallback_count": 3,
+      "fallback_reasons": {
+        "error_message_loss": 1,
+        "file_path_loss": 1,
+        "identifier_loss": 1
+      },
+      "final_output_sha256": [
+        "fb3526df568f3aa31837ff8cd510a480e5476cb7e8c906d771c740a0b0875b0e",
+        "a211199c09c556f7e3e77165c2d34d01e529c4339ac158330e4147d6a3392e1f",
+        "52e8c3f8334b2f82d8f1092ab21b9407f62ed468617e51dee44f76178a0a11a9"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "fb3526df568f3aa31837ff8cd510a480e5476cb7e8c906d771c740a0b0875b0e",
+        "a211199c09c556f7e3e77165c2d34d01e529c4339ac158330e4147d6a3392e1f",
+        "52e8c3f8334b2f82d8f1092ab21b9407f62ed468617e51dee44f76178a0a11a9"
+      ],
+      "model_calls": 3,
+      "raw_compression_quality_passed": false,
+      "raw_required_signals_recalled": 0,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "mcp-heavy-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "mcp_heavy"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "content_only",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 3,
+      "elapsed_seconds": 0.004,
+      "fallback_count": 3,
+      "fallback_reasons": {
+        "error_message_loss": 1,
+        "file_path_loss": 1,
+        "identifier_loss": 1
+      },
+      "final_output_sha256": [
+        "47298e24591ce265054c709d9464ba92fe5f2dfd1fcb2c831a2fe43e0a693b6a",
+        "41b556496fb6a8e72673635804ce75e4d9c6f870568e54232e1c946c3ecafe81",
+        "5b14dda62f7d8102ed4155f1aa116fd841dd770b0290f7d1df4d3b00db2547e5"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "47298e24591ce265054c709d9464ba92fe5f2dfd1fcb2c831a2fe43e0a693b6a",
+        "41b556496fb6a8e72673635804ce75e4d9c6f870568e54232e1c946c3ecafe81",
+        "5b14dda62f7d8102ed4155f1aa116fd841dd770b0290f7d1df4d3b00db2547e5"
+      ],
+      "model_calls": 3,
+      "raw_compression_quality_passed": false,
+      "raw_required_signals_recalled": 0,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "edit-critical-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "edit_critical"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "disabled",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 0.004,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "a89bf8486fb531306a7e4f0f11c3537d495ebc42dbe0a630a7e2a5606250723f",
+        "daf74157b7565079d24179683e9d5b0c46508a14e218099f56083d341afd6a4b",
+        "7c7eb06f0e92d66ac85108311a4f61a8be33399dd509ce3a59e0f274b38a3096"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "41bf680204f35ff3af1671997578cc6f3b5248243aa6d31ec5e27e6b9e232437",
+        "001cbe03b73c764f179bd289e7aa5db41a12bbdab53389a9bfc6b60267507f07",
+        "8c7a3f01dad55c1e3664df1ebd2958148d06900febe7631f4430de72b522ce4d"
+      ],
+      "model_calls": 9,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 0,
+      "scenario_id": "read-heavy-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "read_heavy"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "disabled",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 0.005,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "5ceae026737118100961b30d1685c863be15b915f728780f4bb06311958b4abb",
+        "10311952ddd728fbd5c4dd7fe6659290712807a9555f34a2bbcf30ae3e62b1f9",
+        "9c5c471ffbc528c6aaa0521c4ec49cdabdd4be69b7bd8f4d391f0037299a98a9"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "235360dbc005d8182e3d4957d4fe329e3c31e0691eba918b1f12d4c7fdaba42d",
+        "fc29729d48a03a81badfaa2347b1ddcf1438f15d747e1de7c2b122486730b964",
+        "9d54c346b445b87dbf7865b16995a9729ce13177824674e69cd129a2aa37794c"
+      ],
+      "model_calls": 9,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 0,
+      "scenario_id": "debugging-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "debugging"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "disabled",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 0.004,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "7314ba06dce1a894d3a212ed5bd8c34bd18a03c8209c3f85cb5ee44519f3a36e",
+        "50419583e580d581e56d25c70ddba38526839366c13171083b600872c085882c",
+        "b6b31f83343042b9be3b5495d3c9f33c24d28f82911a1c748ad612e2bd241da4"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "fb3526df568f3aa31837ff8cd510a480e5476cb7e8c906d771c740a0b0875b0e",
+        "a211199c09c556f7e3e77165c2d34d01e529c4339ac158330e4147d6a3392e1f",
+        "52e8c3f8334b2f82d8f1092ab21b9407f62ed468617e51dee44f76178a0a11a9"
+      ],
+      "model_calls": 9,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 0,
+      "scenario_id": "mcp-heavy-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "mcp_heavy"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "disabled",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 0.006,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "3c32ca6a52bf935ed442dbc9de8b3322194ae8f92a841e991d6aec903e2addbe",
+        "c1a8a1d9b33f3263dfacc64385ecf85814dade6261f39b2ec1e8ca6e93c927a2",
+        "f0ea68e1c9a05f55760eb8a7a0955ffa73b24642477de44d2b1fa4dd11c7f632"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "47298e24591ce265054c709d9464ba92fe5f2dfd1fcb2c831a2fe43e0a693b6a",
+        "41b556496fb6a8e72673635804ce75e4d9c6f870568e54232e1c946c3ecafe81",
+        "5b14dda62f7d8102ed4155f1aa116fd841dd770b0290f7d1df4d3b00db2547e5"
+      ],
+      "model_calls": 9,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 0,
+      "scenario_id": "edit-critical-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "edit_critical"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "query_aware",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 0.004,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "a89bf8486fb531306a7e4f0f11c3537d495ebc42dbe0a630a7e2a5606250723f",
+        "daf74157b7565079d24179683e9d5b0c46508a14e218099f56083d341afd6a4b",
+        "7c7eb06f0e92d66ac85108311a4f61a8be33399dd509ce3a59e0f274b38a3096"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "41bf680204f35ff3af1671997578cc6f3b5248243aa6d31ec5e27e6b9e232437",
+        "001cbe03b73c764f179bd289e7aa5db41a12bbdab53389a9bfc6b60267507f07",
+        "8c7a3f01dad55c1e3664df1ebd2958148d06900febe7631f4430de72b522ce4d"
+      ],
+      "model_calls": 6,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "read-heavy-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "read_heavy"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "query_aware",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 0.004,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "5ceae026737118100961b30d1685c863be15b915f728780f4bb06311958b4abb",
+        "10311952ddd728fbd5c4dd7fe6659290712807a9555f34a2bbcf30ae3e62b1f9",
+        "9c5c471ffbc528c6aaa0521c4ec49cdabdd4be69b7bd8f4d391f0037299a98a9"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "235360dbc005d8182e3d4957d4fe329e3c31e0691eba918b1f12d4c7fdaba42d",
+        "fc29729d48a03a81badfaa2347b1ddcf1438f15d747e1de7c2b122486730b964",
+        "9d54c346b445b87dbf7865b16995a9729ce13177824674e69cd129a2aa37794c"
+      ],
+      "model_calls": 6,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "debugging-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "debugging"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "query_aware",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 0.004,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "7314ba06dce1a894d3a212ed5bd8c34bd18a03c8209c3f85cb5ee44519f3a36e",
+        "50419583e580d581e56d25c70ddba38526839366c13171083b600872c085882c",
+        "b6b31f83343042b9be3b5495d3c9f33c24d28f82911a1c748ad612e2bd241da4"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "fb3526df568f3aa31837ff8cd510a480e5476cb7e8c906d771c740a0b0875b0e",
+        "a211199c09c556f7e3e77165c2d34d01e529c4339ac158330e4147d6a3392e1f",
+        "52e8c3f8334b2f82d8f1092ab21b9407f62ed468617e51dee44f76178a0a11a9"
+      ],
+      "model_calls": 6,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "mcp-heavy-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "mcp_heavy"
+    },
+    {
+      "cache_behavior_passed": true,
+      "condition": "query_aware",
+      "context_tokens": 32000,
+      "cross_query_final_cache_hits": 0,
+      "elapsed_seconds": 0.004,
+      "fallback_count": 0,
+      "fallback_reasons": {},
+      "final_output_sha256": [
+        "3c32ca6a52bf935ed442dbc9de8b3322194ae8f92a841e991d6aec903e2addbe",
+        "c1a8a1d9b33f3263dfacc64385ecf85814dade6261f39b2ec1e8ca6e93c927a2",
+        "f0ea68e1c9a05f55760eb8a7a0955ffa73b24642477de44d2b1fa4dd11c7f632"
+      ],
+      "guarded_required_signals_recalled": 3,
+      "guarded_safety_passed": true,
+      "intermediate_cache_hits": 0,
+      "intermediate_output_sha256": [
+        "47298e24591ce265054c709d9464ba92fe5f2dfd1fcb2c831a2fe43e0a693b6a",
+        "41b556496fb6a8e72673635804ce75e4d9c6f870568e54232e1c946c3ecafe81",
+        "5b14dda62f7d8102ed4155f1aa116fd841dd770b0290f7d1df4d3b00db2547e5"
+      ],
+      "model_calls": 6,
+      "raw_compression_quality_passed": true,
+      "raw_required_signals_recalled": 3,
+      "same_query_replay_cache_hits": 3,
+      "scenario_id": "edit-critical-32k-5t",
+      "session_turns": 5,
+      "signal_segments": 3,
+      "task_type": "edit_critical"
+    }
+  ],
+  "scenario_count": 4,
+  "schema_version": 1,
+  "stage": "wave_a",
+  "token_counter": "deterministic_len_div_4_not_an_outcome",
+  "wave_b_eligible": false
+}

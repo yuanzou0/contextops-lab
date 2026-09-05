@@ -86,6 +86,20 @@ class Phase2ProductLoopTests(unittest.TestCase):
         self.assertFalse(settings_for(CompressionMode.CONSERVATIVE, "edit_critical").enabled)
         self.assertTrue(settings_for(CompressionMode.BALANCED, "debugging").enabled)
 
+    def test_zero_treatment_successes_do_not_render_infinite_cost_improvement(self):
+        baseline = event("failed-treatment", ExperimentArm.BASELINE)
+        treatment = RequestEvent(
+            **{
+                **event("failed-treatment", ExperimentArm.COMPRESSED).to_dict(),
+                "arm": ExperimentArm.COMPRESSED,
+                "task_success": False,
+                "tests_passed": False,
+            }
+        )
+        segment = segment_events([baseline, treatment])[0]
+        self.assertFalse(segment.treatment_cost_per_success_defined)
+        self.assertEqual(segment.cost_improvement_rate, 0.0)
+
     def test_dashboard_and_doctor_enforce_evidence_boundary(self):
         events = load_events(ROOT / "artifacts/phase-1-events.jsonl")
         policy = generate_rollout_policy(events, evidence_label="offline_deterministic")

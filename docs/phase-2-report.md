@@ -1,6 +1,6 @@
 # ContextOps Lab — Phase 2 Product-Loop Report
 
-**Generated:** 2026-08-11
+**Generated:** 2026-08-14
 **Evidence level:** offline_deterministic
 
 ## Decision
@@ -9,7 +9,7 @@ Production rollout remains **locked** unless the policy evidence label is `produ
 
 ## Workload policy recommendations
 
-| Workload | Paired tasks | Success Δ (95% CI) | Cost improvement | Fallback | Mode | Reasons |
+| Workload | Paired tasks | Task-proxy Δ (95% CI) | Cost improvement | Fallback | Mode | Reasons |
 |---|---:|---:|---:|---:|---|---|
 | debugging | 8 | 0.0% [-32.4%, 32.4%] | 54.8% | 0.0% | off | success_non_inferiority_failed |
 | edit_critical | 6 | 0.0% [-39.0%, 39.0%] | 56.4% | 0.0% | off | success_non_inferiority_failed |

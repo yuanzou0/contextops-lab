@@ -40,6 +40,20 @@
       "session_turns": [1, 5],
       "task_types": ["read_heavy", "debugging", "mcp_heavy", "edit_critical"]
     },
+    "wave_a": {
+      "combinations": [[32000, 5]],
+      "task_types": ["read_heavy", "debugging", "mcp_heavy", "edit_critical"]
+    },
+    "evidence": {
+      "combinations": [
+        [32000, 1],
+        [32000, 5],
+        [32000, 10],
+        [128000, 5],
+        [128000, 10]
+      ],
+      "task_types": ["read_heavy", "debugging", "mcp_heavy", "edit_critical"]
+    },
     "extended": {
       "context_tokens": [8000, 32000, 128000],
       "session_turns": [1, 5, 10],
