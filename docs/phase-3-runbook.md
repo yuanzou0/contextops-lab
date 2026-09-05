@@ -2,8 +2,10 @@
 
 ## 1. Install and start the local compression backend
 
-The tested local stack uses PariTok 1.3.3 and Ollama 0.32.9. Install the live extra in an isolated
-environment, then pull and alias the model as required by PariTok:
+Historical Wave A artifacts use PariTok 1.3.3 and Ollama 0.32.9. The current default live
+dependency is PariTok 1.3.11, while CI retains both versions as separate compatibility lanes. See
+`paritok-compatibility.md`. Install the live extra in an isolated environment, then pull and alias
+the model as required by PariTok:
 
 ```bash
 python -m venv .venv
