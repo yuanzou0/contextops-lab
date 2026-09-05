@@ -96,7 +96,14 @@ contextops-lab provider-free-regression --engine deterministic
 
 # Optional: actual local PariTok 4B/Ollama recovery regression; still no provider call
 contextops-lab provider-free-regression --engine local_paritok_4b
+
+# Verify the installed PariTok version and cache behavior against the tested matrix
+contextops-lab compatibility-audit
 ```
+
+The default live dependency is PariTok 1.3.11. CI also retains a 1.3.3 lane so historical Wave A
+evidence remains reproducible; see
+[`docs/paritok-compatibility.md`](docs/paritok-compatibility.md).
 
 Start the validated external proxy for a recovery run:
 
@@ -134,6 +141,13 @@ artifacts/             privacy-safe Phase 1 events
 docs/                  experiment and rollout design
 skills/                reusable supporting methodology
 ```
+
+Release-candidate references:
+
+- [`docs/architecture.md`](docs/architecture.md): ownership boundaries and fail-closed invariants;
+- [`docs/demo.md`](docs/demo.md): provider-free one-minute verification flow;
+- [`docs/release-checklist.md`](docs/release-checklist.md): 0.8.0 release gates; and
+- [`CHANGELOG.md`](CHANGELOG.md): candidate scope and evidence limitations.
 
 The [`ai-agent-project-strategist`](skills/ai-agent-project-strategist/) Codex Skill is a supporting methodology asset, not the product headline.
 
