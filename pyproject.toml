@@ -4,15 +4,16 @@ build-backend = "hatchling.build"
 
 [project]
 name = "contextops-lab"
-version = "0.8.0"
+version = "0.9.0"
 description = "AI-agent context reliability, experimentation, and cost evaluation lab"
 requires-python = ">=3.10"
 license = { file = "LICENSE" }
 dependencies = []
 
 [project.optional-dependencies]
-dev = ["pytest>=8.0,<10", "ruff==0.12.0"]
-live = ["paritok[proxy]==1.3.11"]
+dev = ["cryptography>=45,<47", "pytest>=8.0,<10", "ruff==0.12.0"]
+durable = ["cryptography>=45,<47", "redis>=5,<7"]
+live = ["paritok[proxy,redis]==1.3.11", "cryptography>=45,<47", "redis>=5,<7"]
 
 [project.scripts]
 contextops-lab = "contextops_lab.cli:main"

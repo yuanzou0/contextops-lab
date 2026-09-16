@@ -99,6 +99,11 @@ class Phase3LiveIntegrationTests(unittest.TestCase):
                     "status": "ok",
                     "cache_contract": "query_aware",
                     "validator_contract": "exact_original_on_rejection",
+                    "context_store": {
+                        "status": "ok",
+                        "backend": "redis",
+                        "encryption": "aes-256-gcm",
+                    },
                 },
                 {
                     "cache_contract": "query_aware",
@@ -136,6 +141,26 @@ class Phase3LiveIntegrationTests(unittest.TestCase):
         self.assertEqual(delta.fallbacks, 1)
         self.assertEqual(delta.exact_original_fallbacks, 1)
         self.assertEqual(delta.fallback_reasons, {"identifier_loss": 1})
+
+    def test_contextops_safety_gateway_rejects_memory_or_unhealthy_storage(self):
+        gateway = ContextOpsSafetyGateway("http://proxy/contextops/stats")
+        base = {
+            "status": "ok",
+            "cache_contract": "query_aware",
+            "validator_contract": "exact_original_on_rejection",
+        }
+        for context_store in (
+            {"status": "ok", "backend": "memory"},
+            {"status": "unhealthy", "backend": "redis", "encryption": "aes-256-gcm"},
+            None,
+        ):
+            with self.subTest(context_store=context_store), patch.object(
+                gateway,
+                "_get",
+                return_value={**base, "context_store": context_store},
+            ):
+                with self.assertRaises(RuntimeError):
+                    gateway.health(expected_contract="query_aware")
 
     def test_gateway_fails_closed_when_compression_model_is_missing(self):
         class Response:

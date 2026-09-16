@@ -1,15 +1,19 @@
-# 0.8.0 release checklist
+# 0.9.0 release checklist
 
-Candidate branch: `codex/p0-paritok-compatibility`
+Candidate branch: `codex/p0-durable-context-store`
 
 ## Code and dependency
 
-- [x] Package version is 0.8.0.
+- [x] Package version is 0.9.0.
 - [x] Default live dependency is pinned to PariTok 1.3.11.
 - [x] PariTok 1.3.3 remains an explicit historical compatibility lane.
 - [x] Unsupported versions and cache-contract drift fail the compatibility audit.
 - [x] Multi-turn execution fails closed for an unverified cache contract.
 - [x] Validator rejection forwards the exact original context.
+- [x] Redis is the safe-proxy production default; missing configuration fails closed.
+- [x] Exact originals and compressed-cache values use AES-256-GCM at rest.
+- [x] Tenant/session namespace isolation and content-version metadata are enforced.
+- [x] Expired references return an explicit status during the tombstone window.
 
 ## Verification
 
@@ -20,6 +24,8 @@ Candidate branch: `codex/p0-paritok-compatibility`
 - [ ] GitHub CI passes both packaged dependency lanes: 1.3.3 and 1.3.11.
 - [ ] Real local PariTok 4B/Ollama provider-free regression passes on release infrastructure.
 - [x] Safe-proxy HTTP boundary test passes with the complete `paritok[proxy]` dependency set.
+- [x] Deterministic restart, TTL, isolation, encryption, corruption, and backend-health tests pass.
+- [ ] A live Redis process-restart and expiry drill passes on release infrastructure.
 
 ## Evidence and documentation
 
@@ -36,6 +42,6 @@ Candidate branch: `codex/p0-paritok-compatibility`
 - [ ] Push the candidate branch.
 - [ ] Open or update the pull request and obtain review.
 - [ ] Merge only after required CI checks are green.
-- [ ] Tag `v0.8.0` and publish release notes.
+- [ ] Tag `v0.9.0` and publish release notes.
 
 Unchecked external actions are intentionally not performed by local implementation work.

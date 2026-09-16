@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import platform
 import sys
 from datetime import date
@@ -596,6 +597,10 @@ def run_live_sessions(args: argparse.Namespace) -> int:
                 "status": safety_health.get("status"),
                 "cache_contract": safety_health.get("cache_contract"),
                 "validator_contract": safety_health.get("validator_contract"),
+                "context_store": {
+                    key: safety_health["context_store"].get(key)
+                    for key in ("status", "backend", "encryption", "ttl_seconds")
+                },
                 "stats_url": config.contextops_safety_stats_url,
             }
             if safety_health
@@ -615,6 +620,28 @@ def run_live_sessions(args: argparse.Namespace) -> int:
 
 
 def run_safe_proxy_command(args: argparse.Namespace) -> int:
+    if args.storage_ttl_seconds <= 0:
+        print("--storage-ttl-seconds must be positive", file=sys.stderr)
+        return 2
+    redis_url = os.environ.get(args.redis_url_environment)
+    storage_key = os.environ.get(args.storage_key_environment)
+    if args.storage_backend == "redis":
+        missing = []
+        if not redis_url:
+            missing.append(args.redis_url_environment)
+        if not storage_key:
+            missing.append(args.storage_key_environment)
+        if not args.tenant_id:
+            missing.append("--tenant-id")
+        if not args.session_id:
+            missing.append("--session-id")
+        if missing:
+            print(
+                "Durable context storage is missing required configuration: "
+                + ", ".join(missing),
+                file=sys.stderr,
+            )
+            return 2
     run_safe_proxy(
         host=args.host,
         port=args.port,
@@ -622,6 +649,12 @@ def run_safe_proxy_command(args: argparse.Namespace) -> int:
         anthropic_base_url=args.anthropic_url,
         config_path=args.config_file,
         cache_contract=args.cache_contract,
+        storage_backend=args.storage_backend,
+        redis_url=redis_url,
+        storage_encryption_key=storage_key,
+        tenant_id=args.tenant_id or "development",
+        session_id=args.session_id or "development",
+        storage_ttl_seconds=args.storage_ttl_seconds,
         log_level=args.log_level,
     )
     return 0
@@ -799,6 +832,25 @@ def build_parser() -> argparse.ArgumentParser:
         choices=("disabled", "query_aware"),
         default="query_aware",
     )
+    safe_proxy.add_argument(
+        "--storage-backend",
+        choices=("redis", "memory"),
+        default="redis",
+        help="redis is the fail-closed production default; memory is explicit development mode",
+    )
+    safe_proxy.add_argument(
+        "--redis-url-environment",
+        default="CONTEXTOPS_REDIS_URL",
+        help="environment variable containing the Redis URL",
+    )
+    safe_proxy.add_argument(
+        "--storage-key-environment",
+        default="CONTEXTOPS_STORAGE_KEY",
+        help="environment variable containing a 32-byte hex or URL-safe base64 AES key",
+    )
+    safe_proxy.add_argument("--tenant-id", help="tenant isolation scope for stored context")
+    safe_proxy.add_argument("--session-id", help="session isolation scope for stored context")
+    safe_proxy.add_argument("--storage-ttl-seconds", type=int, default=86_400)
     safe_proxy.add_argument(
         "--log-level",
         choices=("debug", "info", "warning", "error"),

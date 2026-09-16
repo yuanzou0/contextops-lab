@@ -101,16 +101,102 @@ def _pipeline_result(pipeline: Any, model: _IntentModel, content: str, queries: 
     }
 
 
-def build_paritok_storage(contract: str) -> Any:
-    """Build an isolated storage backend for a declared cache contract."""
+def build_paritok_storage(
+    contract: str,
+    *,
+    backend: str = "memory",
+    redis_url: str | None = None,
+    encryption_key: str | None = None,
+    tenant_id: str = "development",
+    session_id: str = "development",
+    ttl_seconds: int = 86_400,
+    base_storage: Any = None,
+) -> Any:
+    """Build isolated storage for a declared cache and durability contract.
+
+    ``memory`` is an explicit test/development mode. The live safe-proxy command selects the
+    fail-closed ``redis`` backend by default.
+    """
     if contract not in {"content_only", "disabled", "query_aware"}:
         raise ValueError(f"Unsupported diagnostic cache contract: {contract}")
-    try:
-        from paritok.storage import MemoryShadowStorage
-    except ImportError as error:
-        raise RuntimeError("Install the live extra before building PariTok storage") from error
+    if backend not in {"memory", "redis"}:
+        raise ValueError(f"Unsupported context storage backend: {backend}")
+    if base_storage is None and backend == "memory":
+        try:
+            from paritok.storage import MemoryShadowStorage
+        except ImportError as error:
+            raise RuntimeError("Install the live extra before building PariTok storage") from error
+        base_storage = MemoryShadowStorage()
+    elif base_storage is None:
+        from .context_store import DurableRedisShadowStorage
 
-    class CacheDisabledStorage(MemoryShadowStorage):
+        if not encryption_key:
+            raise ValueError("Redis context storage requires an encryption key")
+        base_storage = DurableRedisShadowStorage.from_url(
+            redis_url or "",
+            encryption_key=encryption_key,
+            tenant_id=tenant_id,
+            session_id=session_id,
+            ttl_seconds=ttl_seconds,
+        )
+
+    class DelegatingStorage:
+        def __init__(self, storage: Any) -> None:
+            self._storage = storage
+
+        def store(self, content: str) -> str:
+            return self._storage.store(content)
+
+        def retrieve(self, shadow_id: str) -> str | None:
+            return self._storage.retrieve(shadow_id)
+
+        def has(self, shadow_id: str) -> bool:
+            return self._storage.has(shadow_id)
+
+        def set_shadow_for_path(self, path: str, shadow_id: str) -> None:
+            self._storage.set_shadow_for_path(path, shadow_id)
+
+        def get_shadow_for_path(self, path: str) -> str | None:
+            return self._storage.get_shadow_for_path(path)
+
+        def get_shadows_for_path(self, path: str) -> list[str]:
+            method = getattr(self._storage, "get_shadows_for_path", None)
+            if method:
+                return method(path)
+            shadow_id = self.get_shadow_for_path(path)
+            return [shadow_id] if shadow_id else []
+
+        def get_path_for_shadow(self, shadow_id: str) -> str | None:
+            method = getattr(self._storage, "get_path_for_shadow", None)
+            return method(shadow_id) if method else None
+
+        def pin_source(self, path: str) -> None:
+            method = getattr(self._storage, "pin_source", None)
+            if method:
+                method(path)
+
+        def is_source_pinned(self, path: str) -> bool:
+            method = getattr(self._storage, "is_source_pinned", None)
+            return bool(method(path)) if method else False
+
+        def pin_shadow(self, shadow_id: str) -> None:
+            method = getattr(self._storage, "pin_shadow", None)
+            if method:
+                method(shadow_id)
+
+        def is_shadow_pinned(self, shadow_id: str) -> bool:
+            method = getattr(self._storage, "is_shadow_pinned", None)
+            return bool(method(shadow_id)) if method else False
+
+        def retrieve_with_status(self, shadow_id: str) -> Any:
+            method = getattr(self._storage, "retrieve_with_status", None)
+            return method(shadow_id) if method else None
+
+        def health(self) -> dict[str, Any]:
+            method = getattr(self._storage, "health", None)
+            return method() if method else {"status": "ok", "backend": "memory"}
+
+    class CacheDisabledStorage(DelegatingStorage):
         def cache_compressed(self, shadow_id: str, compressed: str) -> None:
             del shadow_id, compressed
 
@@ -118,9 +204,12 @@ def build_paritok_storage(contract: str) -> Any:
             del shadow_id
             return None
 
-    class QueryAwareStorage(MemoryShadowStorage):
-        def __init__(self) -> None:
-            super().__init__()
+        def invalidate_compressed(self, shadow_id: str) -> None:
+            del shadow_id
+
+    class QueryAwareStorage(DelegatingStorage):
+        def __init__(self, storage: Any) -> None:
+            super().__init__(storage)
             self._active_query_hash: ContextVar[str] = ContextVar(
                 "contextops_active_query_hash", default="unset"
             )
@@ -132,19 +221,23 @@ def build_paritok_storage(contract: str) -> Any:
             return f"{shadow_id}:{self._active_query_hash.get()}"
 
         def cache_compressed(self, shadow_id: str, compressed: str) -> None:
-            super().cache_compressed(self._cache_key(shadow_id), compressed)
+            self._storage.cache_compressed(self._cache_key(shadow_id), compressed)
 
         def get_cached_compressed(self, shadow_id: str) -> str | None:
-            return super().get_cached_compressed(self._cache_key(shadow_id))
+            return self._storage.get_cached_compressed(self._cache_key(shadow_id))
 
         def invalidate_compressed(self, shadow_id: str) -> None:
-            self._compressed_cache.pop(self._cache_key(shadow_id), None)
+            method = getattr(self._storage, "invalidate_compressed", None)
+            if method:
+                method(self._cache_key(shadow_id))
+            elif hasattr(self._storage, "_compressed_cache"):
+                self._storage._compressed_cache.pop(self._cache_key(shadow_id), None)
 
     if contract == "content_only":
-        return MemoryShadowStorage()
+        return base_storage
     if contract == "disabled":
-        return CacheDisabledStorage()
-    return QueryAwareStorage()
+        return CacheDisabledStorage(base_storage)
+    return QueryAwareStorage(base_storage)
 
 
 def audit_installed_paritok_cache() -> dict[str, Any]:

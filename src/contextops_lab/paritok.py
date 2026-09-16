@@ -166,6 +166,13 @@ class ContextOpsSafetyGateway:
             )
         if payload.get("validator_contract") != "exact_original_on_rejection":
             raise RuntimeError("ContextOps exact-original fallback contract is not active")
+        context_store = payload.get("context_store")
+        if not isinstance(context_store, dict) or context_store.get("status") != "ok":
+            raise RuntimeError("ContextOps durable original-context store is unhealthy or absent")
+        if context_store.get("backend") != "redis":
+            raise RuntimeError("ContextOps production safety boundary requires Redis storage")
+        if context_store.get("encryption") != "aes-256-gcm":
+            raise RuntimeError("ContextOps original-context encryption contract is not active")
         return payload
 
     def stats(self) -> ContextOpsSafetyStats:

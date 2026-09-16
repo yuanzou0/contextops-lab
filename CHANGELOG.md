@@ -3,7 +3,26 @@
 This project follows semantic versioning for its Python package and keeps evidence claims
 versioned separately from code releases.
 
-## [0.8.0] - Unreleased
+## [0.9.0] - Unreleased
+
+- add a PariTok-compatible, tenant/session-scoped Redis context store;
+- encrypt exact originals and compressed-cache values with AES-256-GCM;
+- record content versions and preserve explicit expired-reference tombstones;
+- persist PariTok 1.3.11 path history, reverse lookup, and expand-to-pin state across restarts;
+- make Redis the safe-proxy production default and fail closed when its URL or encryption key is
+  missing;
+- retain in-memory storage only as an explicit development/test override; and
+- cover restart reconstruction, TTL expiry, namespace isolation, ciphertext-at-rest, corruption,
+  and backend-unavailable behavior with deterministic tests; and
+- move GitHub CI actions to their Node.js 24-backed releases.
+
+Release boundary:
+
+- no live Redis deployment or process-restart drill has been recorded on release infrastructure;
+- durable storage does not change the failed Wave A outcome or unlock production rollout; and
+- provider-backed terminal-task recovery remains unproven.
+
+## [0.8.0] - 2026-09-05
 
 Release-candidate scope:
 

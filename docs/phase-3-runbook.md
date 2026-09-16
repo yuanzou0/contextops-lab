@@ -26,13 +26,23 @@ For multi-turn recovery experiments, use the ContextOps-owned safety wrapper ins
 PariTok command:
 
 ```bash
-contextops-lab safe-proxy --cache-contract query_aware --port 8080
+export CONTEXTOPS_REDIS_URL='redis://127.0.0.1:6379/0'
+export CONTEXTOPS_STORAGE_KEY='<32-byte URL-safe base64 or 64-character hex key>'
+
+contextops-lab safe-proxy \
+  --cache-contract query_aware \
+  --tenant-id evaluation \
+  --session-id recovery-001 \
+  --port 8080
 ```
 
 This remains a real OpenAI-compatible external HTTP proxy. Before forwarding upstream, it scopes
 compressed-cache reuse to the active query, validates every transformed segment, and substitutes
 exact original content on rejection. `/contextops/stats` exposes cumulative, raw-content-free
-safety counters for paired attribution.
+safety counters plus the durable-store health contract for paired attribution. Redis is the
+production default and startup fails when Redis or its AES-256-GCM key is unavailable. Use
+`--storage-backend memory` only for an explicit local development run; see
+`durable-context-storage.md`.
 
 PariTok may pass content through when its compression backend is unavailable. ContextOps Lab checks
 the Ollama model listing before a paid run and fails closed instead of accepting that silent no-op.

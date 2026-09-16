@@ -47,6 +47,12 @@ forwards exact original content on rejection. Its cumulative safety telemetry is
 each treatment request; a declared verified cache contract is rejected unless this observable
 endpoint is present.
 
+Exact originals can now use a ContextOps-owned durable Redis boundary. Stored originals and
+compressed-cache values are encrypted with AES-256-GCM, namespaced by hashed tenant/session scope,
+versioned by a keyed content digest, and accompanied by a short-lived expiry tombstone so callers can
+distinguish `expired` from `not_found`. Redis and the encryption key are required by the production
+proxy default; it never silently degrades to process memory.
+
 ## Decision pipeline
 
 ```text
@@ -108,11 +114,23 @@ evidence remains reproducible; see
 Start the validated external proxy for a recovery run:
 
 ```bash
-contextops-lab safe-proxy --cache-contract query_aware --port 8080
+# Keep both values in a secret manager in production.
+export CONTEXTOPS_REDIS_URL='redis://127.0.0.1:6379/0'
+export CONTEXTOPS_STORAGE_KEY='<32-byte URL-safe base64 or 64-character hex key>'
+
+contextops-lab safe-proxy \
+  --cache-contract query_aware \
+  --tenant-id evaluation \
+  --session-id recovery-001 \
+  --port 8080
 
 # No provider completion: verifies proxy, Ollama, cache, validator, and telemetry contracts.
 contextops-lab doctor --live-config configs/phase-3-luna-recovery.json --probe-live
 ```
+
+Use `--storage-backend memory` only for explicit local development. Durable-store behavior and
+status semantics are documented in
+[`docs/durable-context-storage.md`](docs/durable-context-storage.md).
 
 The four-scenario provider-backed recovery protocol is prespecified in
 [`docs/phase-3-recovery-protocol.md`](docs/phase-3-recovery-protocol.md). A successful bounded pilot
@@ -146,7 +164,7 @@ Release-candidate references:
 
 - [`docs/architecture.md`](docs/architecture.md): ownership boundaries and fail-closed invariants;
 - [`docs/demo.md`](docs/demo.md): provider-free one-minute verification flow;
-- [`docs/release-checklist.md`](docs/release-checklist.md): 0.8.0 release gates; and
+- [`docs/release-checklist.md`](docs/release-checklist.md): 0.9.0 release gates; and
 - [`CHANGELOG.md`](CHANGELOG.md): candidate scope and evidence limitations.
 
 The [`ai-agent-project-strategist`](skills/ai-agent-project-strategist/) Codex Skill is a supporting methodology asset, not the product headline.
