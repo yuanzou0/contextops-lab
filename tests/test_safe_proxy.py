@@ -104,7 +104,11 @@ class SafeProxyPipelineTests(unittest.TestCase):
         from contextops_lab.safe_proxy import create_safe_proxy_app
 
         upstream = CapturingUpstreamClient()
-        app = create_safe_proxy_app(http_client=upstream, cache_contract="query_aware")
+        app = create_safe_proxy_app(
+            http_client=upstream,
+            cache_contract="query_aware",
+            storage_backend="memory",
+        )
         original = "CRITICAL_SIGNAL: anchor::http-boundary\n" + "historical evidence\n" * 600
         request = {
             "model": "gpt-5.6-luna",
@@ -139,6 +143,7 @@ class SafeProxyPipelineTests(unittest.TestCase):
         self.assertEqual(forwarded_tool["content"], original)
         self.assertEqual(safety["fallbacks"], 1)
         self.assertEqual(safety["exact_original_fallbacks"], 1)
+        self.assertEqual(safety["context_store"]["backend"], "memory")
 
 
 if __name__ == "__main__":

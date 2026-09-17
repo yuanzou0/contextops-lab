@@ -13,6 +13,8 @@ Workload + identical model configuration
                               |
                   query-scoped cache isolation
                               |
+              encrypted tenant/session context store
+                              |
                   PariTok compression pipeline
                               |
                  validation of transformed context
@@ -34,6 +36,7 @@ Workload + identical model configuration
 |---|---|---|
 | Experiment | Paired ordering, identical task/model inputs, versioned configuration | Reject incomplete or unattributable runs |
 | Cache | Declare and observe `disabled` or `query_aware` semantics | Block multi-turn runs with an unverified contract |
+| Original context | Encrypt exact bytes, isolate tenant/session scope, version content, and report expiry | Refuse production startup when Redis or the encryption key is unavailable |
 | Transformation | Check structure, references, expansion, and required signals | Forward the byte-exact original |
 | Telemetry | Record counters, timings, reasons, and lineage without raw context | Reject verified-cache claims without the safety endpoint |
 | Evidence | Separate deterministic, task-proxy, reviewed semantic, and production claims | Keep rollout off when a gate is missing |
@@ -55,10 +58,14 @@ forking the compressor.
    research-only override is used; overridden runs are never rollout-eligible.
 3. A rejected transformation or backend failure cannot replace the input with a partial summary;
    the exact original is forwarded.
-4. A supported dependency version must pass its versioned provider-free compatibility contract.
-5. Provider-free success proves only the local transformation boundary. Provider task quality,
+4. Production proxy startup requires the durable Redis backend and AES-256-GCM key. Memory storage
+   is an explicit development override and never an implicit fallback.
+5. A reference belongs to exactly one hashed tenant/session namespace. Expiry, corruption, backend
+   unavailability, and absence remain distinguishable in the ContextOps retrieval contract.
+6. A supported dependency version must pass its versioned provider-free compatibility contract.
+7. Provider-free success proves only the local transformation boundary. Provider task quality,
    interactive latency, and production safety require their own evidence.
-6. No production rollout policy is generated from fixture, deterministic, or task-proxy evidence.
+8. No production rollout policy is generated from fixture, deterministic, or task-proxy evidence.
 
 ## Evidence levels
 

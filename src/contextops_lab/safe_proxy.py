@@ -160,6 +160,12 @@ def create_safe_proxy_app(
     anthropic_base_url: str = "https://api.anthropic.com",
     config_path: str | None = None,
     cache_contract: str = "query_aware",
+    storage_backend: str = "redis",
+    redis_url: str | None = None,
+    storage_encryption_key: str | None = None,
+    tenant_id: str = "",
+    session_id: str = "",
+    storage_ttl_seconds: int = 86_400,
     http_client: Any = None,
 ) -> Any:
     """Create the real PariTok proxy with a ContextOps-owned observable safety boundary."""
@@ -174,7 +180,15 @@ def create_safe_proxy_app(
         raise RuntimeError("Install the live extra before creating the safe proxy") from error
 
     telemetry = SafetyTelemetry(cache_contract=cache_contract)
-    storage = build_paritok_storage(cache_contract)
+    storage = build_paritok_storage(
+        cache_contract,
+        backend=storage_backend,
+        redis_url=redis_url,
+        encryption_key=storage_encryption_key,
+        tenant_id=tenant_id,
+        session_id=session_id,
+        ttl_seconds=storage_ttl_seconds,
+    )
     base_engine = wrapper.ParitokEngine
 
     class ContextOpsParitokEngine(base_engine):
@@ -199,10 +213,13 @@ def create_safe_proxy_app(
         wrapper.ParitokEngine = base_engine
 
     async def safety_stats(_request: Any) -> Any:
-        return JSONResponse(telemetry.snapshot())
+        payload = telemetry.snapshot()
+        payload["context_store"] = storage.health()
+        return JSONResponse(payload)
 
     app.routes.append(Route("/contextops/stats", safety_stats, methods=["GET"]))
     app.state.contextops_safety_telemetry = telemetry
+    app.state.contextops_storage = storage
     return app
 
 
@@ -214,6 +231,12 @@ def run_safe_proxy(
     anthropic_base_url: str = "https://api.anthropic.com",
     config_path: str | None = None,
     cache_contract: str = "query_aware",
+    storage_backend: str = "redis",
+    redis_url: str | None = None,
+    storage_encryption_key: str | None = None,
+    tenant_id: str = "",
+    session_id: str = "",
+    storage_ttl_seconds: int = 86_400,
     log_level: str = "info",
 ) -> None:
     """Start the validated external HTTP proxy."""
@@ -229,8 +252,15 @@ def run_safe_proxy(
         anthropic_base_url=anthropic_base_url,
         config_path=config_path,
         cache_contract=cache_contract,
+        storage_backend=storage_backend,
+        redis_url=redis_url,
+        storage_encryption_key=storage_encryption_key,
+        tenant_id=tenant_id,
+        session_id=session_id,
+        storage_ttl_seconds=storage_ttl_seconds,
     )
     print(f"ContextOps safe PariTok proxy starting on {host}:{port}")
     print(f"  Cache contract: {cache_contract}")
+    print(f"  Context store:  {storage_backend} (ttl={storage_ttl_seconds}s)")
     print(f"  Safety stats:   http://{host}:{port}/contextops/stats")
     uvicorn.run(app, host=host, port=port, log_level=log_level)

@@ -237,7 +237,8 @@ def run_doctor(
                             "contextops_safety_boundary",
                             CheckStatus.PASS,
                             f"cache={safety.get('cache_contract')}; "
-                            f"validator={safety.get('validator_contract')}",
+                            f"validator={safety.get('validator_contract')}; "
+                            f"store={safety['context_store'].get('backend')}",
                         )
                     )
                 elif config.compression_cache_contract in {"disabled", "query_aware"}:
