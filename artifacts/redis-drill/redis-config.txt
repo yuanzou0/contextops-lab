@@ -1,0 +1,10 @@
+bind 127.0.0.1
+protected-mode yes
+port <dedicated-port>
+dir <ephemeral-volume>
+appendonly yes
+appendfsync always
+save ""
+databases 16
+daemonize no
+loglevel notice

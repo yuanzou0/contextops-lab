@@ -25,7 +25,8 @@ Candidate branch: `codex/p0-durable-context-store`
 - [ ] Real local PariTok 4B/Ollama provider-free regression passes on release infrastructure.
 - [x] Safe-proxy HTTP boundary test passes with the complete `paritok[proxy]` dependency set.
 - [x] Deterministic restart, TTL, isolation, encryption, corruption, and backend-health tests pass.
-- [ ] A live Redis process-restart and expiry drill passes on release infrastructure.
+- [ ] A live Redis process-restart and expiry drill passes on release infrastructure; local P0.3-D
+      evidence does not substitute for production infrastructure validation.
 
 ## Evidence and documentation
 

@@ -1,0 +1,13 @@
+services:
+  redis-drill:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "always", "--save", ""]
+    ports: ["127.0.0.1:16379:6379"]
+    volumes: ["redis-drill-data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 1s
+      timeout: 1s
+      retries: 15
+volumes:
+  redis-drill-data:

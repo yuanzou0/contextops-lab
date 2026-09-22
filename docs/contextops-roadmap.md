@@ -38,13 +38,16 @@ recovery remains unobserved until the bounded recovery pilot runs.
 
 ### 3. Durable, versioned original-context storage
 
-**Status: implementation complete; deployment evidence external.** ContextOps now provides a
+**Status: implementation and local real-Redis evidence complete; deployment evidence external.**
+ContextOps now provides a
 PariTok-compatible Redis adapter with AES-256-GCM encryption, hashed tenant/session namespaces,
 content-version metadata, explicit `expired`/`not_found`/`corrupt`/`unhealthy` retrieval states,
 query-aware compressed caching, and fail-closed proxy startup. Deterministic tests cover process
 reconstruction, TTL expiry, tenant/session isolation, ciphertext-at-rest, path mapping, corruption,
-and backend failure. A live Redis deployment and restart drill remain release-infrastructure gates,
-not checked-in evidence.
+and backend failure. Checked-in `local_real_redis_restart_drill` evidence covers a dedicated Redis
+7.4.5 process, application and AOF restarts, wall-clock expiry, negative controls, outage, and a
+clean-volume repeat run. Production deployment, cluster failover, backup restore, cross-region
+recovery, and key rotation remain external release-infrastructure gates.
 
 - **Problem:** In-memory references disappear on restart or expiration.
 - **Build:** Make Redis the production default, namespace references by tenant/session, store content version and expiry metadata, encrypt sensitive originals, and expose retrieval health.

@@ -1,0 +1,65 @@
+{
+  "completed_at": "2026-09-22T15:13:28.673042Z",
+  "evidence_label": "local_real_redis_restart_drill",
+  "gates": [
+    {
+      "name": "preflight",
+      "status": "PASS"
+    },
+    {
+      "name": "synthetic_write",
+      "status": "PASS"
+    },
+    {
+      "name": "application_restart_exact_recovery",
+      "status": "PASS"
+    },
+    {
+      "name": "redis_aof_restart_exact_recovery",
+      "status": "PASS"
+    },
+    {
+      "name": "tenant_session_isolation",
+      "status": "PASS"
+    },
+    {
+      "name": "found_expired_not_found",
+      "status": "PASS"
+    },
+    {
+      "name": "wrong_key_tamper_swap_corrupt",
+      "status": "PASS"
+    },
+    {
+      "name": "ciphertext_at_rest_and_privacy",
+      "status": "PASS"
+    },
+    {
+      "name": "read_outage_unhealthy",
+      "status": "PASS"
+    },
+    {
+      "name": "safe_proxy_startup_fail_closed",
+      "status": "PASS"
+    },
+    {
+      "name": "fresh_process_recovers_after_outage",
+      "status": "PASS"
+    },
+    {
+      "name": "clean_volume_repeat_run",
+      "status": "PASS"
+    },
+    {
+      "name": "zero_provider_calls_and_cost",
+      "status": "PASS"
+    }
+  ],
+  "production_claim": false,
+  "provider_calls": 0,
+  "provider_cost_usd": 0.0,
+  "real_user_data": false,
+  "schema_version": 1,
+  "started_at": "2026-09-22T15:13:18.635381Z",
+  "status": "PASS"
+}
