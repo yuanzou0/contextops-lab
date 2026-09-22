@@ -80,3 +80,17 @@ query-aware cache behavior, corruption, and backend failure.
 These tests establish the adapter contract. They do not claim that a particular Redis deployment,
 backup policy, key-management system, failover topology, or production restart drill has been
 validated. Those remain release-infrastructure checks in `release-checklist.md`.
+
+## Real Redis drill
+
+Run the provider-free P0.3-D integration drill with a dedicated real Redis process:
+
+```bash
+python -m pip install -e '.[live]'
+contextops-lab durable-store-drill --redis-server /path/to/redis-server
+```
+
+It verifies application and AOF restarts, real TTL/tombstones, tenant/session isolation,
+query-aware cache state, path history, pins, tamper detection, backend outage, fail-closed startup,
+and clean-volume repeatability. Any failed gate makes the complete drill `FAIL`. Evidence is written
+as privacy-safe JSON, JSONL, Markdown, Redis configuration, and SHA-256 lineage.

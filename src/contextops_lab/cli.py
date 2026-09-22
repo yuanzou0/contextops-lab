@@ -660,6 +660,19 @@ def run_safe_proxy_command(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_durable_store_drill_command(args: argparse.Namespace) -> int:
+    from .redis_drill import run_drill
+
+    return run_drill(
+        redis_server=args.redis_server,
+        output_dir=Path(args.output_dir),
+        report_path=Path(args.report),
+        port=args.port,
+        expiry_ttl=args.expiry_ttl_seconds,
+        tombstone=args.tombstone_seconds,
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="contextops-lab")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -857,6 +870,18 @@ def build_parser() -> argparse.ArgumentParser:
         default="info",
     )
     safe_proxy.set_defaults(func=run_safe_proxy_command)
+
+    redis_drill = subparsers.add_parser(
+        "durable-store-drill",
+        help="run the provider-free real Redis persistence and failure drill",
+    )
+    redis_drill.add_argument("--redis-server", default="redis-server")
+    redis_drill.add_argument("--output-dir", default="artifacts/redis-drill")
+    redis_drill.add_argument("--report", default="docs/durable-context-redis-drill-results.md")
+    redis_drill.add_argument("--port", type=int, default=0)
+    redis_drill.add_argument("--expiry-ttl-seconds", type=int, default=2)
+    redis_drill.add_argument("--tombstone-seconds", type=int, default=4)
+    redis_drill.set_defaults(func=run_durable_store_drill_command)
     return parser
 
 
