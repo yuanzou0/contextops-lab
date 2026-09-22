@@ -1,0 +1,12 @@
+{
+  "cryptography": "46.0.7",
+  "evidence_label": "local_real_redis_restart_drill",
+  "git_commit": "20d2e7874960e669eb706e1a4b25ee1cea896b97",
+  "paritok": "1.3.11",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "provider_credentials_forwarded": false,
+  "python": "3.13.9",
+  "redis_client": "6.4.0",
+  "redis_server": "Redis server v=7.4.5 sha=00000000:1 malloc=libc bits=64 build=1da1354c3aac5040",
+  "schema_version": 1
+}

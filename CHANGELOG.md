@@ -14,11 +14,13 @@ versioned separately from code releases.
 - retain in-memory storage only as an explicit development/test override; and
 - cover restart reconstruction, TTL expiry, namespace isolation, ciphertext-at-rest, corruption,
   and backend-unavailable behavior with deterministic tests; and
+- add a provider-free real Redis P0.3-D drill with application restart, AOF restart, wall-clock
+  expiry, isolation, tamper/outage controls, clean-volume repeatability, and SHA-256 evidence; and
 - move GitHub CI actions to their Node.js 24-backed releases.
 
 Release boundary:
 
-- no live Redis deployment or process-restart drill has been recorded on release infrastructure;
+- the checked-in Redis drill is local evidence, not production or release-infrastructure evidence;
 - durable storage does not change the failed Wave A outcome or unlock production rollout; and
 - provider-backed terminal-task recovery remains unproven.
 

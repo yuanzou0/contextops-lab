@@ -1,0 +1,22 @@
+{
+  "artifacts": [
+    "environment.json",
+    "events.jsonl",
+    "manifest.json",
+    "redis-config.txt",
+    "results.json",
+    "sha256sums.txt"
+  ],
+  "evidence_label": "local_real_redis_restart_drill",
+  "git_commit": "20d2e7874960e669eb706e1a4b25ee1cea896b97",
+  "report": "docs/durable-context-redis-drill-results.md",
+  "reproduction": {
+    "command": "contextops-lab durable-store-drill --redis-server <path>",
+    "requires": [
+      "redis-server",
+      "contextops-lab[live]"
+    ]
+  },
+  "schema_version": 1,
+  "status": "PASS"
+}
