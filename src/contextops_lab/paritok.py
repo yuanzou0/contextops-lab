@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 import urllib.request
 from collections import Counter
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True, slots=True)
@@ -93,6 +93,12 @@ class ContextOpsSafetyStats:
     cache_hits: int
     compression_latency_ms: float
     fallback_reasons: dict[str, int]
+    validation_latency_ms: float = 0.0
+    upstream_latency_ms: float = 0.0
+    proxy_request_latency_ms: float = 0.0
+    eligibility_bypasses: int = 0
+    deadline_fallbacks: int = 0
+    eligibility_reasons: dict[str, int] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, payload: dict) -> "ContextOpsSafetyStats":
@@ -106,9 +112,18 @@ class ContextOpsSafetyStats:
             skipped=int(payload.get("skipped", 0)),
             cache_hits=int(payload.get("cache_hits", 0)),
             compression_latency_ms=float(payload.get("compression_latency_ms", 0.0)),
+            validation_latency_ms=float(payload.get("validation_latency_ms", 0.0)),
+            upstream_latency_ms=float(payload.get("upstream_latency_ms", 0.0)),
+            proxy_request_latency_ms=float(payload.get("proxy_request_latency_ms", 0.0)),
+            eligibility_bypasses=int(payload.get("eligibility_bypasses", 0)),
+            deadline_fallbacks=int(payload.get("deadline_fallbacks", 0)),
             fallback_reasons={
                 str(reason): int(count)
                 for reason, count in payload.get("fallback_reasons", {}).items()
+            },
+            eligibility_reasons={
+                str(reason): int(count)
+                for reason, count in payload.get("eligibility_reasons", {}).items()
             },
         )
 
@@ -124,6 +139,11 @@ class ContextOpsSafetyStats:
             "skipped",
             "cache_hits",
             "compression_latency_ms",
+            "validation_latency_ms",
+            "upstream_latency_ms",
+            "proxy_request_latency_ms",
+            "eligibility_bypasses",
+            "deadline_fallbacks",
         )
         values = {
             name: getattr(self, name) - getattr(previous, name)
@@ -131,13 +151,18 @@ class ContextOpsSafetyStats:
         }
         reasons = Counter(self.fallback_reasons)
         reasons.subtract(previous.fallback_reasons)
+        eligibility_reasons = Counter(self.eligibility_reasons)
+        eligibility_reasons.subtract(previous.eligibility_reasons)
         if any(value < 0 for value in values.values()) or any(
             count < 0 for count in reasons.values()
-        ):
+        ) or any(count < 0 for count in eligibility_reasons.values()):
             raise ValueError("ContextOps safety counters moved backwards during the experiment")
         return ContextOpsSafetyStats(
             cache_contract=self.cache_contract,
             fallback_reasons={key: value for key, value in reasons.items() if value},
+            eligibility_reasons={
+                key: value for key, value in eligibility_reasons.items() if value
+            },
             **values,
         )
 

@@ -623,6 +623,12 @@ def run_safe_proxy_command(args: argparse.Namespace) -> int:
     if args.storage_ttl_seconds <= 0:
         print("--storage-ttl-seconds must be positive", file=sys.stderr)
         return 2
+    if args.compression_deadline_ms <= 0:
+        print("--compression-deadline-ms must be positive", file=sys.stderr)
+        return 2
+    if args.maximum_uncached_tokens <= 0:
+        print("--maximum-uncached-tokens must be positive", file=sys.stderr)
+        return 2
     redis_url = os.environ.get(args.redis_url_environment)
     storage_key = os.environ.get(args.storage_key_environment)
     if args.storage_backend == "redis":
@@ -655,6 +661,8 @@ def run_safe_proxy_command(args: argparse.Namespace) -> int:
         tenant_id=args.tenant_id or "development",
         session_id=args.session_id or "development",
         storage_ttl_seconds=args.storage_ttl_seconds,
+        compression_deadline_ms=args.compression_deadline_ms,
+        maximum_uncached_tokens=args.maximum_uncached_tokens,
         log_level=args.log_level,
     )
     return 0
@@ -864,6 +872,18 @@ def build_parser() -> argparse.ArgumentParser:
     safe_proxy.add_argument("--tenant-id", help="tenant isolation scope for stored context")
     safe_proxy.add_argument("--session-id", help="session isolation scope for stored context")
     safe_proxy.add_argument("--storage-ttl-seconds", type=int, default=86_400)
+    safe_proxy.add_argument(
+        "--compression-deadline-ms",
+        type=float,
+        default=500.0,
+        help="maximum cold local-compression time before exact-original fallback",
+    )
+    safe_proxy.add_argument(
+        "--maximum-uncached-tokens",
+        type=int,
+        default=3_000,
+        help="bypass cold compression above one PariTok local-model chunk by default",
+    )
     safe_proxy.add_argument(
         "--log-level",
         choices=("debug", "info", "warning", "error"),

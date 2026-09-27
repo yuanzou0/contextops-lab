@@ -1,0 +1,4 @@
+538d6a79e462914b1b82bcfbdda3c61e10b432caca570c0b6952e46d40e449f1  artifacts/phase-3.1-local-latency-drill/results.json
+6aae5a7b8fc5c0bfc35538585b76f9c983eba8f2f7abbb8d4b57a311fabefbc3  artifacts/phase-3.1-local-latency-drill/events.jsonl
+944e06a2e2b28749adb1ae038c9f2a39a718d0530b0af9c93a6fbd38671908f6  docs/phase-3.1-local-latency-drill.md
+8fb09feabcc372f84baff2c03504bc1e4abc85a9dd6a22098a9390fedee2480f  src/contextops_lab/phase31_drill.py

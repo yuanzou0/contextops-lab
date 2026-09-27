@@ -1,0 +1,55 @@
+{
+  "evidence_label": "provider_free_latency_control_contract",
+  "gates": [
+    {
+      "gate": "split_latency_attribution",
+      "observed": "compression, validation, upstream, proxy request, and derived proxy overhead fields",
+      "passed": true
+    },
+    {
+      "gate": "oversized_uncached_bypass",
+      "observed": "exact original returned without invoking the compression model",
+      "passed": true
+    },
+    {
+      "gate": "observed_budget_bypass",
+      "observed": "subsequent cold compression bypassed after budget consumption",
+      "passed": true
+    },
+    {
+      "gate": "cache_hit_preserved",
+      "observed": "cache hits remain eligible after cold-path budget consumption",
+      "passed": true
+    },
+    {
+      "gate": "deadline_exact_original_fallback",
+      "observed": "backend timeout forwarded exact original to one upstream request",
+      "passed": true
+    },
+    {
+      "gate": "invalid_control_rejection",
+      "observed": "non-positive deadline and token ceiling rejected before proxy startup",
+      "passed": true
+    }
+  ],
+  "privacy": {
+    "raw_prompts_recorded": false,
+    "real_user_data_used": false,
+    "secrets_recorded": false
+  },
+  "provider_calls": 0,
+  "default_controls": {
+    "compression_deadline_ms": 500,
+    "maximum_uncached_tokens": 3000,
+    "token_ceiling_basis": "one PariTok 1.3.11 local-model chunk"
+  },
+  "schema_version": 1,
+  "scope": "deterministic contract and HTTP-boundary tests; not production latency evidence",
+  "status": "PASS",
+  "test_result": {
+    "passed": 79,
+    "subtests_passed": 3,
+    "warnings": 2
+  },
+  "upstream_main": "10953d76c1fd97d681a4d4e94328eecc9656fbf2"
+}

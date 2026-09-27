@@ -74,6 +74,11 @@ class MultiTurnProxyExecutor:
             proxy_requests = 0
             proxy_tokens_saved = 0
             compression_latency_ms = 0.0
+            validation_latency_ms = 0.0
+            upstream_latency_ms = 0.0
+            proxy_overhead_latency_ms = 0.0
+            compression_eligibility_bypasses = 0
+            compression_deadline_fallbacks = 0
             fallback_reason = None
             if arm is ExperimentArm.COMPRESSED:
                 before = self.gateway.stats()
@@ -99,6 +104,18 @@ class MultiTurnProxyExecutor:
                     treatment_name = "contextops-safe-paritok-proxy:multi-turn"
                     endpoint_role = "treatment_safe_proxy"
                     compression_latency_ms = safety_delta.compression_latency_ms
+                    validation_latency_ms = safety_delta.validation_latency_ms
+                    upstream_latency_ms = safety_delta.upstream_latency_ms
+                    measured_proxy_ms = safety_delta.proxy_request_latency_ms
+                    proxy_overhead_latency_ms = max(
+                        0.0,
+                        measured_proxy_ms
+                        - compression_latency_ms
+                        - validation_latency_ms
+                        - upstream_latency_ms,
+                    )
+                    compression_eligibility_bypasses = safety_delta.eligibility_bypasses
+                    compression_deadline_fallbacks = safety_delta.deadline_fallbacks
                     if safety_delta.fallbacks:
                         validator_result = "fallback"
                         fallback_reason = self._primary_fallback_reason(safety_delta)
@@ -177,6 +194,11 @@ class MultiTurnProxyExecutor:
                     ),
                     required_signals_total=len(scenario.required_signals) if terminal else 0,
                     required_signals_recalled=recalled_signals,
+                    validation_latency_ms=validation_latency_ms,
+                    upstream_latency_ms=upstream_latency_ms,
+                    proxy_overhead_latency_ms=proxy_overhead_latency_ms,
+                    compression_eligibility_bypasses=compression_eligibility_bypasses,
+                    compression_deadline_fallbacks=compression_deadline_fallbacks,
                 )
             )
         return SessionOutcome(scenario.scenario_id, arm, tuple(events))

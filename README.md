@@ -18,6 +18,8 @@ PariTok-4B-v1 is the first planned compression treatment, not the name of this p
 | Live smoke | 4 pairs | 80.8% lower observed estimated provider cost | required signals preserved in 4/4 pairs | 17.0x worse | **OFF** |
 | Live Wave A | 4 pairs / 40 requests | 89.9% lower observed estimated provider cost | treatment proxy failed 4/4 terminal tasks | 15.9x worse | **STOP / OFF** |
 | Provider-free recovery | 4 scenarios / 12 signals | no provider calls | raw + guarded signal recall 12/12 | local boundary only | Wave B still blocked |
+| Provider-backed recovery | 25/40 requests completed | $0.41763 completed-event estimate | prespecified run incomplete after treatment timeout | 61.1 s treatment median (completed) | **FAIL / STOPPED** |
+| Phase 3.1 local controls | 4 synthetic requests / 12 gates | no provider calls | exact-original deadline/bypass and cache eligibility passed | 536.2 ms cold fallback; fast paths < 4 ms | **PASS locally / rollout locked** |
 | Production | — | not validated | not validated | not validated | locked |
 
 Across four controlled 8K/1-turn live pairs, the compression treatment showed 80.8% lower
@@ -40,6 +42,18 @@ A prespecified provider-free recovery regression subsequently exercised the actu
 zero cross-query cache hits, 12/12 safe same-query replay hits, and 12/12 raw and guarded critical
 signals retained with no fallback. This validates the transformed-context boundary only; it does
 not establish end-task semantic quality, provider behavior, or acceptable interactive latency.
+
+The subsequent provider-backed recovery pilot stopped after 25 of 40 requests when the first
+`mcp-heavy` treatment request exceeded the fixed 300-second timeout. The completed treatment
+requests had 61.1-second median latency, and the incomplete run failed the prespecified recovery
+gates. Expansion and automatic reruns remain stopped; see
+[`docs/phase-3-recovery-failed-run.md`](docs/phase-3-recovery-failed-run.md).
+
+A provider-free Phase 3.1 drill then exercised the new controls against real local Ollama 0.34.2,
+PariTok 1.3.11, and Redis 7.4.5 with a deterministic local upstream. All 12 control gates passed:
+the 500 ms cold deadline returned exact original at 536.2 ms, later cold work bypassed in 2.2 ms,
+and a cache hit remained eligible in 2.7 ms. This is local safety-path evidence only; rollout and
+provider-backed recovery remain blocked.
 
 The live path now has a ContextOps-owned external HTTP proxy boundary. It scopes compression cache
 entries to the active query, validates every transformed segment before upstream transmission, and
@@ -122,6 +136,8 @@ contextops-lab safe-proxy \
   --cache-contract query_aware \
   --tenant-id evaluation \
   --session-id recovery-001 \
+  --compression-deadline-ms 500 \
+  --maximum-uncached-tokens 3000 \
   --port 8080
 
 # No provider completion: verifies proxy, Ollama, cache, validator, and telemetry contracts.
@@ -132,10 +148,21 @@ Use `--storage-backend memory` only for explicit local development. Durable-stor
 status semantics are documented in
 [`docs/durable-context-storage.md`](docs/durable-context-storage.md).
 
+The safe proxy also enforces a synchronous-compression latency boundary. Cache hits remain
+eligible, but oversized cold content is passed through unchanged; after an admitted cold
+compression consumes the configured deadline, subsequent cold work is passed through for the
+life of that proxy process. `/contextops/stats` separately reports compression, validation,
+upstream, proxy-request, eligibility-bypass, and deadline-fallback telemetry. These controls keep
+the request safe; a bypass does not count as evidence that compression itself is effective. The
+3,000-token default matches one PariTok local-model chunk, so the 500 ms backend deadline is not
+multiplied across chunks unless an operator explicitly raises the ceiling.
+
 The four-scenario provider-backed recovery protocol is prespecified in
 [`docs/phase-3-recovery-protocol.md`](docs/phase-3-recovery-protocol.md). A successful bounded pilot
 would demonstrate recovery of the deterministic task proxy only; it cannot establish semantic
-non-inferiority or production readiness.
+non-inferiority or production readiness. The first execution failed and is retained as negative
+evidence; any new execution requires a versioned intervention, fresh preflight, and new cost
+authorization.
 
 The zero-install verification path uses only the Python standard library:
 

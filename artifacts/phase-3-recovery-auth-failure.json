@@ -1,0 +1,47 @@
+{
+  "attempt": {
+    "baseline_requests_attempted": 1,
+    "completion_requests_succeeded": 0,
+    "http_status": 401,
+    "provider_retries": 0,
+    "proxy_requests_observed": 0,
+    "stage": "wave_a"
+  },
+  "authorization": {
+    "currency": "USD",
+    "maximum_provider_cost": 1.25,
+    "provider_requests_planned": 40
+  },
+  "credential_diagnostic": {
+    "checks": [
+      {
+        "expected_openai_key_prefix_observed": false,
+        "openai_models_endpoint_http_status": 401,
+        "source": "inherited_environment"
+      },
+      {
+        "expected_openai_key_prefix_observed": true,
+        "openai_error_code": "invalid_api_key",
+        "openai_error_type": "invalid_request_error",
+        "openai_models_endpoint_http_status": 401,
+        "source": "macos_keychain"
+      }
+    ],
+    "environment_values_match": true,
+    "openai_models_endpoint_http_status": 401,
+    "secret_value_recorded": false
+  },
+  "evidence_label": "phase_3_recovery_authentication_failure",
+  "measurement_status": "BLOCKED_BEFORE_MEASUREMENT",
+  "privacy": {
+    "billable_completions_observed": 0,
+    "estimated_provider_cost_usd": 0.0,
+    "raw_prompts_recorded": false,
+    "real_user_data_used": false,
+    "secrets_recorded": false
+  },
+  "primary_recovery_gates_observed": false,
+  "schema_version": 1,
+  "stop_reason": "The first direct-provider request returned HTTP 401. Two no-cost models-endpoint checks independently returned HTTP 401; the keychain-backed check reported invalid_api_key.",
+  "upstream_main": "10953d76c1fd97d681a4d4e94328eecc9656fbf2"
+}
