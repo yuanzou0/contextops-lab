@@ -1,0 +1,58 @@
+{
+  "authorization": {
+    "currency": "USD",
+    "maximum_provider_cost": 1.25,
+    "provider_requests_planned": 40
+  },
+  "branch": "codex/phase3-provider-backed-recovery",
+  "cache_contract_audit": {
+    "artifact": "artifacts/phase-3-recovery-cache-audit.json",
+    "isolation_interventions_passed": true,
+    "sha256": "ae28223776fa381e758063728f37bc39a98c765d295ff7d581f31656850b3a1a"
+  },
+  "config": {
+    "artifact": "configs/phase-3-luna-recovery.json",
+    "model": "gpt-5.6-luna",
+    "sha256": "255b0462c12d0adb937ac6ec588833878e1e97d1882628b6a8b9fe0c4e92162e"
+  },
+  "evidence_label": "local_phase_3_recovery_readiness",
+  "local_latency": {
+    "artifact": "artifacts/phase-3-recovery-local-latency.json",
+    "cache_reuse_ms": 2.3640000144951046,
+    "cold_candidate_ms": 46415.452749992255,
+    "rollout_latency_budget_ms": 500,
+    "rollout_latency_gate_passed": false,
+    "sha256": "3785c2753ac6679c8351fec2553a7098c6876c3e6920f3312c75441de30a5124",
+    "warm_uncached_ms": 130295.937124989
+  },
+  "local_runtime": {
+    "compression_model": "paritok-4b-v1",
+    "compression_model_content_id": "86fa6d2593e2",
+    "ollama_version": "0.34.2",
+    "paritok_version": "1.3.11",
+    "redis_version": "7.4.5"
+  },
+  "preflight": {
+    "artifact": "artifacts/phase-3-recovery-preflight.json",
+    "context_store": "redis",
+    "contextops_safety_boundary": "PASS",
+    "declared_cache_contract": "query_aware",
+    "estimated_input_cost_upper_bound_usd": 0.9683,
+    "exact_original_on_rejection": true,
+    "observed_cache_contract": "query_aware",
+    "paritok_gateway": "PASS",
+    "proxy_requests_observed": 0,
+    "sha256": "8d0f3a5591ad53faddd741ef7f6077f629755fd3cdec64997c2524f69e731c8f"
+  },
+  "privacy": {
+    "provider_calls": 0,
+    "provider_cost_usd": 0.0,
+    "raw_prompts_recorded": false,
+    "real_user_data_used": false,
+    "secrets_recorded": false
+  },
+  "schema_version": 1,
+  "status": "BLOCKED_BEFORE_PROVIDER",
+  "stop_reason": "CONTEXTOPS_PROVIDER_API_KEY and OPENAI_API_KEY were absent from the task environment",
+  "upstream_main": "10953d76c1fd97d681a4d4e94328eecc9656fbf2"
+}

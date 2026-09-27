@@ -27,6 +27,10 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
 - [x] Multi-turn agent/tool-call history with exactly one terminal task grade per arm.
 - [x] Compression-backend model check before any external provider request.
 - [x] Atomic partial-event output for interrupted live runs.
+- [x] Split compression, validation, upstream, and proxy-overhead timing in schema-v7 events.
+- [x] Auditable cold-compression eligibility gate with cache-hit preservation and token ceiling.
+- [x] Backend-level compression deadline falls back to exact original without provider retry.
+- [x] Real local Ollama/Redis Phase 3.1 drill passes 12/12 provider-free latency-control gates.
 
 ## Evidence acceptance
 
@@ -46,6 +50,10 @@ Phase 3 replaces the fixture compressor path with a real paired-endpoint contrac
   validates transformed segments before upstream forwarding, substitutes exact original content on
   rejection, and exposes attributable safety telemetry.
 - [x] Recovery-pilot protocol and four-scenario cost preflight are fixed before paid observation.
+- [x] The first provider-backed recovery attempt is retained as negative evidence: 25/40 requests
+  completed before a 300-second treatment timeout; the run is `FAIL` and expansion is stopped.
+- [x] The dedicated one-day provider credential was revoked and its local Keychain copy removed
+  after the failed attempt; no secret is present in the evidence.
 - [ ] The four-scenario provider-backed recovery pilot restores 4/4 terminal task-proxy success.
 - [ ] At least five paired tasks per workload at 32K/128K complete.
 - [ ] Independent human or calibrated LLM reviews cover terminal responses.

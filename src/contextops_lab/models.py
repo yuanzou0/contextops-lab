@@ -37,7 +37,7 @@ class RequestEvent:
     tests_passed: bool | None
     manual_intervention: bool
     estimated_total_cost: float
-    schema_version: int = 6
+    schema_version: int = 7
     failure_reason: str | None = None
     upstream_error: str | None = None
     silent_failure: bool = False
@@ -56,6 +56,11 @@ class RequestEvent:
     outcome_measure: str = "task_proxy_success"
     required_signals_total: int = 0
     required_signals_recalled: int = 0
+    validation_latency_ms: float = 0.0
+    upstream_latency_ms: float = 0.0
+    proxy_overhead_latency_ms: float = 0.0
+    compression_eligibility_bypasses: int = 0
+    compression_deadline_fallbacks: int = 0
 
     def __post_init__(self) -> None:
         non_negative = {
@@ -77,6 +82,11 @@ class RequestEvent:
             "context_tokens": self.context_tokens,
             "required_signals_total": self.required_signals_total,
             "required_signals_recalled": self.required_signals_recalled,
+            "validation_latency_ms": self.validation_latency_ms,
+            "upstream_latency_ms": self.upstream_latency_ms,
+            "proxy_overhead_latency_ms": self.proxy_overhead_latency_ms,
+            "compression_eligibility_bypasses": self.compression_eligibility_bypasses,
+            "compression_deadline_fallbacks": self.compression_deadline_fallbacks,
         }
         invalid = [name for name, value in non_negative.items() if value < 0]
         if invalid:

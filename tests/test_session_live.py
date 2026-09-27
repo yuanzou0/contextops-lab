@@ -63,6 +63,12 @@ class IncrementingSafetyGateway:
             cache_hits=0,
             compression_latency_ms=count * 5.0,
             fallback_reasons={},
+            validation_latency_ms=count * 1.0,
+            upstream_latency_ms=count * 2.0,
+            proxy_request_latency_ms=count * 10.0,
+            eligibility_bypasses=count,
+            deadline_fallbacks=0,
+            eligibility_reasons={"observed_latency_budget_exceeded": count},
         )
 
 
@@ -140,6 +146,12 @@ class SessionLiveTests(unittest.TestCase):
         self.assertTrue(all(event.validator_result == "pass" for event in outcome.events))
         self.assertTrue(all(event.fallback_reason is None for event in outcome.events))
         self.assertTrue(all(event.compression_latency_ms == 5.0 for event in outcome.events))
+        self.assertTrue(all(event.validation_latency_ms == 1.0 for event in outcome.events))
+        self.assertTrue(all(event.upstream_latency_ms == 2.0 for event in outcome.events))
+        self.assertTrue(all(event.proxy_overhead_latency_ms == 2.0 for event in outcome.events))
+        self.assertTrue(
+            all(event.compression_eligibility_bypasses == 1 for event in outcome.events)
+        )
         self.assertTrue(
             all(event.endpoint_role == "treatment_safe_proxy" for event in outcome.events)
         )

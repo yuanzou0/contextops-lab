@@ -35,8 +35,10 @@ Candidate branch: `codex/p0-durable-context-store`
 - [x] Architecture, one-minute demo, runbook, and changelog are present.
 - [x] Provider-backed recovery, semantic non-inferiority, and production claims remain explicitly
   unproven.
-- [ ] A bounded provider-backed recovery run is authorized and completed, if it is included in the
-  release claim.
+- [x] The failed 25/40-request provider-backed recovery attempt is retained as negative evidence;
+  its partial completion is not represented as a completed or successful pilot.
+- [ ] A successor bounded provider-backed recovery run completes all prespecified gates, if it is
+  included in a future release claim.
 
 ## External release actions
 

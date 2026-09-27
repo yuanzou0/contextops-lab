@@ -33,6 +33,8 @@ contextops-lab safe-proxy \
   --cache-contract query_aware \
   --tenant-id evaluation \
   --session-id recovery-001 \
+  --compression-deadline-ms 500 \
+  --maximum-uncached-tokens 3000 \
   --port 8080
 ```
 
@@ -43,6 +45,17 @@ safety counters plus the durable-store health contract for paired attribution. R
 production default and startup fails when Redis or its AES-256-GCM key is unavailable. Use
 `--storage-backend memory` only for an explicit local development run; see
 `durable-context-storage.md`.
+
+The compression controls are fail-safe, not a performance claim. A cache miss above the token
+limit bypasses local compression. The first admitted cold compression is bounded by the backend
+HTTP deadline; if it consumes that budget, later cold compressions are bypassed until proxy
+restart. All such requests forward exact original content once and do not trigger a provider
+retry. The safety endpoint exposes cumulative `compression_latency_ms`,
+`validation_latency_ms`, `upstream_latency_ms`, `proxy_request_latency_ms`,
+`eligibility_bypasses`, and `deadline_fallbacks`. Schema-v7 request events retain their per-request
+deltas plus derived proxy overhead. The 3,000-token default limits an admitted cold item to one
+PariTok local-model chunk. Raising it makes the backend deadline apply once per chunk and therefore
+does not preserve a 500 ms total-compression bound.
 
 PariTok may pass content through when its compression backend is unavailable. ContextOps Lab checks
 the Ollama model listing before a paid run and fails closed instead of accepting that silent no-op.
@@ -144,6 +157,13 @@ contextops-lab live-session-run \
   --max-estimated-input-cost-usd <AUTHORIZED_CEILING> \
   --confirm-live-costs
 ```
+
+The first execution of this fixed pilot stopped after 25/40 completed requests on a 300-second
+treatment timeout and is recorded as `FAIL` in `phase-3-recovery-failed-run.md`. Do not resume from
+the partial file, discard the failed attempt, raise the timeout to obtain a preferred result, or
+reuse its authorization. A successor run must identify a versioned engineering intervention, pass
+provider-free regression and latency preflight, write to new evidence paths, and receive a fresh
+request/cost authorization.
 
 ## 5. Terra formal experiment and decision artifacts
 

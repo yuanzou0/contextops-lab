@@ -130,6 +130,13 @@ This scope is more relevant to the target roles than retraining a 4B model and i
   pilot subsequently failed the terminal task proxy in 4/4 treatment workloads, so expansion is
   stopped. Query-sensitive cache reuse is now isolated and reproduced provider-free, while an
   actual local PariTok 4B recovery regression passes the transformed-context signal gates. The
-  external-proxy cache/fallback boundary is implemented and observable. Provider-backed
-  terminal-task recovery, independent review, and latency eligibility remain prerequisites for
-  Wave B. See `phase-3-acceptance.md` and `query-sensitive-cache-decision.md`.
+  external-proxy cache/fallback boundary is implemented and observable. The first provider-backed
+  recovery pilot completed 25/40 requests and then stopped on a 300-second treatment timeout; it is
+  recorded as `FAIL`, with expansion and automatic reruns stopped. Provider-backed terminal-task
+  recovery, independent review, and latency eligibility therefore remain prerequisites for Wave B.
+  A provider-free Phase 3.1 intervention now splits latency attribution, bypasses ineligible cold
+  compression, and enforces exact-original deadline fallback; this is a safety contract, not yet
+  evidence that compression meets the latency budget. Its real local Ollama/Redis drill passes all
+  12 control gates with zero provider calls; provider-backed recovery remains blocked.
+  See `phase-3-acceptance.md`, `phase-3-recovery-failed-run.md`, and
+  `query-sensitive-cache-decision.md`.

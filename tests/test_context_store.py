@@ -212,8 +212,20 @@ class DurableContextStoreTests(unittest.TestCase):
     def test_safe_proxy_defaults_to_fail_closed_redis_configuration(self):
         args = build_parser().parse_args(["safe-proxy"])
         self.assertEqual(args.storage_backend, "redis")
+        self.assertEqual(args.compression_deadline_ms, 500.0)
+        self.assertEqual(args.maximum_uncached_tokens, 3_000)
         with patch.dict(os.environ, {}, clear=True), patch("sys.stderr", new=StringIO()):
             self.assertEqual(run_safe_proxy_command(args), 2)
+
+    def test_safe_proxy_rejects_invalid_compression_controls(self):
+        args = build_parser().parse_args(
+            ["safe-proxy", "--storage-backend", "memory", "--compression-deadline-ms", "0"]
+        )
+        self.assertEqual(run_safe_proxy_command(args), 2)
+        args = build_parser().parse_args(
+            ["safe-proxy", "--storage-backend", "memory", "--maximum-uncached-tokens", "0"]
+        )
+        self.assertEqual(run_safe_proxy_command(args), 2)
 
     def test_memory_storage_requires_explicit_cli_override(self):
         args = build_parser().parse_args(["safe-proxy", "--storage-backend", "memory"])

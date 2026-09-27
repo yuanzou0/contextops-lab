@@ -1,0 +1,132 @@
+{
+  "authorization": {
+    "currency": "USD",
+    "maximum_provider_cost": 1.25,
+    "provider_requests_planned": 40
+  },
+  "completed_events": {
+    "baseline": 15,
+    "provider_input_tokens": 415650,
+    "provider_output_tokens": 330,
+    "successful_requests": 25,
+    "treatment": 10
+  },
+  "cost": {
+    "completed_event_estimate_usd": 0.41763,
+    "exact_total_known": false,
+    "note": "The timed-out treatment request may have incurred provider usage that is not present in the atomic partial event file. Provider billing records are authoritative."
+  },
+  "credential_lifecycle": {
+    "created_for_run": true,
+    "keychain_copy_removed": true,
+    "platform_status": "revoked",
+    "revoked_at": "2026-09-22T23:22:04Z",
+    "secret_recorded": false,
+    "tracking_id": "key_1SlPMz9wftmenjMi"
+  },
+  "evidence_label": "live_recovery_pilot_failed_timeout",
+  "failure": {
+    "arm": "compressed",
+    "error": "TimeoutError",
+    "failed_task_id": "mcp-heavy-32k-5t",
+    "failed_turn_inferred": 1,
+    "inference_basis": "The partial file contains all five mcp-heavy baseline turns and no mcp-heavy treatment event; execution order is baseline then compressed.",
+    "request_timeout_seconds": 300.0,
+    "retries": 0,
+    "stop_rule_applied": true
+  },
+  "gates": [
+    {
+      "gate": "treatment_terminal_required_signal_task_proxy",
+      "observed": "2/4",
+      "passed": false,
+      "reason": "pilot incomplete"
+    },
+    {
+      "gate": "treatment_intermediate_acknowledgement_protocol",
+      "observed": "8/16",
+      "passed": false,
+      "reason": "pilot incomplete"
+    },
+    {
+      "gate": "baseline_terminal_task_proxy",
+      "observed": "3/4",
+      "passed": false,
+      "reason": "pilot incomplete"
+    },
+    {
+      "gate": "proxy_request_attribution",
+      "observed": "10/10 completed treatment events attributed exactly once",
+      "passed": false,
+      "reason": "the timed-out request could not complete its after-snapshot attribution"
+    },
+    {
+      "gate": "safety_telemetry_no_silent_rejection",
+      "observed": "5 fallbacks / 5 exact-original fallbacks",
+      "passed": true
+    },
+    {
+      "gate": "declared_and_observed_cache_contract",
+      "observed": "query_aware",
+      "passed": true
+    }
+  ],
+  "latency": {
+    "baseline_max_ms": 3071.3857500231825,
+    "baseline_median_ms": 1335.0111670442857,
+    "rollout_budget_ms": 500,
+    "rollout_latency_gate_passed": false,
+    "treatment_max_completed_ms": 220420.36512499908,
+    "treatment_median_completed_ms": 61086.81993748178
+  },
+  "partial_evidence": {
+    "first_recorded_at": "2026-09-22T22:03:41.512316+00:00",
+    "last_recorded_at": "2026-09-22T22:21:26.357542+00:00",
+    "path": "artifacts/phase-3-recovery-events.jsonl.partial",
+    "sha256": "208de1cb32c2b843d03e07b7c7955e5103c675c17fc2d1c5d24a7ea4b045f4d0"
+  },
+  "privacy": {
+    "raw_prompts_recorded": false,
+    "real_user_data_used": false,
+    "secrets_recorded": false
+  },
+  "proxy_safety_snapshot": {
+    "cache_hits": 0,
+    "cache_contract": "query_aware",
+    "context_store": "redis",
+    "exact_original_fallbacks": 5,
+    "fallbacks": 5,
+    "raw_content_recorded": false,
+    "status": "ok",
+    "total_compressions": 45,
+    "validator_contract": "exact_original_on_rejection"
+  },
+  "remediation": {
+    "automatic_rerun_allowed": false,
+    "change_control": "successor intervention must be versioned and cannot alter this result",
+    "immediate_blocker": "synchronous local compression latency with zero observed cache hits",
+    "provider_free_candidates": [
+      "reuse stable history only when the query-compatible cache contract permits it",
+      "deadline-bound compression with explicit exact-original timeout fallback",
+      "latency-aware compression eligibility",
+      "faster local backend or execution profile",
+      "split compression, proxy, and upstream timing attribution"
+    ],
+    "provider_free_implementation_2026_09_26": [
+      "split compression, validation, upstream, and proxy-overhead timing",
+      "cold-compression eligibility gate with cache-hit preservation",
+      "backend-level deadline with exact-original fallback and no provider retry"
+    ],
+    "provider_free_local_drill_2026_09_26": {
+      "gates_passed": 12,
+      "gates_total": 12,
+      "provider_calls": 0,
+      "status": "PASS"
+    },
+    "successor_requires_fresh_cost_authorization": true
+  },
+  "rollout_decision": "STOPPED",
+  "schema_version": 1,
+  "status": "FAIL",
+  "upstream_main": "10953d76c1fd97d681a4d4e94328eecc9656fbf2"
+}
